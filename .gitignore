@@ -1,0 +1,26 @@
+# Python compilation caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local virtual environment
+.venv/
+venv/
+env/
+
+# IDE configurations
+.vscode/
+.idea/
+
+# Local databases and vector stores
+*.db
+portfolio_intelligence.db
+qdrant_local_db/
+
+# Upload and storage cache directories
+uploads/
+local_storage/
+
+# Local secrets env file
+.env

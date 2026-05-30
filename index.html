@@ -1,0 +1,2401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Intelligence Agent | AI-Powered UX, UI & Technical Portfolio Evaluation</title>
+    <!-- Meta Descriptions for SEO Compliance -->
+    <meta name="description" content="Evaluate visual quality, UX thinking, technical depth, and career readiness of student and candidate portfolios against real-world industry benchmarks in seconds using our AI-powered intelligence agent.">
+    <meta name="keywords" content="portfolio intelligence, portfolio review, UX designer portfolio, tech depth, creative agency benchmarks, recruiter screening, UI quality, career coach">
+    <meta name="robots" content="index, follow">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* CSS Reset & Variables */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-deep: #080b14;
+            --bg-card: #111827;
+            --bg-card-hover: #1f2937;
+            --border-color: rgba(255, 255, 255, 0.08);
+            
+            --primary: #6366f1; /* Electric Indigo */
+            --primary-glow: rgba(99, 102, 241, 0.15);
+            --cyan: #22d3ee;
+            --cyan-glow: rgba(34, 211, 238, 0.15);
+            --emerald: #10b981;
+            --emerald-glow: rgba(16, 185, 129, 0.15);
+            --amber: #f59e0b;
+            --amber-glow: rgba(245, 158, 11, 0.15);
+            --rose: #f43f5e;
+            --rose-glow: rgba(244, 63, 94, 0.15);
+            
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dark: #64748b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(34, 211, 238, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+        
+        h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #ffffff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            display: inline-block;
+        }
+
+        /* Views management */
+        .view-section {
+            display: none;
+            width: 100%;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .view-section.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Top Navbar */
+        header {
+            border-bottom: 1px solid var(--border-color);
+            background-color: rgba(11, 15, 26, 0.8);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary), var(--cyan));
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #ffffff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn-outline {
+            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--text-muted);
+        }
+
+        /* Glassmorphism Card Style */
+        .glass-card {
+            background: rgba(17, 24, 39, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            backdrop-filter: blur(8px);
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+
+        /* Tabs UI for Sources */
+        .tabs-header {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.25rem;
+            gap: 0.5rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            color: var(--cyan);
+            border-bottom-color: var(--cyan);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* VIEW 1: UPLOAD & CONFIGURATION */
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 968px) {
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .drop-zone {
+            border: 2px dashed rgba(99, 102, 241, 0.3);
+            background: rgba(17, 24, 39, 0.4);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--cyan);
+            background: rgba(34, 211, 238, 0.04);
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.1);
+        }
+
+        .drop-zone i {
+            font-size: 3rem;
+            background: linear-gradient(135deg, var(--primary), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-select, .form-input {
+            background-color: rgba(11, 15, 26, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            outline: none;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+
+        .form-select:focus, .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+        }
+
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            background: rgba(11, 15, 26, 0.4);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .slider-label {
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .slider-weight {
+            font-weight: 600;
+            color: var(--cyan);
+            font-family: 'Fira Code', monospace;
+        }
+
+        .custom-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #1f2937;
+            outline: none;
+        }
+
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(99, 102, 241, 0.8);
+            transition: transform 0.1s;
+        }
+
+        .custom-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .btn-pulse {
+            background: linear-gradient(135deg, var(--primary), var(--cyan));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .btn-pulse:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(34, 211, 238, 0.5);
+        }
+
+        .btn-pulse:disabled {
+            background: #1e293b;
+            color: var(--text-dark);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* VIEW 2: PIPELINE LOADER */
+        .pipeline-container {
+            max-width: 700px;
+            margin: 3rem auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .pipeline-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .pipeline-step {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.25rem;
+            border-radius: 10px;
+            background: rgba(17, 24, 39, 0.4);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .pipeline-step.active {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.1);
+        }
+
+        .pipeline-step.completed {
+            border-color: var(--emerald);
+            background: rgba(16, 185, 129, 0.03);
+        }
+
+        .step-icon-box {
+            width: 2.75rem;
+            height: 2.75rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            position: relative;
+        }
+
+        .pipeline-step.active .step-icon-box {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 0 15px var(--primary);
+            animation: pulse-glow 1.5s infinite alternate;
+        }
+
+        .pipeline-step.completed .step-icon-box {
+            background-color: var(--emerald);
+            color: white;
+        }
+
+        @keyframes pulse-glow {
+            from { box-shadow: 0 0 5px rgba(99, 102, 241, 0.5); }
+            to { box-shadow: 0 0 20px rgba(99, 102, 241, 0.8); }
+        }
+
+        .step-details {
+            flex-grow: 1;
+        }
+
+        .step-title {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .step-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .step-status {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .pipeline-step.active .step-status { color: var(--cyan); }
+        .pipeline-step.completed .step-status { color: var(--emerald); }
+        .pipeline-step.pending .step-status { color: var(--text-dark); }
+
+        /* Terminal Console */
+        .console-box {
+            background-color: #05070c;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            color: #38bdf8;
+            height: 180px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+        }
+
+        .console-line {
+            line-height: 1.4;
+        }
+        .console-line.success { color: var(--emerald); }
+        .console-line.warn { color: var(--amber); }
+        .console-line.system { color: var(--text-dark); }
+
+        /* VIEW 3: FULL REPORT DASHBOARD */
+        .dashboard-header {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .header-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .cand-badge {
+            background-color: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #a5b4fc;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-family: 'Fira Code', monospace;
+            width: fit-content;
+        }
+
+        .headline-pills {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .headline-pill {
+            background-color: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        .headline-pill strong {
+            color: var(--text-main);
+        }
+
+        .score-circle-container {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            background: rgba(255,255,255,0.02);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .score-svg-box {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .score-svg-box svg {
+            width: 80px;
+            height: 80px;
+            transform: rotate(-90deg);
+        }
+
+        .score-circle-bg {
+            fill: none;
+            stroke: #1f2937;
+            stroke-width: 8;
+        }
+
+        .score-circle-val {
+            fill: none;
+            stroke: url(#scoreGrad);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 226;
+            stroke-dashoffset: 226;
+            transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .score-text-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .score-label-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .score-label-box .score-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .score-label-box .score-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Recruiter Verdict Alert Callout */
+        .verdict-callout {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.25rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            border-left: 5px solid var(--primary);
+            background: linear-gradient(to right, rgba(99, 102, 241, 0.08), transparent);
+        }
+
+        .verdict-callout.must_interview {
+            border-color: var(--emerald);
+            background: linear-gradient(to right, rgba(16, 185, 129, 0.08), transparent);
+        }
+        .verdict-callout.recommend {
+            border-color: var(--cyan);
+            background: linear-gradient(to right, rgba(34, 211, 238, 0.08), transparent);
+        }
+        .verdict-callout.consider {
+            border-color: var(--amber);
+            background: linear-gradient(to right, rgba(245, 158, 11, 0.08), transparent);
+        }
+
+        .verdict-icon {
+            font-size: 1.75rem;
+        }
+        .verdict-callout.must_interview .verdict-icon { color: var(--emerald); }
+        .verdict-callout.recommend .verdict-icon { color: var(--cyan); }
+        .verdict-callout.consider .verdict-icon { color: var(--amber); }
+
+        .verdict-text {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .verdict-badge {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .must_interview .verdict-badge { background-color: var(--emerald-glow); color: var(--emerald); border: 1px solid rgba(16,185,129,0.3); }
+        .recommend .verdict-badge { background-color: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(34,211,238,0.3); }
+        .consider .verdict-badge { background-color: var(--amber-glow); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+
+        /* Main Dashboard Grid */
+        .dash-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .dash-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .dash-main {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+
+        /* 8 Intelligence Modules Grid */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .module-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .module-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .module-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .module-title-box {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .module-title-box i {
+            color: var(--cyan);
+            font-size: 1rem;
+        }
+
+        .module-card-header h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .module-score-badge {
+            background-color: rgba(255,255,255,0.04);
+            border: 1px solid var(--border-color);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .module-progress-bg {
+            background: #1f2937;
+            height: 4px;
+            border-radius: 2px;
+            width: 100%;
+        }
+
+        .module-progress-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: linear-gradient(to right, var(--primary), var(--cyan));
+            width: 0%;
+            transition: width 1s ease-out;
+        }
+
+        .module-evidence {
+            font-size: 0.8rem;
+            color: var(--text-main);
+            background: rgba(255,255,255,0.02);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            border-left: 3px solid var(--cyan);
+            line-height: 1.4;
+        }
+
+        .module-comment {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Two Column layout for details */
+        .dashboard-row-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-row-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Strengths & Weaknesses */
+        .list-card {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .list-card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .list-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .list-item-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .list-item-title i {
+            margin-top: 0.15rem;
+        }
+
+        .list-item-content {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-left: 1.25rem;
+            line-height: 1.4;
+        }
+
+        /* Skills Matrix */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 640px) {
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .skills-col {
+            background-color: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .skills-col-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .skills-col-title span {
+            background-color: rgba(255,255,255,0.05);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .skill-tag {
+            background-color: rgba(99, 102, 241, 0.06);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            color: #c7d2fe;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .skill-tag.dev_tool {
+            background-color: rgba(34, 211, 238, 0.06);
+            border-color: rgba(34, 211, 238, 0.2);
+            color: #a5f3fc;
+        }
+
+        .skill-tag.methodology {
+            background-color: rgba(16, 185, 129, 0.06);
+            border-color: rgba(16, 185, 129, 0.2);
+            color: #a7f3d0;
+        }
+
+        /* Sidebar info & custom weight live editor */
+        .dash-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .readiness-gauge {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            padding: 0.75rem;
+            border: 1px solid rgba(255,255,255,0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .readiness-bar-bg {
+            background-color: #1f2937;
+            height: 8px;
+            border-radius: 4px;
+            width: 100%;
+        }
+
+        .readiness-bar-fill {
+            background: linear-gradient(to right, var(--amber), var(--emerald));
+            height: 100%;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 1s ease-out;
+        }
+
+        /* Hidden Talent Notification */
+        .hidden-talent-alert {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(99, 102, 241, 0.15));
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .hidden-talent-alert i {
+            color: var(--amber);
+            font-size: 1.5rem;
+        }
+
+        .hidden-talent-content h5 {
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        .hidden-talent-content p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Live weights panel inside sidebar */
+        .live-weights-panel {
+            background-color: rgba(11, 15, 26, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+
+        /* Coach recommendation suggestions list */
+        .suggestions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .suggestion-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .suggestion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .priority-badge {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .priority-badge.critical { background-color: var(--rose-glow); color: var(--rose); border: 1px solid rgba(244,63,94,0.3); }
+        .priority-badge.high { background-color: var(--amber-glow); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+        .priority-badge.medium { background-color: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(34,211,238,0.3); }
+        .priority-badge.low { background-color: rgba(255,255,255,0.06); color: var(--text-muted); }
+
+        .suggestion-area {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .suggestion-problem {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .suggestion-fix {
+            font-size: 0.8rem;
+            color: #c7d2fe;
+            background-color: rgba(99, 102, 241, 0.04);
+            border-left: 2.5px solid var(--primary);
+            padding: 0.4rem 0.6rem;
+            border-radius: 0 4px 4px 0;
+            line-height: 1.4;
+        }
+
+        .suggestion-example {
+            font-size: 0.75rem;
+            color: var(--text-dark);
+            font-style: italic;
+        }
+
+        /* Print Media Layout Formatting */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            header, #view-upload, #view-pipeline, .live-weights-panel, .btn-outline, #btn-back-upload, #simulator-badge {
+                display: none !important;
+            }
+            .view-section {
+                display: block !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+            }
+            .dash-layout {
+                grid-template-columns: 1fr !important;
+            }
+            .glass-card {
+                background: transparent !important;
+                border: 1px solid #ddd !important;
+                color: black !important;
+                backdrop-filter: none !important;
+                box-shadow: none !important;
+                page-break-inside: avoid;
+            }
+            .module-score-badge {
+                background: #eee !important;
+                color: black !important;
+                border-color: #ccc !important;
+            }
+            .skill-tag {
+                background: #f3f4f6 !important;
+                color: black !important;
+                border-color: #ccc !important;
+            }
+            polygon {
+                fill: rgba(99, 102, 241, 0.15) !important;
+                stroke: #0284c7 !important;
+            }
+            circle {
+                stroke: #e5e7eb !important;
+            }
+            .score-circle-bg {
+                stroke: #e5e7eb !important;
+            }
+            .score-circle-val {
+                stroke: #0284c7 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <div class="nav-container">
+            <a href="#" class="logo-group" id="btn-logo-home">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-brain"></i>
+                </div>
+                <h1 class="logo-text">Portfolio Intelligence Agent</h1>
+            </a>
+            <div class="nav-actions">
+                <span id="simulator-badge" style="display: none; background-color: var(--amber-glow); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-family: 'Fira Code', monospace;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Browser Simulator Mode
+                </span>
+                <button class="btn-outline" id="btn-back-upload" style="display: none;" onclick="resetToUpload()">
+                    <i class="fa-solid fa-arrow-left"></i> Analyze New
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- VIEW 1: UPLOAD & CONFIGURATION -->
+    <section class="view-section active" id="view-upload">
+        <div style="text-align: center; max-width: 650px; margin: 0 auto 2rem;">
+            <h2 style="font-size: 2.25rem; margin-bottom: 0.5rem; background: linear-gradient(to right, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Evaluate Design & Dev Portfolios</h2>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.5;">Evaluate visual quality, UX thinking, technical depth, and career readiness against real-world industry benchmarks in seconds.</p>
+        </div>
+
+        <div class="config-grid">
+            <!-- Left Upload/Tabs Area -->
+            <div class="upload-section">
+                <div class="glass-card" style="display: flex; flex-direction: column;">
+                    <h3 style="font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <i class="fa-solid fa-folder-open" style="color: var(--rose);"></i> 1. Choose Portfolio Source
+                    </h3>
+                    
+                    <!-- Tabs Selection -->
+                    <div class="tabs-header">
+                        <button class="tab-btn active" id="tab-btn-pdf" onclick="switchSourceTab('tab-pdf')">
+                            <i class="fa-solid fa-file-pdf"></i> PDF Upload
+                        </button>
+                        <button class="tab-btn" id="tab-btn-behance" onclick="switchSourceTab('tab-behance')">
+                            <i class="fa-brands fa-behance"></i> Behance
+                        </button>
+                        <button class="tab-btn" id="tab-btn-figma" onclick="switchSourceTab('tab-figma')">
+                            <i class="fa-brands fa-figma"></i> Figma File
+                        </button>
+                        <button class="tab-btn" id="tab-btn-web" onclick="switchSourceTab('tab-web')">
+                            <i class="fa-solid fa-globe"></i> Website URL
+                        </button>
+                    </div>
+
+                    <!-- PDF Content tab -->
+                    <div class="tab-content active" id="tab-pdf">
+                        <div class="drop-zone" id="drop-zone">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <div>
+                                <p style="font-weight: 600; margin-bottom: 0.25rem;">Drag & drop your PDF portfolio here</p>
+                                <p style="font-size: 0.85rem; color: var(--text-muted);">or click to browse your local filesystem</p>
+                            </div>
+                            <input type="file" id="portfolio-file" class="file-input" accept=".pdf">
+                        </div>
+                    </div>
+
+                    <!-- Behance Content tab -->
+                    <div class="tab-content" id="tab-behance">
+                        <div class="form-group" style="padding: 1rem 0;">
+                            <label>Behance Portfolio URL</label>
+                            <input type="url" id="behance-url" class="form-input" placeholder="https://www.behance.net/gallery/12345/project-name" oninput="validateUrlInput(this.value)">
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">The engine will extract headers, text overlays, and media assets using Beautiful Soup.</p>
+                        </div>
+                    </div>
+
+                    <!-- Figma Content tab -->
+                    <div class="tab-content" id="tab-figma">
+                        <div class="form-group" style="padding: 1rem 0;">
+                            <label>Figma File Link</label>
+                            <input type="url" id="figma-url" class="form-input" placeholder="https://www.figma.com/file/ABC123xyz.../project-name" oninput="validateUrlInput(this.value)">
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Connecting via Figma REST API to analyze document nodes, text layers, and styles.</p>
+                        </div>
+                    </div>
+
+                    <!-- Website URL tab -->
+                    <div class="tab-content" id="tab-web">
+                        <div class="form-group" style="padding: 1rem 0;">
+                            <label>Portfolio Website URL</label>
+                            <input type="url" id="web-url" class="form-input" placeholder="https://myportfolio.com" oninput="validateUrlInput(this.value)">
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Processes HTML content and tags to review copy layouts and responsive frame parameters.</p>
+                        </div>
+                    </div>
+
+                    <!-- Selected Target details Banner -->
+                    <div id="selected-file-banner" style="display: none; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.9rem; align-items: center; justify-content: space-between; margin-top: 1rem;">
+                        <span id="selected-file-name" style="font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%;"></span>
+                        <button class="btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="clearSelectedSource()"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+
+                <div class="glass-card" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <h3 style="font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-sliders" style="color: var(--primary);"></i> 2. Target Profile Specifications
+                    </h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Target Role</label>
+                            <select class="form-select" id="role-target">
+                                <option value="UX Designer">UX Designer</option>
+                                <option value="Product Designer">Product Designer</option>
+                                <option value="Frontend Developer">Frontend Developer</option>
+                                <option value="Full-Stack Developer">Full-Stack Developer</option>
+                                <option value="Creative Director">Creative Director</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Seniority Target</label>
+                            <select class="form-select" id="seniority">
+                                <option value="Junior">Junior (0-2 YOE)</option>
+                                <option value="Mid" selected>Mid (2-5 YOE)</option>
+                                <option value="Senior">Senior (5+ YOE)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Weight Config -->
+            <div class="glass-card" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <h3 style="font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-scale-balanced" style="color: var(--cyan);"></i> 3. Recruiter Scoring Model
+                </h3>
+                
+                <div class="form-group">
+                    <label>Weight Presets</label>
+                    <select class="form-select" id="weight-preset" onchange="applyWeightPreset(this.value)">
+                        <option value="startup">🚀 Startup (Innovation & Tech Depth)</option>
+                        <option value="corporate">🏢 Corporate (Consistency & Benchmarks)</option>
+                        <option value="agency" selected>🎨 Creative Agency (UI Quality & Innovation)</option>
+                        <option value="product">📦 Product Org (UX Thinking & Depth)</option>
+                        <option value="custom">⚙️ Custom Manual Weights</option>
+                    </select>
+                </div>
+
+                <div class="profile-container" id="sliders-container">
+                    <!-- Sliders populated dynamically -->
+                </div>
+
+                <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 0.5rem;">
+                    <button class="btn-pulse" id="btn-submit" disabled onclick="startAnalysis()">
+                        <i class="fa-solid fa-magnifying-glass-chart"></i> Run Portfolio Intelligence
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VIEW 2: PIPELINE LOADER -->
+    <section class="view-section" id="view-pipeline">
+        <div style="text-align: center; max-width: 500px; margin: 0 auto 2rem;">
+            <h2 style="font-size: 1.75rem; margin-bottom: 0.5rem;">Running Portfolio Intelligence Pipeline</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Extracting context and executing parallel evaluation modules.</p>
+        </div>
+
+        <div class="pipeline-container">
+            <div class="pipeline-flow">
+                <div class="pipeline-step pending" id="step-upload">
+                    <div class="step-icon-box"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                    <div class="step-details">
+                        <div class="step-title">1. Document Ingestion / API Scrape</div>
+                        <div class="step-desc" id="step-upload-desc">Uploading PDF files or fetching API nodes from source.</div>
+                    </div>
+                    <div class="step-status">Pending</div>
+                </div>
+
+                <div class="pipeline-step pending" id="step-extract">
+                    <div class="step-icon-box"><i class="fa-solid fa-file-contract"></i></div>
+                    <div class="step-details">
+                        <div class="step-title">2. Extract & Parse Layout Text</div>
+                        <div class="step-desc">Parsing PDF structures or BeautifulSoup page structures.</div>
+                    </div>
+                    <div class="step-status">Pending</div>
+                </div>
+
+                <div class="pipeline-step pending" id="step-understand">
+                    <div class="step-icon-box"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                    <div class="step-details">
+                        <div class="step-title">3. AI Portfolio Contextualization</div>
+                        <div class="step-desc">Generating vector embeddings and indexing collections.</div>
+                    </div>
+                    <div class="step-status">Pending</div>
+                </div>
+
+                <div class="pipeline-step pending" id="step-modules">
+                    <div class="step-icon-box"><i class="fa-solid fa-cubes"></i></div>
+                    <div class="step-details">
+                        <div class="step-title">4. Core Intelligence Modules (Parallel)</div>
+                        <div class="step-desc">Evaluating 8 modules including benchmarking, tech depth, and coach.</div>
+                    </div>
+                    <div class="step-status">Pending</div>
+                </div>
+
+                <div class="pipeline-step pending" id="step-finalize">
+                    <div class="step-icon-box"><i class="fa-solid fa-flag-checkered"></i></div>
+                    <div class="step-details">
+                        <div class="step-title">5. Synthesize Intelligence Report</div>
+                        <div class="step-desc">Uploading results to S3, syncing Qdrant, and generating dashboard.</div>
+                    </div>
+                    <div class="step-status">Pending</div>
+                </div>
+            </div>
+
+            <!-- Terminal Logging console -->
+            <div class="form-group">
+                <label style="font-size: 0.8rem; font-family: 'Space Grotesk', sans-serif;">System Logs Stream</label>
+                <div class="console-box" id="console-stream">
+                    <div class="console-line system">[SYSTEM] Initializing analyzer thread...</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VIEW 3: FULL REPORT DASHBOARD -->
+    <section class="view-section" id="view-dashboard">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <div class="header-meta">
+                <span class="cand-badge" id="dash-candidate-id">CANDIDATE: CAN-000000</span>
+                <h2 style="font-size: 2rem;" id="dash-role-target">UX/UI Design Portfolio Review</h2>
+                <div class="headline-pills">
+                    <div class="headline-pill"><i class="fa-solid fa-briefcase"></i> Role Target: <strong id="dash-meta-role">UX Designer</strong></div>
+                    <div class="headline-pill"><i class="fa-solid fa-graduation-cap"></i> Seniority: <strong id="dash-meta-seniority">Mid</strong></div>
+                    <div class="headline-pill"><i class="fa-solid fa-calendar-day"></i> Generated: <strong id="dash-meta-date">2026-05-29</strong></div>
+                </div>
+            </div>
+            
+            <div class="score-circle-container">
+                <div class="score-svg-box">
+                    <svg>
+                        <defs>
+                            <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#6366f1" />
+                                <stop offset="100%" stop-color="#22d3ee" />
+                            </linearGradient>
+                        </defs>
+                        <circle class="score-circle-bg" cx="40" cy="40" r="36" />
+                        <circle class="score-circle-val" id="dash-score-ring" cx="40" cy="40" r="36" />
+                    </svg>
+                    <div class="score-text-inner" id="dash-score-text">0</div>
+                </div>
+                <div class="score-label-box">
+                    <span class="score-title">Weighted Final Score</span>
+                    <span class="score-desc" id="dash-score-rating">Intermediate Portfolio</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recruiter Verdict -->
+        <div class="verdict-callout" id="dash-verdict-banner">
+            <div class="verdict-icon"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="verdict-text">
+                <h4 style="margin-bottom: 0.25rem;">Recruiter Recommendation</h4>
+                <p id="dash-verdict-reason">Strong match. Proceed with full portfolio interview loops immediately.</p>
+            </div>
+            <div class="verdict-badge" id="dash-verdict-badge">MUST INTERVIEW</div>
+        </div>
+
+        <!-- Hidden Talent Callout -->
+        <div class="hidden-talent-alert" id="dash-hidden-talent-box" style="display: none; margin-bottom: 2rem;">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <div class="hidden-talent-content">
+                <h5>Hidden Talent Pattern Detected</h5>
+                <p id="dash-hidden-talent-note">The presentation displays deep domain methodologies which might be initially overlooked by raw visual reviews.</p>
+            </div>
+        </div>
+
+        <!-- Dashboard Body Layout -->
+        <div class="dash-layout">
+            <!-- Left Main Panels -->
+            <div class="dash-main">
+                
+                <!-- 8 Intelligence Modules Section -->
+                <div>
+                    <h3 class="sidebar-section-title" style="margin-bottom: 1rem;"><i class="fa-solid fa-circle-nodes"></i> Core Evaluation Modules (Weights Applied)</h3>
+                    <div class="modules-grid" id="modules-list-container">
+                        <!-- Module cards populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Skills Analysis Matrix -->
+                <div class="glass-card">
+                    <h3 class="list-card-title" style="border: none; padding: 0;"><i class="fa-solid fa-list-check" style="color: var(--emerald);"></i> Technology & Methodology Stack</h3>
+                    <div class="skills-grid">
+                        <div class="skills-col">
+                            <div class="skills-col-title">Advanced <span></span></div>
+                            <div class="skill-tags" id="skills-advanced-box"></div>
+                        </div>
+                        <div class="skills-col">
+                            <div class="skills-col-title">Intermediate <span></span></div>
+                            <div class="skill-tags" id="skills-intermediate-box"></div>
+                        </div>
+                        <div class="skills-col">
+                            <div class="skills-col-title">Beginner / Exposure <span></span></div>
+                            <div class="skill-tags" id="skills-beginner-box"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.25rem; display: flex; gap: 0.5rem; align-items: center; font-size: 0.8rem; color: var(--rose);">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>Expected Skill Gaps for Target Role: <strong><span id="dash-skill-gaps"></span></strong></span>
+                    </div>
+                </div>
+
+                <!-- Strengths vs Weaknesses -->
+                <div class="dashboard-row-2col">
+                    <div class="glass-card list-card">
+                        <h3 class="list-card-title"><i class="fa-solid fa-thumbs-up" style="color: var(--emerald);"></i> Portfolio Strengths</h3>
+                        <div id="dash-strengths-box" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+                    </div>
+                    <div class="glass-card list-card">
+                        <h3 class="list-card-title"><i class="fa-solid fa-triangle-exclamation" style="color: var(--rose);"></i> Core Weaknesses</h3>
+                        <div id="dash-weaknesses-box" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+                    </div>
+                </div>
+
+                <!-- Coach suggestions -->
+                <div class="glass-card" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <h3 class="list-card-title" style="border: none; padding: 0;"><i class="fa-solid fa-user-tie" style="color: var(--amber);"></i> Career Coach Review & Recommendations</h3>
+                    <div class="suggestions-list" id="dash-coach-suggestions"></div>
+                    <div style="background-color: rgba(245,158,11,0.03); border: 1px solid rgba(245,158,11,0.1); border-radius: 8px; padding: 1rem;">
+                        <h5 style="color: var(--amber); font-size: 0.9rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-bolt"></i> Prioritized Quick Wins (< 1 Day Effort)</h5>
+                        <ul id="dash-coach-quickwins" style="font-size: 0.8rem; color: var(--text-muted); padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                        </ul>
+                    </div>
+                    <div style="font-size: 0.85rem; font-style: italic; border-left: 3px solid var(--primary); padding-left: 0.75rem; color: var(--text-muted);" id="dash-coach-note"></div>
+                </div>
+
+            </div>
+
+            <!-- Right Sidebar Panels -->
+            <div class="dash-sidebar">
+                
+                <!-- General statistics -->
+                <div class="glass-card" style="display: flex; flex-direction: column; gap: 1rem; align-items: stretch;">
+                    <h4 class="sidebar-section-title">Visual Dimensions Radar</h4>
+                    
+                    <div style="display: flex; justify-content: center; align-items: center; padding: 0.5rem 0;">
+                        <svg id="radar-chart" width="220" height="220" style="overflow: visible; max-width: 100%;">
+                            <!-- Drawn dynamically in JS -->
+                        </svg>
+                    </div>
+
+                    <h4 class="sidebar-section-title" style="border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 0.5rem;">Headline Metrics</h4>
+                    
+                    <div class="readiness-gauge">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                            <span>Industry Readiness</span>
+                            <span id="dash-metric-readiness">80%</span>
+                        </div>
+                        <div class="readiness-bar-bg">
+                            <div class="readiness-bar-fill" id="dash-readiness-bar"></div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; border-top: 1px solid var(--border-color); padding-top: 0.75rem; margin-top: 0.25rem;">
+                        <span style="color: var(--text-muted);">Visual Polish</span>
+                        <strong id="dash-metric-visual">90/100</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                        <span style="color: var(--text-muted);">UX Maturity</span>
+                        <strong id="dash-metric-ux">85/100</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                        <span style="color: var(--text-muted);">Creativity Level</span>
+                        <strong id="dash-metric-creativity" style="text-transform: uppercase;">High</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                        <span style="color: var(--text-muted);">Technical Sophistication</span>
+                        <strong id="dash-metric-tech">Advanced</strong>
+                    </div>
+                </div>
+
+                <!-- Weight Sliders Live Editor -->
+                <div class="glass-card live-weights-panel">
+                    <h4 class="sidebar-section-title" style="margin-bottom: 0.25rem;">Adjust Score Weights</h4>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1.25rem;">Sliders automatically balance to maintain a sum of 100%.</p>
+                    <div class="profile-container" id="dash-sliders-container"></div>
+                </div>
+
+                <!-- Export Operations -->
+                <div class="glass-card" style="display: flex; flex-direction: column; gap: 0.75rem; padding: 1.25rem;">
+                    <h4 class="sidebar-section-title">Save & Export</h4>
+                    <button class="btn-outline" style="justify-content: center; width: 100%;" onclick="downloadJSONReport()">
+                        <i class="fa-solid fa-download"></i> Download JSON Report
+                    </button>
+                    <button class="btn-outline" style="justify-content: center; width: 100%;" onclick="window.print()">
+                        <i class="fa-solid fa-file-pdf"></i> Print Dashboard Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- JavaScript App Code -->
+    <script>
+        // Global variables
+        let selectedFile = null;
+        let selectedUrl = null;
+        let activeSourceType = 'pdf'; // pdf, behance, figma, web
+        let activeJobId = null;
+        let jobReportData = null; // Store full results object
+        let simulatorMode = false;
+        
+        // Modules weight configurations
+        const MODULE_KEYS = [
+            "deep_analysis",
+            "skill_extractor",
+            "innovation_score",
+            "benchmarking",
+            "hidden_talent",
+            "portfolio_coach",
+            "tech_depth",
+            "consistency"
+        ];
+
+        const MODULE_LABELS = {
+            deep_analysis: "Deep Analysis (UX/UI)",
+            skill_extractor: "Skill Extractor",
+            innovation_score: "Innovation & Originality",
+            benchmarking: "Industry Benchmarking",
+            hidden_talent: "Hidden Talent Signals",
+            portfolio_coach: "Improvement Coach",
+            tech_depth: "Technical Depth",
+            consistency: "Design Consistency"
+        };
+
+        const MODULE_ICONS = {
+            deep_analysis: "fa-solid fa-magnifying-glass",
+            skill_extractor: "fa-solid fa-list-check",
+            innovation_score: "fa-solid fa-lightbulb",
+            benchmarking: "fa-solid fa-chart-line",
+            hidden_talent: "fa-solid fa-wand-magic-sparkles",
+            portfolio_coach: "fa-solid fa-user-tie",
+            tech_depth: "fa-solid fa-code-fork",
+            consistency: "fa-solid fa-align-left"
+        };
+
+        const PRESET_WEIGHTS = {
+            startup: {
+                deep_analysis: 0.10,
+                skill_extractor: 0.15,
+                innovation_score: 0.20,
+                benchmarking: 0.05,
+                hidden_talent: 0.15,
+                portfolio_coach: 0.10,
+                tech_depth: 0.20,
+                consistency: 0.05
+            },
+            corporate: {
+                deep_analysis: 0.15,
+                skill_extractor: 0.10,
+                innovation_score: 0.05,
+                benchmarking: 0.20,
+                hidden_talent: 0.05,
+                portfolio_coach: 0.15,
+                tech_depth: 0.10,
+                consistency: 0.20
+            },
+            agency: {
+                deep_analysis: 0.20,
+                skill_extractor: 0.10,
+                innovation_score: 0.25,
+                benchmarking: 0.10,
+                hidden_talent: 0.10,
+                portfolio_coach: 0.10,
+                tech_depth: 0.05,
+                consistency: 0.10
+            },
+            product: {
+                deep_analysis: 0.20,
+                skill_extractor: 0.15,
+                innovation_score: 0.10,
+                benchmarking: 0.10,
+                hidden_talent: 0.10,
+                portfolio_coach: 0.15,
+                tech_depth: 0.10,
+                consistency: 0.10
+            }
+        };
+
+        // Initialize state weights matching 'agency' default
+        let weights = { ...PRESET_WEIGHTS.agency };
+
+        // DOM elements
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('portfolio-file');
+        const btnSubmit = document.getElementById('btn-submit');
+        const fileBanner = document.getElementById('selected-file-banner');
+        const fileNameText = document.getElementById('selected-file-name');
+        const slidersContainer = document.getElementById('sliders-container');
+        const dashSlidersContainer = document.getElementById('dash-sliders-container');
+
+        // Setup dropzone events
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleFileSelect(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        function switchSourceTab(tabId) {
+            // Update active button styling
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // Toggle active input tabs
+            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+
+            // Reset selection state
+            clearSelectedSource();
+
+            if (tabId === 'tab-pdf') {
+                activeSourceType = 'pdf';
+            } else if (tabId === 'tab-behance') {
+                activeSourceType = 'behance';
+            } else if (tabId === 'tab-figma') {
+                activeSourceType = 'figma';
+            } else if (tabId === 'tab-web') {
+                activeSourceType = 'web';
+            }
+        }
+
+        function validateUrlInput(val) {
+            const trimmed = val.trim();
+            if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+                selectedUrl = trimmed;
+                fileNameText.textContent = `Selected URL Target: ${trimmed}`;
+                fileBanner.style.display = "flex";
+                btnSubmit.disabled = false;
+            } else {
+                selectedUrl = null;
+                btnSubmit.disabled = true;
+            }
+        }
+
+        function handleFileSelect(file) {
+            if (file.type !== "application/pdf") {
+                alert("Only PDF files are supported for ingestion.");
+                return;
+            }
+            selectedFile = file;
+            fileNameText.textContent = `Selected Portfolio PDF: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+            fileBanner.style.display = "flex";
+            dropZone.style.display = "none";
+            btnSubmit.disabled = false;
+        }
+
+        function clearSelectedSource() {
+            selectedFile = null;
+            selectedUrl = null;
+            fileInput.value = "";
+            document.getElementById('behance-url').value = "";
+            document.getElementById('figma-url').value = "";
+            document.getElementById('web-url').value = "";
+            fileBanner.style.display = "none";
+            dropZone.style.display = "flex";
+            btnSubmit.disabled = true;
+        }
+
+        function clearSelectedFile() {
+            clearSelectedSource();
+        }
+
+        // Draw sliders to the page
+        function renderSliders(container, containerIdPrefix) {
+            container.innerHTML = "";
+            MODULE_KEYS.forEach(key => {
+                const val = Math.round(weights[key] * 100);
+                const item = document.createElement('div');
+                item.className = "slider-group";
+                item.innerHTML = `
+                    <div class="slider-header">
+                        <span class="slider-label">${MODULE_LABELS[key]}</span>
+                        <span class="slider-weight" id="${containerIdPrefix}-val-${key}">${val}%</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="${val}" class="custom-slider" 
+                        id="${containerIdPrefix}-range-${key}" 
+                        oninput="onSliderChange('${key}', this.value, '${containerIdPrefix}')">
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Handle weight preset selection
+        function applyWeightPreset(presetName) {
+            if (presetName === 'custom') return;
+            weights = { ...PRESET_WEIGHTS[presetName] };
+            renderSliders(slidersContainer, 'upload');
+            if (jobReportData) {
+                renderSliders(dashSlidersContainer, 'dash');
+                recalculateWeightedScore();
+            }
+        }
+
+        // Live weight slider adjustments with auto-normalization algorithm
+        function onSliderChange(changedKey, value, context) {
+            const newValue = parseInt(value) / 100;
+            const oldValue = weights[changedKey];
+            const delta = newValue - oldValue;
+            
+            // Set new value
+            weights[changedKey] = newValue;
+            
+            // Distribute difference across other active sliders proportionally
+            const otherKeys = MODULE_KEYS.filter(k => k !== changedKey);
+            const sumOthers = otherKeys.reduce((sum, k) => sum + weights[k], 0);
+
+            if (sumOthers > 0) {
+                otherKeys.forEach(k => {
+                    const proportion = weights[k] / sumOthers;
+                    weights[k] = Math.max(0, weights[k] - (delta * proportion));
+                });
+            } else {
+                otherKeys.forEach(k => {
+                    weights[k] = Math.max(0, (1 - newValue) / otherKeys.length);
+                });
+            }
+
+            // Fine-tune normalization to guarantee sum = 1.0 (deal with float rounding)
+            const sumAll = MODULE_KEYS.reduce((sum, k) => sum + weights[k], 0);
+            const error = 1.0 - sumAll;
+            if (error !== 0) {
+                let maxKey = otherKeys[0];
+                otherKeys.forEach(k => {
+                    if (weights[k] > weights[maxKey]) maxKey = k;
+                });
+                weights[maxKey] = Math.max(0, weights[maxKey] + error);
+            }
+
+            // Sync selectors and redraw sliders
+            document.getElementById('weight-preset').value = 'custom';
+            renderSliders(slidersContainer, 'upload');
+            if (jobReportData) {
+                renderSliders(dashSlidersContainer, 'dash');
+                recalculateWeightedScore();
+            }
+        }
+
+        // Switch active views
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            
+            if (viewId === 'view-upload') {
+                document.getElementById('btn-back-upload').style.display = "none";
+            } else if (viewId === 'view-dashboard') {
+                document.getElementById('btn-back-upload').style.display = "flex";
+            }
+        }
+
+        function resetToUpload() {
+            clearSelectedSource();
+            switchView('view-upload');
+            jobReportData = null;
+        }
+
+        // Terminal Log Appender
+        const consoleStream = document.getElementById('console-stream');
+        function addLog(text, type="system") {
+            const line = document.createElement('div');
+            line.className = `console-line ${type}`;
+            const time = new Date().toISOString().slice(11, 19);
+            line.textContent = `[${time}] [${type.toUpperCase()}] ${text}`;
+            consoleStream.appendChild(line);
+            consoleStream.scrollTop = consoleStream.scrollHeight;
+        }
+
+        // Trigger the Analysis pipeline
+        async function startAnalysis() {
+            if (!selectedFile && !selectedUrl) return;
+
+            switchView('view-pipeline');
+            consoleStream.innerHTML = "";
+            addLog("Initializing Portfolio Analysis Task Workspace...", "system");
+
+            const role = document.getElementById('role-target').value;
+            const sen = document.getElementById('seniority').value;
+
+            // Ingestion Pipeline step details
+            if (activeSourceType === 'pdf') {
+                document.getElementById('step-upload-desc').textContent = "Uploading PDF file to secure analysis workspace.";
+            } else {
+                document.getElementById('step-upload-desc').textContent = `Initiating remote scraping worker for ${selectedUrl.slice(0, 45)}...`;
+            }
+
+            updateStepStatus('step-upload', 'active', 'Running...');
+            addLog(`Transferring portfolio bytes: ${activeSourceType === 'pdf' ? selectedFile.name : selectedUrl}...`, "system");
+
+            try {
+                let response;
+                if (activeSourceType === 'pdf') {
+                    const formData = new FormData();
+                    formData.append('file', selectedFile);
+                    formData.append('role_target', role);
+                    formData.append('seniority', sen);
+
+                    response = await fetch('/api/v1/analyze/pdf', {
+                        method: 'POST',
+                        body: formData
+                    });
+                } else {
+                    response = await fetch('/api/v1/analyze/url', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            url: selectedUrl,
+                            role_target: role,
+                            seniority: sen
+                        })
+                    });
+                }
+
+                if (response.ok) {
+                    const data = await response.json();
+                    activeJobId = data.job_id;
+                    updateStepStatus('step-upload', 'completed', 'Success');
+                    addLog(`Created job in database. Assigned JOB_ID: ${activeJobId}`, "success");
+                    
+                    // Start polling
+                    pollBackendStatus(activeJobId);
+                } else {
+                    const err = await response.json();
+                    throw new Error(err.detail || "Ingestion failed.");
+                }
+            } catch (error) {
+                addLog(`Backend connection unreachable: ${error.message}`, "warn");
+                addLog("Falling back to local client-side Browser Simulator Engine.", "system");
+                activateSimulator(role, sen);
+            }
+        }
+
+        function updateStepStatus(stepId, state, text) {
+            const element = document.getElementById(stepId);
+            element.className = `pipeline-step ${state}`;
+            element.querySelector('.step-status').textContent = text;
+        }
+
+        // Poll API for background worker updates
+        function pollBackendStatus(jobId) {
+            let dots = "";
+            let timer = setInterval(async () => {
+                try {
+                    const response = await fetch(`/api/v1/report/${jobId}`);
+                    const data = await response.json();
+
+                    if (data.status === "processing") {
+                        updateStepStatus('step-extract', 'active', 'Running...');
+                        updateStepStatus('step-understand', 'active', 'Running...');
+                        updateStepStatus('step-modules', 'active', 'Running...');
+                        addLog("Running text-extract parsing, S3 cloud storage, and building Qdrant vectors...", "system");
+                    } else if (data.status === "completed") {
+                        clearInterval(timer);
+                        
+                        updateStepStatus('step-extract', 'completed', 'Done');
+                        updateStepStatus('step-understand', 'completed', 'Done');
+                        updateStepStatus('step-modules', 'completed', 'Done');
+                        updateStepStatus('step-finalize', 'completed', 'Compiled');
+                        addLog("Synthesis complete! Storing results in database.", "success");
+
+                        // Render dashboard
+                        jobReportData = data.results;
+                        renderDashboard();
+                    } else if (data.status === "error") {
+                        clearInterval(timer);
+                        addLog("Job returned code ERROR on worker thread.", "warn");
+                        activateSimulator(data.role_target, data.seniority);
+                    }
+                } catch (e) {
+                    clearInterval(timer);
+                    addLog(`Connection interrupted: ${e.message}`, "warn");
+                    activateSimulator("UX Designer", "Mid");
+                }
+            }, 2500);
+        }
+
+        // Offline Simulator fallback if backend is offline or Render free instances are spinning up
+        function activateSimulator(role, seniority) {
+            simulatorMode = true;
+            document.getElementById('simulator-badge').style.display = "block";
+
+            let stepLogs = {
+                pdf: 'PDF text structures and layout vectors parsing locally.',
+                behance: 'BeautifulSoup scraping Behance project tags and grids...',
+                figma: 'Mocking Figma REST document layer parser details...',
+                web: 'Scraping target website elements and markup components...'
+            };
+
+            let steps = [
+                { id: 'step-upload', log: 'Secure document buffers initialized locally.', status: 'Local' },
+                { id: 'step-extract', log: stepLogs[activeSourceType], status: 'Complete' },
+                { id: 'step-understand', log: 'Generating local vectors and matching against role criteria...', status: 'Complete' },
+                { id: 'step-modules', log: 'Evaluating 8 modules in parallel threads...', status: 'Complete' },
+                { id: 'step-finalize', log: 'Persisting job details and formatting dashboard visuals...', status: 'Complete' }
+            ];
+
+            let curStep = 0;
+            let runInterval = setInterval(() => {
+                if (curStep > 0) {
+                    updateStepStatus(steps[curStep-1].id, 'completed', steps[curStep-1].status);
+                }
+                
+                if (curStep < steps.length) {
+                    updateStepStatus(steps[curStep].id, 'active', 'Running...');
+                    addLog(steps[curStep].log, "system");
+                    curStep++;
+                } else {
+                    clearInterval(runInterval);
+                    addLog("Compilation complete. Rerouting to dashboard views.", "success");
+                    
+                    const srcLabel = activeSourceType === 'pdf' ? (selectedFile ? selectedFile.name : "portfolio.pdf") : selectedUrl;
+                    jobReportData = generateSimulatedReport(srcLabel, role, seniority);
+                    setTimeout(() => renderDashboard(), 1000);
+                }
+            }, 1200);
+        }
+
+        // Generate mockup local report for simulator fallback
+        function generateSimulatedReport(filename, role, seniority) {
+            // Build key structures matching Heuristic review structure
+            const detectedSkills = {
+                design_tool: ["Figma", "Adobe XD", "Miro", "Photoshop"],
+                dev_tool: ["React", "JavaScript", "TailwindCSS", "CSS3", "HTML5", "Git"],
+                methodology: ["User Research", "Wireframing", "Prototyping", "Information Architecture"],
+                soft_skill: ["Problem Solving", "Collaboration", "Communication"]
+            };
+
+            let skillsList = [];
+            for (let cat in detectedSkills) {
+                detectedSkills[cat].forEach((name, idx) => {
+                    skillsList.push({
+                        name: name,
+                        category: cat,
+                        proficiency: idx === 0 ? "expert" : (idx < 2 ? "advanced" : "intermediate"),
+                        evidence: "Extracted from portfolio case projects."
+                    });
+                });
+            }
+
+            return {
+                report_id: "SIM-" + Math.floor(Math.random()*100000),
+                candidate_id: "CAN-SIM" + Math.floor(Math.random()*10000),
+                generated_at: new Date().toISOString(),
+                role_target: role,
+                deep_analysis: {
+                    ui_quality: { score: 85, evidence: "High typographic consistency and structural grid alignments.", comment: "Visual quality exhibits great precision and refined visual balance." },
+                    ux_thinking: { score: 78, evidence: "Includes persona mapping and iterative user validation steps.", comment: "Good application of user research though quantitative metrics are light." },
+                    project_maturity: { score: 80, evidence: "Illustrates multi-platform product scopes.", comment: "Projects show solid execution with clear real-world delivery details." },
+                    overall_score: 81,
+                    summary: "A robust portfolio highlighting strong creative foundations, structured design thinking patterns, and polished layouts."
+                },
+                skill_extractor: {
+                    skills: skillsList,
+                    primary_skills: ["Figma", "React", "User Research"],
+                    skill_gaps: ["Design Tokens (JSON)", "Docker", "Unit Testing"],
+                    total_skills_detected: skillsList.length
+                },
+                innovation_score: {
+                    originality_score: 76,
+                    creative_risk_level: "medium",
+                    standout_moments: [
+                        { project: "E-Commerce Re-design", innovation: "Re-modeled checkouts using dynamic sliding drawers instead of multi-step paginations.", impact: "Optimizes transactional speeds and eliminates checkout drop-offs." }
+                    ],
+                    pattern_dependency: "Moderate usage of template grids; custom component definitions are clear.",
+                    innovation_summary: "Shows clear styling and a personalized layout structure.",
+                    score_rationale: "Displays custom design assets while respecting layout standards."
+                },
+                benchmarking: {
+                    industry_score: 82,
+                    percentile_estimate: "top 18%",
+                    present: ["Interactive prototype layouts", "Refined responsive components"],
+                    partial: ["User research test surveys", "Design system tokens"],
+                    missing: ["Interactive custom animation variables"],
+                    vs_top_portfolios: `Exhibits strong layout patterns and content polish matching standard ${seniority} level demands.`,
+                    industry_readiness: "ready_now"
+                },
+                hidden_talent: {
+                    hidden_potential_score: 85,
+                    presentation_vs_substance_gap: "medium",
+                    hidden_signals: [
+                        { signal: "Strong detail documentation", location: "Case studies", why_it_matters: "Shows comprehensive and clean developer-ready handoff details." }
+                    ],
+                    overlooked_strengths: ["Clear project specifications", "Highly readable hierarchy"],
+                    recruiter_flag: "must_interview",
+                    flag_reason: "High score consistency across both visual polish and structural maturity."
+                },
+                portfolio_coach: {
+                    suggestions: [
+                        { priority: "critical", area: "Quantitative Metrics", problem: "Design reviews miss explicit test outcome metrics.", fix: "Show quantitative metrics demonstrating optimization.", example: "e.g., 'Usability tests showed success rates increase from 60% to 92%.'" },
+                        { priority: "medium", area: "Design Token Specification", problem: "Typography values are styled without explicit grid styles.", fix: "Add layout spacing tokens (rem/px) guides to project details.", example: "Define a 4px/8px layout system chart." }
+                    ],
+                    quick_wins: [
+                        "Link live deployment links at the top of case projects",
+                        "Include standard role/duration detail cards",
+                        "Optimize styling of code documentation snippets"
+                    ],
+                    overall_coach_note: "Your layouts are exceptionally clear. Work on integrating quantitative user research results and explicit developer-handout specs to further elevate your hire rates."
+                },
+                tech_depth: {
+                    technical_score: 82,
+                    complexity_level: "advanced",
+                    tools_and_stack: ["Figma", "React", "Git", "TailwindCSS", "Node.js"],
+                    complexity_evidence: [
+                        { project: "Responsive Application Workspace", technical_detail: "Interactive state rendering and responsive layout models.", sophistication: "Demonstrates standard engineering and component modeling skills." }
+                    ],
+                    technical_gaps: ["AWS cloud services", "Docker container models"],
+                    technical_summary: "Exhibits excellent engineering foundations and component layout awareness."
+                },
+                consistency: {
+                    consistency_score: 88,
+                    layout_coherence: { score: 90, issues: [] },
+                    brand_consistency: { score: 86, issues: [] },
+                    completeness: { score: 92, missing_sections: [] },
+                    professionalism_flag: "publication_ready",
+                    consistency_summary: "Outstanding design coherence. Font weights and card parameters align cleanly."
+                }
+            };
+        }
+
+        // Render Report Results to Dashboard View
+        function renderDashboard() {
+            if (!jobReportData) return;
+
+            switchView('view-dashboard');
+
+            // Render Header and Metadata
+            document.getElementById('dash-candidate-id').textContent = `CANDIDATE: ${jobReportData.candidate_id}`;
+            document.getElementById('dash-role-target').textContent = `${jobReportData.role_target} Portfolio Intelligence Review`;
+            document.getElementById('dash-meta-role').textContent = jobReportData.role_target;
+            document.getElementById('dash-meta-seniority').textContent = jobReportData.seniority || document.getElementById('seniority').value;
+            document.getElementById('dash-meta-date').textContent = new Date(jobReportData.generated_at).toLocaleDateString();
+
+            // Calculate and display scores
+            recalculateWeightedScore();
+
+            // Recruiter Verdict
+            const banner = document.getElementById('dash-verdict-banner');
+            const badge = document.getElementById('dash-verdict-badge');
+            const reason = document.getElementById('dash-verdict-reason');
+            const rec = jobReportData.recruiter_recommendation;
+
+            banner.className = `verdict-callout ${rec}`;
+            badge.textContent = rec.replace('_', ' ');
+            reason.textContent = jobReportData.recommendation_reason;
+
+            // Hidden Talent Panel
+            const talentBox = document.getElementById('dash-hidden-talent-box');
+            if (jobReportData.hidden_talent_flag === "yes" || jobReportData.hidden_talent.hidden_potential_score > 75) {
+                talentBox.style.display = "flex";
+                document.getElementById('dash-hidden-talent-note').textContent = jobReportData.hidden_talent_note || jobReportData.hidden_talent.hidden_signals[0].why_it_matters;
+            } else {
+                talentBox.style.display = "none";
+            }
+
+            // Skills Matrix
+            renderSkillsCol('skills-advanced-box', jobReportData.skill_extractor.skills.filter(s => s.proficiency === 'expert' || s.proficiency === 'advanced'));
+            renderSkillsCol('skills-intermediate-box', jobReportData.skill_extractor.skills.filter(s => s.proficiency === 'intermediate'));
+            renderSkillsCol('skills-beginner-box', jobReportData.skill_extractor.skills.filter(s => s.proficiency === 'beginner'));
+            document.getElementById('dash-skill-gaps').textContent = jobReportData.skill_extractor.skill_gaps.join(', ') || "None detected";
+
+            // Strengths and Weaknesses
+            renderListItems('dash-strengths-box', jobReportData.strengths, 'fa-solid fa-thumbs-up', 'var(--emerald)');
+            renderListItems('dash-weaknesses-box', jobReportData.weaknesses, 'fa-solid fa-triangle-exclamation', 'var(--rose)');
+
+            // Coach Suggestions
+            const suggBox = document.getElementById('dash-coach-suggestions');
+            suggBox.innerHTML = "";
+            jobReportData.portfolio_coach.suggestions.forEach(sugg => {
+                const card = document.createElement('div');
+                card.className = "suggestion-card";
+                card.innerHTML = `
+                    <div class="suggestion-header">
+                        <span class="suggestion-area">${sugg.area}</span>
+                        <span class="priority-badge ${sugg.priority}">${sugg.priority}</span>
+                    </div>
+                    <div class="suggestion-problem"><strong>Problem:</strong> ${sugg.problem}</div>
+                    <div class="suggestion-fix"><strong>Actionable Fix:</strong> ${sugg.fix}</div>
+                    ${sugg.example ? `<div class="suggestion-example"><strong>Example:</strong> ${sugg.example}</div>` : ''}
+                `;
+                suggBox.appendChild(card);
+            });
+
+            // Quickwins & Note
+            const winsBox = document.getElementById('dash-coach-quickwins');
+            winsBox.innerHTML = "";
+            jobReportData.portfolio_coach.quick_wins.forEach(win => {
+                const li = document.createElement('li');
+                li.textContent = win;
+                winsBox.appendChild(li);
+            });
+            document.getElementById('dash-coach-note').innerHTML = `<strong>Coach Note:</strong> ${jobReportData.portfolio_coach.overall_coach_note}`;
+
+            // Sidebar General Metrics
+            document.getElementById('dash-metric-readiness').textContent = `${jobReportData.benchmarking.industry_score}%`;
+            document.getElementById('dash-readiness-bar').style.width = `${jobReportData.benchmarking.industry_score}%`;
+            document.getElementById('dash-metric-visual').textContent = `${jobReportData.deep_analysis.ui_quality.score}/100`;
+            document.getElementById('dash-metric-ux').textContent = `${jobReportData.deep_analysis.ux_thinking.score}/100`;
+            document.getElementById('dash-metric-creativity').textContent = jobReportData.innovation_score.creative_risk_level;
+            document.getElementById('dash-metric-tech').textContent = jobReportData.tech_depth.complexity_level;
+
+            // Render live sidebar weights sliders
+            renderSliders(dashSlidersContainer, 'dash');
+        }
+
+        // Recalculate weights and overall score on fly
+        function recalculateWeightedScore() {
+            if (!jobReportData) return;
+
+            // Module raw scores mapping
+            const rawScores = {
+                deep_analysis: jobReportData.deep_analysis.overall_score || 70,
+                skill_extractor: Math.min(100, (jobReportData.skill_extractor.total_skills_detected || 5) * 8),
+                innovation_score: jobReportData.innovation_score.originality_score || 70,
+                benchmarking: jobReportData.benchmarking.industry_score || 70,
+                hidden_talent: jobReportData.hidden_talent.hidden_potential_score || 70,
+                portfolio_coach: 80,
+                tech_depth: jobReportData.tech_depth.technical_score || 70,
+                consistency: jobReportData.consistency.consistency_score || 70
+            };
+
+            let weightedSum = 0;
+            MODULE_KEYS.forEach(key => {
+                weightedSum += rawScores[key] * weights[key];
+            });
+
+            const finalScore = Math.round(weightedSum);
+
+            // Update SVG score dial
+            const ring = document.getElementById('dash-score-ring');
+            const dashOffset = 226 - (226 * finalScore) / 100;
+            ring.style.strokeDashoffset = dashOffset;
+            
+            document.getElementById('dash-score-text').textContent = finalScore;
+            
+            // Set rating label text
+            let label = "Beginner Portfolio";
+            if (finalScore > 80) label = "Exceptional Portfolio";
+            else if (finalScore > 65) label = "Professional Portfolio";
+            else if (finalScore > 40) label = "Intermediate Portfolio";
+            document.getElementById('dash-score-rating').textContent = label;
+
+            // Draw SVG dimensions radar chart
+            drawRadarChart(rawScores);
+
+            // Render Core Modules Grid List (recalculating contribution value dynamically)
+            const listContainer = document.getElementById('modules-list-container');
+            listContainer.innerHTML = "";
+            MODULE_KEYS.forEach(key => {
+                const raw = rawScores[key];
+                const w = weights[key];
+                const contrib = (raw * w).toFixed(1);
+                
+                const card = document.createElement('div');
+                card.className = "module-card";
+                
+                let evidenceText = "";
+                let commentText = "";
+
+                if (key === 'deep_analysis') {
+                    evidenceText = jobReportData.deep_analysis.ui_quality.evidence;
+                    commentText = jobReportData.deep_analysis.summary;
+                } else if (key === 'skill_extractor') {
+                    evidenceText = `Detected ${jobReportData.skill_extractor.total_skills_detected} skills.`;
+                    commentText = `Primary skills: ${jobReportData.skill_extractor.primary_skills.join(', ')}`;
+                } else if (key === 'innovation_score') {
+                    evidenceText = jobReportData.innovation_score.standout_moments[0]?.innovation || "Unique style features.";
+                    commentText = jobReportData.innovation_score.score_rationale;
+                } else if (key === 'benchmarking') {
+                    evidenceText = jobReportData.benchmarking.vs_top_portfolios;
+                    commentText = `Ready level: ${jobReportData.benchmarking.industry_readiness.replace('_', ' ')}`;
+                } else if (key === 'hidden_talent') {
+                    evidenceText = jobReportData.hidden_talent.hidden_signals[0]?.signal || "None";
+                    commentText = jobReportData.hidden_talent.flag_reason;
+                } else if (key === 'portfolio_coach') {
+                    evidenceText = `Suggestions Count: ${jobReportData.portfolio_coach.suggestions.length}`;
+                    commentText = `Quick wins: ${jobReportData.portfolio_coach.quick_wins.length}`;
+                } else if (key === 'tech_depth') {
+                    evidenceText = jobReportData.tech_depth.complexity_evidence[0]?.technical_detail || "None";
+                    commentText = jobReportData.tech_depth.technical_summary;
+                } else if (key === 'consistency') {
+                    evidenceText = `Completeness: ${jobReportData.consistency.completeness.score}/100`;
+                    commentText = jobReportData.consistency.consistency_summary;
+                }
+
+                card.innerHTML = `
+                    <div class="module-card-header">
+                        <div class="module-title-box">
+                            <i class="${MODULE_ICONS[key]}"></i>
+                            <h4>${MODULE_LABELS[key]}</h4>
+                        </div>
+                        <span class="module-score-badge">${raw}/100</span>
+                    </div>
+                    <div class="module-progress-bg">
+                        <div class="module-progress-fill" style="width: ${raw}%;"></div>
+                    </div>
+                    <div class="module-evidence">${evidenceText}</div>
+                    <div class="module-comment">${commentText}</div>
+                    <div style="font-size: 0.75rem; text-align: right; color: var(--text-dark); border-top: 1px solid rgba(255,255,255,0.03); padding-top: 0.4rem; margin-top: 0.25rem;">
+                        Weight: <strong>${Math.round(w*100)}%</strong> (Contrib: <strong>+${contrib}</strong>)
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+        }
+
+        function drawRadarChart(scores) {
+            const svg = document.getElementById('radar-chart');
+            if (!svg) return;
+            svg.innerHTML = "";
+
+            const cx = 110;
+            const cy = 110;
+            const r = 72;
+            const levels = 5;
+            const numAxis = 8;
+            const angleSlice = (Math.PI * 2) / numAxis;
+            const labels = ["UI", "Skills", "Originality", "Bench", "Talent", "Coach", "Tech", "Coherence"];
+
+            // 1. Draw Level concentric rings (Polygons instead of circles for standard radar look!)
+            for (let j = 1; j <= levels; j++) {
+                const radius = (r / levels) * j;
+                const levelPoints = [];
+                for (let i = 0; i < numAxis; i++) {
+                    const angle = angleSlice * i - Math.PI / 2;
+                    const x = cx + radius * Math.cos(angle);
+                    const y = cy + radius * Math.sin(angle);
+                    levelPoints.push(`${x},${y}`);
+                }
+                const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+                polygon.setAttribute("points", levelPoints.join(" "));
+                polygon.setAttribute("fill", "none");
+                polygon.setAttribute("stroke", "rgba(255, 255, 255, 0.04)");
+                polygon.setAttribute("stroke-width", "1");
+                svg.appendChild(polygon);
+            }
+
+            // 2. Draw axes lines and labels
+            for (let i = 0; i < numAxis; i++) {
+                const angle = angleSlice * i - Math.PI / 2;
+                const ax = cx + r * Math.cos(angle);
+                const ay = cy + r * Math.sin(angle);
+
+                // Axis line
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", cx);
+                line.setAttribute("y1", cy);
+                line.setAttribute("x2", ax);
+                line.setAttribute("y2", ay);
+                line.setAttribute("stroke", "rgba(255, 255, 255, 0.08)");
+                line.setAttribute("stroke-width", "1");
+                svg.appendChild(line);
+
+                // Axis label
+                const labelText = labels[i];
+                const textR = r + 15;
+                const lx = cx + textR * Math.cos(angle);
+                // Offset vertical slightly depending on position for better spacing
+                const ly = cy + textR * Math.sin(angle) + (Math.sin(angle) * 4);
+
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", lx);
+                text.setAttribute("y", ly);
+                text.setAttribute("fill", "var(--text-muted)");
+                text.setAttribute("font-size", "9px");
+                text.setAttribute("font-weight", "500");
+                text.setAttribute("font-family", "Space Grotesk, sans-serif");
+                text.setAttribute("text-anchor", "middle");
+                text.setAttribute("alignment-baseline", "middle");
+                text.textContent = labelText;
+                svg.appendChild(text);
+            }
+
+            // 3. Compute and draw candidate score polygon
+            const points = [];
+            for (let i = 0; i < numAxis; i++) {
+                const key = MODULE_KEYS[i];
+                const score = scores[key] || 0;
+                const radius = (r * score) / 100;
+                const angle = angleSlice * i - Math.PI / 2;
+                const x = cx + radius * Math.cos(angle);
+                const y = cy + radius * Math.sin(angle);
+                points.push(`${x},${y}`);
+            }
+
+            // Polygon shape
+            const scorePolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+            scorePolygon.setAttribute("points", points.join(" "));
+            scorePolygon.setAttribute("fill", "rgba(99, 102, 241, 0.2)");
+            scorePolygon.setAttribute("stroke", "#22d3ee");
+            scorePolygon.setAttribute("stroke-width", "2");
+            scorePolygon.setAttribute("style", "filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.6))");
+            svg.appendChild(scorePolygon);
+
+            // Vertices circles
+            for (let i = 0; i < numAxis; i++) {
+                const key = MODULE_KEYS[i];
+                const score = scores[key] || 0;
+                const radius = (r * score) / 100;
+                const angle = angleSlice * i - Math.PI / 2;
+                const x = cx + radius * Math.cos(angle);
+                const y = cy + radius * Math.sin(angle);
+
+                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute("cx", x);
+                circle.setAttribute("cy", y);
+                circle.setAttribute("r", "3.5");
+                circle.setAttribute("fill", "#22d3ee");
+                circle.setAttribute("stroke", "#080b14");
+                circle.setAttribute("stroke-width", "1");
+                svg.appendChild(circle);
+            }
+        }
+
+        function renderSkillsCol(containerId, list) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = "";
+            const countBadge = container.previousElementSibling.querySelector('span');
+            countBadge.textContent = list.length;
+            
+            if (list.length === 0) {
+                container.innerHTML = `<span style="font-size:0.75rem; color: var(--text-dark)">None identified</span>`;
+                return;
+            }
+
+            list.forEach(skill => {
+                const pill = document.createElement('span');
+                pill.className = `skill-tag ${skill.category || 'design_tool'}`;
+                pill.textContent = skill.name;
+                pill.title = skill.evidence;
+                container.appendChild(pill);
+            });
+        }
+
+        // Render Strengths and Weaknesses Side-by-side lists
+        function renderListItems(containerId, items, icon, color) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = "";
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "list-item";
+                div.innerHTML = `
+                    <div class="list-item-title" style="color: ${color};">
+                        <i class="${icon}"></i>
+                        <span>${item.point}</span>
+                    </div>
+                    <div class="list-item-content">${item.evidence || item.fix}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Export JSON payload
+        function downloadJSONReport() {
+            if (!jobReportData) return;
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jobReportData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `portfolio_intelligence_${jobReportData.candidate_id}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // Initialize on DOM load
+        window.addEventListener('DOMContentLoaded', () => {
+            renderSliders(slidersContainer, 'upload');
+        });
+    </script>
+</body>
+</html>
