@@ -44,8 +44,41 @@ def extract_text_from_pdf(file_path: str) -> str:
         print(f"Error reading PDF: {e}")
     return text_content.strip()
 
+def extract_images_from_pdf(file_path: str, job_id: str) -> list:
+    extracted_image_paths = []
+    try:
+        if use_fitz:
+            doc = fitz.open(file_path)
+            os.makedirs(f"local_storage/{job_id}", exist_ok=True)
+            img_count = 0
+            for page_num in range(len(doc)):
+                page = doc[page_num]
+                image_list = page.get_images(full=True)
+                for img_idx, img in enumerate(image_list):
+                    xref = img[0]
+                    base_image = doc.extract_image(xref)
+                    image_bytes = base_image["image"]
+                    image_ext = base_image["ext"]
+                    img_filename = f"{job_id}/extracted_img_{page_num + 1}_{img_idx + 1}.{image_ext}"
+                    
+                    from storage import storage_client
+                    url = storage_client.upload_data(image_bytes, img_filename, f"image/{image_ext}")
+                    
+                    if url.startswith("local_storage/"):
+                        url = "/" + url
+                    
+                    extracted_image_paths.append(url)
+                    img_count += 1
+                    if img_count >= 15:
+                        break
+                if img_count >= 15:
+                    break
+    except Exception as e:
+        print(f"Error extracting images from PDF: {e}")
+    return extracted_image_paths
+
 # 2. Web Scraping for Website / Behance (Enhanced Accuracy Boilerplate Stripping)
-async def scrape_url_content(url: str) -> str:
+async def scrape_url_content(url: str) -> tuple:
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
     }
@@ -55,6 +88,32 @@ async def scrape_url_content(url: str) -> str:
             if response.status_code == 200:
                 soup = BeautifulSoup(response.text, "html.parser")
                 
+                # Extract image URLs
+                images = []
+                for img_tag in soup.find_all("img"):
+                    src = img_tag.get("src") or img_tag.get("data-src") or img_tag.get("data-hi-res") or img_tag.get("srcset")
+                    if src:
+                        if "," in src:
+                            src = src.split(",")[0].strip().split(" ")[0]
+                        from urllib.parse import urljoin
+                        absolute_url = urljoin(url, src)
+                        if absolute_url.startswith("http") and not any(x in absolute_url.lower() for x in ["pixel", "analytics", "tracker", "sprite", "logo", "icon", "svg"]):
+                            images.append(absolute_url)
+                            if len(images) >= 15:
+                                break
+                
+                # Extract links
+                links = []
+                for a_tag in soup.find_all("a"):
+                    href = a_tag.get("href")
+                    if href:
+                        from urllib.parse import urljoin
+                        absolute_url = urljoin(url, href)
+                        if absolute_url.startswith("http") and not any(x in absolute_url.lower() for x in ["facebook", "twitter", "linkedin", "instagram", "youtube", "pinterest", "reddit"]):
+                            links.append(absolute_url)
+                            if len(links) >= 15:
+                                break
+
                 # Extract meta description for high-level context
                 meta_desc = ""
                 meta_tag = soup.find("meta", attrs={"name": "description"}) or soup.find("meta", attrs={"property": "og:description"})
@@ -79,11 +138,11 @@ async def scrape_url_content(url: str) -> str:
                 context_str = f"URL: {url}\nTitle: {title}\n"
                 if meta_desc:
                     context_str += f"Meta Description: {meta_desc}\n"
-                return f"{context_str}Content:\n{text[:18000]}"
+                return f"{context_str}Content:\n{text[:18000]}", images, links
             else:
-                return f"Failed to retrieve URL {url}. Status code: {response.status_code}"
+                return f"Failed to retrieve URL {url}. Status code: {response.status_code}", [], []
     except Exception as e:
-        return f"Error occurred scraping URL {url}: {str(e)}"
+        return f"Error occurred scraping URL {url}: {str(e)}", [], []
 
 # 3. Figma API Parser (Enhanced to extract Structural Design Artifact Signals)
 def extract_figma_file_key(url: str) -> str:

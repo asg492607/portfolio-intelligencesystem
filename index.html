@@ -1511,6 +1511,20 @@
                     </div>
                 </div>
 
+                <!-- Extracted Media & Links Panel -->
+                <div class="glass-card" id="dash-media-panel" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <h3 class="list-card-title" style="border: none; padding: 0;"><i class="fa-solid fa-images" style="color: var(--amber);"></i> Extracted Images & Media Gallery</h3>
+                    <div id="dash-media-gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem;">
+                        <!-- Images dynamically populated -->
+                    </div>
+                    <div id="dash-no-media" style="font-size: 0.82rem; color: var(--text-dark); display: none;">No images/media extracted.</div>
+                    
+                    <h4 style="font-size: 0.95rem; border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 0.5rem; color: var(--emerald);"><i class="fa-solid fa-link"></i> Extracted External Links</h4>
+                    <div id="dash-links-list" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 200px; overflow-y: auto; padding-right: 0.5rem;">
+                        <!-- Links dynamically populated -->
+                    </div>
+                </div>
+
                 <div style="display: none;">
                     <!-- Top 3 Improvements -->
                     <div class="glass-card" style="display: flex; flex-direction: column; gap: 1rem;">
@@ -2029,6 +2043,47 @@
             } else {
                 projectsPanel.style.display = 'none';
             }
+
+            // Extracted Media & Links
+            const mediaGallery = document.getElementById('dash-media-gallery');
+            const noMediaMsg = document.getElementById('dash-no-media');
+            const linksList = document.getElementById('dash-links-list');
+            mediaGallery.innerHTML = '';
+            linksList.innerHTML = '';
+
+            const imagesList = jobReportData.images || [];
+            if (imagesList.length > 0) {
+                noMediaMsg.style.display = 'none';
+                imagesList.forEach(imgUrl => {
+                    const imgCard = document.createElement('div');
+                    imgCard.style.cssText = "position:relative; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:8px; overflow:hidden; aspect-ratio:16/10; display:flex; align-items:center; justify-content:center;";
+                    imgCard.innerHTML = `
+                        <img src="${imgUrl}" style="max-width:100%; max-height:100%; object-fit:cover; width:100%; height:100%;" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'100\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'%2364748b\\' stroke-width=\\'2\\' stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\'><rect width=\\'18\\' height=\\'18\\' x=\\'3\\' y=\\'3\\' rx=\\'2\\' ry=\\'2\\'/><circle cx=\\'9\\' cy=\\'9\\' r=\\'2\\'/><path d=\\'m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21\\'/></svg>';">
+                        <a href="${imgUrl}" target="_blank" style="position:absolute; bottom:4px; right:4px; background:rgba(0,0,0,0.6); color:#fff; border-radius:4px; padding:2px 6px; font-size:0.7rem; text-decoration:none;"><i class="fa-solid fa-up-right-from-square"></i> Open</a>
+                    `;
+                    mediaGallery.appendChild(imgCard);
+                });
+            } else {
+                noMediaMsg.style.display = 'block';
+            }
+
+            const extractedLinks = jobReportData.links || [];
+            if (extractedLinks.length > 0) {
+                extractedLinks.forEach(linkUrl => {
+                    const linkItem = document.createElement('a');
+                    linkItem.href = linkUrl;
+                    linkItem.target = "_blank";
+                    linkItem.className = "btn-outline";
+                    linkItem.style.cssText = "justify-content:space-between; padding:0.6rem 0.8rem; font-size:0.8rem; width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:flex; margin-bottom:0.4rem;";
+                    linkItem.innerHTML = `
+                        <span><i class="fa-solid fa-link" style="margin-right:0.4rem; color:var(--emerald);"></i>${linkUrl}</span>
+                        <i class="fa-solid fa-up-right-from-square" style="font-size:0.7rem;"></i>
+                    `;
+                    linksList.appendChild(linkItem);
+                });
+            } else {
+                linksList.innerHTML = `<span style="font-size:0.8rem; color:var(--text-dark)">No external reference links found.</span>`;
+            }
         }
 
         function renderSkillsCol(containerId, list) {
@@ -2082,7 +2137,7 @@
 
         // Initialize on DOM load
         window.addEventListener('DOMContentLoaded', () => {
-            renderSliders(slidersContainer, 'upload');
+            // Setup complete
         });
     </script>
 </body>

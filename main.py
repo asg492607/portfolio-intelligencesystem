@@ -8,6 +8,7 @@ import asyncio
 from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException, BackgroundTasks
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -17,6 +18,7 @@ from storage import storage_client
 from vector_db import vector_db
 from analyzer import (
     extract_text_from_pdf,
+    extract_images_from_pdf,
     scrape_url_content,
     parse_figma_content,
     generate_text_embedding,
@@ -37,13 +39,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+os.makedirs("local_storage", exist_ok=True)
+app.mount("/local_storage", StaticFiles(directory="local_storage"), name="local_storage")
+
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 class UrlAnalyzeRequest(BaseModel):
     url: str
 
-async def process_portfolio_job(job_id: str, content: str, source_label: str, local_file_to_clean: str = None):
+async def process_portfolio_job(job_id: str, content: str, source_label: str, extracted_images: list = None, extracted_links: list = None, local_file_to_clean: str = None):
     """Orchestrates the background analysis pipeline: S3 storage -> vector embedding -> AI analysis -> DB update."""
     from database import SessionLocal
     db = SessionLocal()
@@ -82,6 +87,9 @@ async def process_portfolio_job(job_id: str, content: str, source_label: str, lo
             content,
             source_label
         )
+        if isinstance(report_data, dict):
+            report_data["images"] = extracted_images or []
+            report_data["links"] = extracted_links or []
 
         # Step 5 & 6: Update DB & complete
         db_job = db.query(models.Job).filter(models.Job.id == job_id).first()
@@ -144,6 +152,11 @@ async def analyze_pdf(
 
     # Extract text immediately for background handoff
     text_content = extract_text_from_pdf(temp_file_path)
+    
+    # Extract images and reference links from PDF
+    extracted_images = extract_images_from_pdf(temp_file_path, job_id)
+    import re
+    extracted_links = re.findall(r'https?://[^\s<>"\']+|www\.[^\s<>"\']+', text_content)[:15]
 
     # Queue async processing
     background_tasks.add_task(
@@ -151,6 +164,8 @@ async def analyze_pdf(
         job_id=job_id,
         content=text_content,
         source_label=file.filename,
+        extracted_images=extracted_images,
+        extracted_links=extracted_links,
         local_file_to_clean=temp_file_path
     )
 
@@ -183,6 +198,10 @@ async def analyze_url(
     is_figma = "figma.com" in url.lower()
     is_behance = "behance.net" in url.lower()
 
+    content = ""
+    extracted_images = []
+    extracted_links = []
+
     if is_figma:
         source_label = f"Figma Design ({url[:30]}...)"
         # Extraction
@@ -190,18 +209,20 @@ async def analyze_url(
     elif is_behance:
         source_label = f"Behance Project ({url[:30]}...)"
         # Web scraping
-        content = await scrape_url_content(url)
+        content, extracted_images, extracted_links = await scrape_url_content(url)
     else:
         source_label = f"Web Portfolio ({url[:30]}...)"
         # Web scraping
-        content = await scrape_url_content(url)
+        content, extracted_images, extracted_links = await scrape_url_content(url)
 
     # Queue background analysis workflow
     background_tasks.add_task(
         process_portfolio_job,
         job_id=job_id,
         content=content,
-        source_label=source_label
+        source_label=source_label,
+        extracted_images=extracted_images,
+        extracted_links=extracted_links
     )
 
     return {"job_id": job_id, "status": "processing"}
