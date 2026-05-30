@@ -47,16 +47,6 @@ def run_heuristic_analysis(text: str, filename: str, role_target: str, seniority
             if word in text_lower or (word == "git" and re.search(r'\bgit\b', text_lower)):
                 detected[cat].append(word.title() if len(word) > 3 else word.upper())
 
-    if not any(detected.values()):
-        if "ux" in role_target.lower() or "design" in role_target.lower():
-            detected["design_tool"] = ["Figma", "Adobe XD", "Miro"]
-            detected["methodology"] = ["User Research", "Wireframing", "Prototyping"]
-            detected["soft_skill"] = ["Collaboration", "Problem Solving"]
-        else:
-            detected["dev_tool"] = ["React", "JavaScript", "Node.js", "Git"]
-            detected["methodology"] = ["Agile", "Scrum"]
-            detected["soft_skill"] = ["Problem Solving", "Critical Thinking"]
-
     skills_list = []
     all_flat_detected = []
     for cat, items in detected.items():
@@ -158,7 +148,7 @@ def run_heuristic_analysis(text: str, filename: str, role_target: str, seniority
 
     # ── Module: design_artifacts ─────────────────────────────────────────────────
     design_artifacts = {
-        "artifacts_found": artifacts_found if artifacts_found else ["portfolio presentation slides"],
+        "artifacts_found": artifacts_found if artifacts_found else [],
         "artifacts_missing": artifacts_missing[:5],
         "artifact_quality": artifact_quality,
         "documentation_depth": documentation_depth,
@@ -185,19 +175,26 @@ def run_heuristic_analysis(text: str, filename: str, role_target: str, seniority
     }
 
     # ── Module: project_quality ──────────────────────────────────────────────────
+    # Extract projects dynamically from content via regex
+    extracted_projects = []
+    project_matches = re.findall(r'(?:project|case\s+study)(?:\s+name)?\s*:\s*([^\n\r\.\,\;\:]{3,40})', text, re.IGNORECASE)
+    if project_matches:
+        for p_name in set(project_matches):
+            p_name = p_name.strip()
+            if p_name and len(p_name) > 3:
+                extracted_projects.append({
+                    "name": p_name.title(),
+                    "type": "Case Study / Project",
+                    "quality_indicators": ["Extracted from text"],
+                    "depth": "moderate" if project_quality_score > 60 else "shallow"
+                })
+
     project_quality = {
         "quality_score": project_quality_score,
         "complexity_level": "advanced" if project_quality_score > 80 else ("intermediate" if project_quality_score > 60 else "basic"),
-        "projects_found": [
-            {
-                "name": "Detected Project",
-                "type": "Design / Product Case Study",
-                "quality_indicators": ["Visual documentation", "Process walkthrough"],
-                "depth": "moderate" if project_quality_score > 60 else "shallow"
-            }
-        ],
+        "projects_found": extracted_projects,
         "documentation_quality": "good" if project_quality_score > 70 else "fair",
-        "quality_summary": f"Projects demonstrate a {('strong' if project_quality_score > 75 else 'developing')} level of execution quality for a {seniority} {role_target}. Documentation coverage could be expanded with more process detail."
+        "quality_summary": f"Identified {len(extracted_projects)} project case studies within the portfolio content." if extracted_projects else "No explicit project case studies found in the text."
     }
 
     # ── Module: tech_depth ───────────────────────────────────────────────────────
