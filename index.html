@@ -1429,26 +1429,28 @@
                     </div>
                 </div>
 
-                <!-- Skills Analysis Matrix -->
+                <!-- Skills Extraction Matrix -->
                 <div class="glass-card">
                     <h3 class="list-card-title" style="border: none; padding: 0;"><i class="fa-solid fa-list-check" style="color: var(--emerald);"></i> Technology & Methodology Stack</h3>
                     <div class="skills-grid">
                         <div class="skills-col">
-                            <div class="skills-col-title">Advanced <span></span></div>
+                            <div class="skills-col-title">Design Stack <span></span></div>
                             <div class="skill-tags" id="skills-advanced-box"></div>
                         </div>
                         <div class="skills-col">
-                            <div class="skills-col-title">Intermediate <span></span></div>
+                            <div class="skills-col-title">Developer Stack <span></span></div>
                             <div class="skill-tags" id="skills-intermediate-box"></div>
                         </div>
                         <div class="skills-col">
-                            <div class="skills-col-title">Beginner / Exposure <span></span></div>
+                            <div class="skills-col-title">Methodologies & Core Skills <span></span></div>
                             <div class="skill-tags" id="skills-beginner-box"></div>
                         </div>
                     </div>
-                    <div style="margin-top: 1.25rem; display: flex; gap: 0.5rem; align-items: center; font-size: 0.8rem; color: var(--rose);">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                        <span>Expected Skill Gaps for Target Role: <strong><span id="dash-skill-gaps"></span></strong></span>
+                    <div style="display: none;">
+                        <div style="margin-top: 1.25rem; display: flex; gap: 0.5rem; align-items: center; font-size: 0.8rem; color: var(--rose);">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span>Expected Skill Gaps for Target Role: <strong><span id="dash-skill-gaps"></span></strong></span>
+                        </div>
                     </div>
                 </div>
 
@@ -1489,18 +1491,22 @@
                         <p style="font-size: 0.78rem; color: var(--rose); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;"><i class="fa-solid fa-circle-xmark"></i> Missing / Not Found</p>
                         <div id="dash-artifacts-missing" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
                     </div>
-                    <div style="display: flex; gap: 1.5rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color); font-size: 0.82rem;">
-                        <div><span style="color: var(--text-muted);">Depth: </span><strong id="dash-artifact-depth">—</strong></div>
-                        <div><span style="color: var(--text-muted);">Quality: </span><strong id="dash-artifact-quality-text">—</strong></div>
+                    <div style="display: none;">
+                        <div style="display: flex; gap: 1.5rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color); font-size: 0.82rem;">
+                            <div><span style="color: var(--text-muted);">Depth: </span><strong id="dash-artifact-depth">—</strong></div>
+                            <div><span style="color: var(--text-muted);">Quality: </span><strong id="dash-artifact-quality-text">—</strong></div>
+                        </div>
+                        <p style="font-size: 0.83rem; color: var(--text-muted); border-left: 3px solid var(--cyan); padding-left: 0.75rem; line-height: 1.55;" id="dash-artifact-detail-summary"></p>
                     </div>
-                    <p style="font-size: 0.83rem; color: var(--text-muted); border-left: 3px solid var(--cyan); padding-left: 0.75rem; line-height: 1.55;" id="dash-artifact-detail-summary"></p>
                 </div>
 
                 <!-- Project Quality Panel -->
                 <div class="glass-card" id="dash-projects-panel" style="display: none; flex-direction: column; gap: 1.25rem;">
-                    <h3 class="list-card-title" style="border: none; padding: 0;"><i class="fa-solid fa-briefcase" style="color: var(--primary);"></i> Project Quality Breakdown</h3>
+                    <h3 class="list-card-title" style="border: none; padding: 0;"><i class="fa-solid fa-briefcase" style="color: var(--primary);"></i> Extracted Projects</h3>
                     <div id="dash-projects-list" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
-                    <p style="font-size: 0.83rem; color: var(--text-muted); border-left: 3px solid var(--primary); padding-left: 0.75rem; line-height: 1.55;" id="dash-project-quality-summary"></p>
+                    <div style="display: none;">
+                        <p style="font-size: 0.83rem; color: var(--text-muted); border-left: 3px solid var(--primary); padding-left: 0.75rem; line-height: 1.55;" id="dash-project-quality-summary"></p>
+                    </div>
                 </div>
 
                 <div style="display: none;">
@@ -1996,10 +2002,10 @@
 
             // Skills Matrix (safe guards)
             const skillsData = jobReportData.skill_extractor || { skills: [], skill_gaps: [], primary_skills: [] };
-            renderSkillsCol('skills-advanced-box', (skillsData.skills || []).filter(s => s.proficiency === 'expert' || s.proficiency === 'advanced'));
-            renderSkillsCol('skills-intermediate-box', (skillsData.skills || []).filter(s => s.proficiency === 'intermediate'));
-            renderSkillsCol('skills-beginner-box', (skillsData.skills || []).filter(s => s.proficiency === 'beginner'));
-            document.getElementById('dash-skill-gaps').textContent = (skillsData.skill_gaps || []).join(', ') || "None detected";
+            renderSkillsCol('skills-advanced-box', (skillsData.skills || []).filter(s => s.category === 'design_tool'));
+            renderSkillsCol('skills-intermediate-box', (skillsData.skills || []).filter(s => s.category === 'dev_tool'));
+            renderSkillsCol('skills-beginner-box', (skillsData.skills || []).filter(s => s.category === 'methodology' || s.category === 'soft_skill'));
+            document.getElementById('dash-skill-gaps').textContent = "";
 
             // Strengths and Weaknesses (safe guards)
             renderListItems('dash-strengths-box', jobReportData.strengths || [], 'fa-solid fa-thumbs-up', 'var(--emerald)');
@@ -2074,14 +2080,13 @@
                     card.innerHTML = `
                         <div class="project-card-header">
                             <span class="project-card-name"><i class="fa-solid fa-folder-open" style="color:var(--primary);margin-right:0.4rem;"></i>${proj.name || 'Unnamed Project'}</span>
-                            <span class="project-depth-badge ${depthClass}">${depthClass}</span>
                         </div>
                         <div class="project-card-type">${proj.type || ''}</div>
                         ${indicators ? `<div class="project-quality-indicators">${indicators}</div>` : ''}
                     `;
                     projectsList.appendChild(card);
                 });
-                document.getElementById('dash-project-quality-summary').textContent = pq.quality_summary || '';
+                document.getElementById('dash-project-quality-summary').textContent = '';
             } else {
                 projectsPanel.style.display = 'none';
             }
