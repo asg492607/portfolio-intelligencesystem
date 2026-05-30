@@ -181,18 +181,16 @@ async def generate_text_embedding(text: str) -> list:
 # Heuristics local engine fallback (already built, import same)
 from analyzer_heuristics import run_heuristic_analysis
 
-def run_ai_analysis(text: str, filename: str, role_target: str, seniority: str) -> dict:
-    """Runs analysis using Gemini, Groq, OpenAI, or falls back to heuristics."""
+def run_ai_analysis(text: str, filename: str) -> dict:
+    """Runs data extraction using Gemini, Groq, OpenAI, or falls back to heuristics."""
     gemini_key = os.getenv("GEMINI_API_KEY")
     openai_key = os.getenv("OPENAI_API_KEY")
 
     prompt = f"""
-    You are Portfolio Intelligence Agent — an expert AI system that deeply analyzes design and development portfolios to identify design artifacts, extract skills, and evaluate project quality.
+    You are Portfolio Ingestion Agent — an AI system that analyzes design and development portfolios to extract stack tools, identify design artifacts, and list projects.
 
-    Your task is to analyze the portfolio content below and extract structured intelligence.
+    Your task is to analyze the portfolio content below and extract structured data.
     Source Context: {filename}
-    Declared Role: {role_target}
-    Experience Level: {seniority}
 
     Portfolio text content:
     ---
@@ -204,7 +202,6 @@ def run_ai_analysis(text: str, filename: str, role_target: str, seniority: str) 
       "report_id": "unique-uuid",
       "candidate_id": "CAN-XXXXXX",
       "generated_at": "ISO-TIMESTAMP",
-      "role_target": "{role_target}",
       "deep_analysis": {{
         "ui_quality": {{ "score": 0-100, "evidence": "specific design elements found", "comment": "1 sentence" }},
         "ux_thinking": {{ "score": 0-100, "evidence": "research/process artifacts found", "comment": "1 sentence" }},
@@ -347,5 +344,5 @@ def run_ai_analysis(text: str, filename: str, role_target: str, seniority: str) 
         except Exception as e:
             print(f"Error calling OpenAI in analyzer: {e}. Falling back to heuristics.")
 
-    return run_heuristic_analysis(text, filename, role_target, seniority)
+    return run_heuristic_analysis(text, filename)
 

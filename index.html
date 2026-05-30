@@ -1875,9 +1875,6 @@
             consoleStream.innerHTML = "";
             addLog("Initializing Portfolio Analysis Task Workspace...", "system");
 
-            const role = document.getElementById('role-target').value;
-            const sen = document.getElementById('seniority').value;
-
             // Ingestion Pipeline step details
             if (activeSourceType === 'pdf') {
                 document.getElementById('step-upload-desc').textContent = "Uploading PDF file to secure analysis workspace.";
@@ -1893,8 +1890,6 @@
                 if (activeSourceType === 'pdf') {
                     const formData = new FormData();
                     formData.append('file', selectedFile);
-                    formData.append('role_target', role);
-                    formData.append('seniority', sen);
 
                     response = await fetch('/api/v1/analyze/pdf', {
                         method: 'POST',
@@ -1907,9 +1902,7 @@
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            url: selectedUrl,
-                            role_target: role,
-                            seniority: sen
+                            url: selectedUrl
                         })
                     });
                 }
@@ -1986,8 +1979,6 @@
             document.getElementById('dash-candidate-id').textContent = `CANDIDATE: ${jobReportData.candidate_id}`;
             document.getElementById('dash-role-target').textContent = `Portfolio Data Extraction Report`;
             document.getElementById('btn-download-json').style.display = 'inline-flex';
-            document.getElementById('dash-meta-role').textContent = jobReportData.role_target;
-            document.getElementById('dash-meta-seniority').textContent = jobReportData.seniority || document.getElementById('seniority').value;
             document.getElementById('dash-meta-date').textContent = new Date(jobReportData.generated_at).toLocaleDateString();
 
             // Calculate and display scores

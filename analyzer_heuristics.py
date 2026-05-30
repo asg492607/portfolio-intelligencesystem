@@ -33,11 +33,8 @@ ARTIFACT_KEYWORDS = {
 }
 
 
-def run_heuristic_analysis(text: str, filename: str, role_target: str, seniority: str) -> dict:
+def run_heuristic_analysis(text: str, filename: str) -> dict:
     """Analyze text using heuristics to generate a realistic structured portfolio review."""
-    role_target = role_target or "UX Designer"
-    seniority = seniority or "Mid"
-
     text_lower = text.lower()
 
     # ── Skill detection ─────────────────────────────────────────────────────────
@@ -63,7 +60,7 @@ def run_heuristic_analysis(text: str, filename: str, role_target: str, seniority
     primary_skills = all_flat_detected[:3] if len(all_flat_detected) >= 3 else all_flat_detected
 
     gaps = []
-    if "ux" in role_target.lower() or "design" in role_target.lower():
+    if "ux" in text_lower or "design" in text_lower or "figma" in text_lower:
         if "Figma" not in all_flat_detected:
             gaps.append("Figma")
         if "User Research" not in all_flat_detected:
@@ -111,7 +108,7 @@ def run_heuristic_analysis(text: str, filename: str, role_target: str, seniority
     ui_score = min(100, int(base_score + 5))
     ux_score = min(100, int(base_score - 2))
     maturity_score = min(100, int(base_score - 5))
-    tech_score = min(100, int(base_score if "dev" in role_target.lower() else base_score - 10))
+    tech_score = min(100, int(base_score))
     innovation_score_val = min(100, int(base_score - 8))
     consistency_score_val = min(100, int(base_score + 2))
     artifact_score = min(100, int(40 + artifact_bonus + skills_count_score))
@@ -135,7 +132,7 @@ def run_heuristic_analysis(text: str, filename: str, role_target: str, seniority
             "comment": "Projects exhibit good completeness, illustrating standard professional workflows."
         },
         "overall_score": int((ui_score + ux_score + maturity_score) / 3),
-        "summary": f"This portfolio shows a solid foundation in {role_target} fundamentals. Features clear documentation of project iterations and neat visual presentation."
+        "summary": "This portfolio shows a solid foundation in design and development fundamentals. Features clear documentation of project iterations and neat visual presentation."
     }
 
     # ── Module: skill_extractor ──────────────────────────────────────────────────
@@ -265,8 +262,6 @@ def run_heuristic_analysis(text: str, filename: str, role_target: str, seniority
         "report_id": str(uuid.uuid4()),
         "candidate_id": f"CAN-{str(uuid.uuid4())[:8].upper()}",
         "generated_at": datetime.datetime.utcnow().isoformat() + "Z",
-        "role_target": role_target,
-        "seniority": seniority,
 
         "deep_analysis": deep_analysis,
         "skill_extractor": skill_extractor,

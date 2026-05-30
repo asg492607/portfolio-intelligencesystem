@@ -42,10 +42,8 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 class UrlAnalyzeRequest(BaseModel):
     url: str
-    role_target: str = "UX Designer"
-    seniority: str = "Mid"
 
-async def process_portfolio_job(job_id: str, content: str, source_label: str, role_target: str, seniority: str, local_file_to_clean: str = None):
+async def process_portfolio_job(job_id: str, content: str, source_label: str, local_file_to_clean: str = None):
     """Orchestrates the background analysis pipeline: S3 storage -> vector embedding -> AI analysis -> DB update."""
     from database import SessionLocal
     db = SessionLocal()
@@ -72,7 +70,7 @@ async def process_portfolio_job(job_id: str, content: str, source_label: str, ro
                 chunk_index=0,
                 text=content[:2000],
                 vector=embedding,
-                metadata={"source": source_label, "role_target": role_target, "seniority": seniority}
+                metadata={"source": source_label}
             )
             print("Successfully indexed chunk vector to Qdrant.")
         except Exception as e:
@@ -82,9 +80,7 @@ async def process_portfolio_job(job_id: str, content: str, source_label: str, ro
         report_data = await asyncio.to_thread(
             run_ai_analysis,
             content,
-            source_label,
-            role_target,
-            seniority
+            source_label
         )
 
         # Step 5 & 6: Update DB & complete
@@ -113,8 +109,6 @@ async def process_portfolio_job(job_id: str, content: str, source_label: str, ro
 async def analyze_pdf(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
-    role_target: str = Form("UX Designer"),
-    seniority: str = Form("Mid"),
     db: Session = Depends(get_db)
 ):
     """Upload a PDF portfolio and start background analysis."""
@@ -132,8 +126,6 @@ async def analyze_pdf(
     db_job = models.Job(
         id=job_id,
         filename=file.filename,
-        role_target=role_target,
-        seniority=seniority,
         status="processing"
     )
     db.add(db_job)
@@ -159,8 +151,6 @@ async def analyze_pdf(
         job_id=job_id,
         content=text_content,
         source_label=file.filename,
-        role_target=role_target,
-        seniority=seniority,
         local_file_to_clean=temp_file_path
     )
 
@@ -183,8 +173,6 @@ async def analyze_url(
     db_job = models.Job(
         id=job_id,
         portfolio_url=url,
-        role_target=payload.role_target,
-        seniority=payload.seniority,
         status="processing"
     )
     db.add(db_job)
@@ -213,9 +201,7 @@ async def analyze_url(
         process_portfolio_job,
         job_id=job_id,
         content=content,
-        source_label=source_label,
-        role_target=payload.role_target,
-        seniority=payload.seniority
+        source_label=source_label
     )
 
     return {"job_id": job_id, "status": "processing"}
@@ -232,8 +218,6 @@ async def get_report(job_id: str, db: Session = Depends(get_db)):
         "status": db_job.status,
         "filename": db_job.filename,
         "portfolio_url": db_job.portfolio_url,
-        "role_target": db_job.role_target,
-        "seniority": db_job.seniority,
         "results": db_job.results
     }
 
