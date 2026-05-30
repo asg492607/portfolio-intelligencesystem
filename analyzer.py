@@ -297,7 +297,26 @@ def run_ai_analysis(text: str, filename: str, role_target: str, seniority: str) 
             
             return json.loads(clean_text)
         except Exception as e:
-            print(f"Error calling Gemini in analyzer: {e}. Trying OpenAI fallback.")
+            print(f"Error calling Gemini in analyzer: {e}. Trying Groq fallback.")
+
+    groq_key = os.getenv("GROQ_API_KEY")
+    if groq_key:
+        try:
+            from openai import OpenAI
+            # Groq is fully OpenAI-compatible. We just specify their base URL and API key.
+            client = OpenAI(api_key=groq_key, base_url="https://api.groq.com/openai/v1")
+            response = client.chat.completions.create(
+                model="llama3-70b-8192",
+                messages=[
+                    {"role": "system", "content": "You are a Portfolio Intelligence Agent API that evaluates portfolios and outputs valid JSON strictly matching templates."},
+                    {"role": "user", "content": prompt}
+                ],
+                response_format={"type": "json_object"}
+            )
+            clean_text = response.choices[0].message.content.strip()
+            return json.loads(clean_text)
+        except Exception as e:
+            print(f"Error calling Groq in analyzer: {e}. Trying OpenAI fallback.")
 
     if openai_key:
         try:
