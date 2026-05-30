@@ -6,7 +6,7 @@
     <title>Portfolio Intelligence Agent | AI-Powered UX, UI & Technical Portfolio Evaluation</title>
     <!-- Meta Descriptions for SEO Compliance -->
     <meta name="description" content="Evaluate visual quality, UX thinking, technical depth, and career readiness of student and candidate portfolios against real-world industry benchmarks in seconds using our AI-powered intelligence agent.">
-    <meta name="keywords" content="portfolio intelligence, portfolio review, UX designer portfolio, tech depth, creative agency benchmarks, recruiter screening, UI quality, career coach">
+    <meta name="keywords" content="portfolio intelligence, portfolio review, UX designer portfolio, tech depth, design artifacts, project quality, UI quality, career coach">
     <meta name="robots" content="index, follow">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -623,8 +623,8 @@
             color: var(--text-muted);
         }
 
-        /* Recruiter Verdict Alert Callout */
-        .verdict-callout {
+        /* Artifact Richness Banner */
+        .artifact-banner {
             display: grid;
             grid-template-columns: auto 1fr auto;
             align-items: center;
@@ -632,29 +632,18 @@
             padding: 1.25rem 1.5rem;
             border-radius: 10px;
             margin-bottom: 2rem;
-            border-left: 5px solid var(--primary);
-            background: linear-gradient(to right, rgba(99, 102, 241, 0.08), transparent);
-        }
-
-        .verdict-callout.must_interview {
-            border-color: var(--emerald);
+            border-left: 5px solid var(--emerald);
             background: linear-gradient(to right, rgba(16, 185, 129, 0.08), transparent);
         }
-        .verdict-callout.recommend {
-            border-color: var(--cyan);
-            background: linear-gradient(to right, rgba(34, 211, 238, 0.08), transparent);
-        }
-        .verdict-callout.consider {
-            border-color: var(--amber);
-            background: linear-gradient(to right, rgba(245, 158, 11, 0.08), transparent);
-        }
-
-        .verdict-icon {
-            font-size: 1.75rem;
-        }
-        .verdict-callout.must_interview .verdict-icon { color: var(--emerald); }
-        .verdict-callout.recommend .verdict-icon { color: var(--cyan); }
-        .verdict-callout.consider .verdict-icon { color: var(--amber); }
+        .artifact-banner.poor { border-color: var(--rose); background: linear-gradient(to right, rgba(244, 63, 94, 0.08), transparent); }
+        .artifact-banner.fair { border-color: var(--amber); background: linear-gradient(to right, rgba(245, 158, 11, 0.08), transparent); }
+        .artifact-banner.good { border-color: var(--cyan); background: linear-gradient(to right, rgba(34, 211, 238, 0.08), transparent); }
+        .artifact-banner.excellent { border-color: var(--emerald); background: linear-gradient(to right, rgba(16, 185, 129, 0.08), transparent); }
+        .artifact-banner-icon { font-size: 1.75rem; }
+        .artifact-banner.poor .artifact-banner-icon { color: var(--rose); }
+        .artifact-banner.fair .artifact-banner-icon { color: var(--amber); }
+        .artifact-banner.good .artifact-banner-icon { color: var(--cyan); }
+        .artifact-banner.excellent .artifact-banner-icon { color: var(--emerald); }
 
         .verdict-text {
             font-size: 0.9rem;
@@ -1054,7 +1043,7 @@
                 background: white !important;
                 color: black !important;
             }
-            header, #view-upload, #view-pipeline, .live-weights-panel, .btn-outline, #btn-back-upload, #simulator-badge {
+            header, #view-upload, #view-pipeline, .live-weights-panel, .btn-outline, #btn-back-upload {
                 display: none !important;
             }
             .view-section {
@@ -1108,9 +1097,7 @@
                 <h1 class="logo-text" style="font-size: 1.35rem; background: linear-gradient(to right, #0f172a, #4f46e5); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Portfolio Intelligence</h1>
             </a>
             <div class="nav-actions">
-                <span id="simulator-badge" style="display: none; background-color: var(--amber-glow); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-family: 'Fira Code', monospace;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> Browser Simulator Mode
-                </span>
+
                 <button class="btn-outline" id="btn-back-upload" style="display: none;" onclick="resetToUpload()">
                     <i class="fa-solid fa-arrow-left"></i> Analyze New
                 </button>
@@ -1225,7 +1212,7 @@
             <!-- Right Weight Config -->
             <div class="glass-card" style="display: flex; flex-direction: column; gap: 1.25rem;">
                 <h3 style="font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fa-solid fa-scale-balanced" style="color: var(--cyan);"></i> 3. Recruiter Scoring Model
+                    <i class="fa-solid fa-sliders" style="color: var(--cyan);"></i> 3. Analysis Weight Configuration
                 </h3>
                 
                 <div class="form-group">
@@ -1352,23 +1339,14 @@
             </div>
         </div>
 
-        <!-- Recruiter Verdict -->
-        <div class="verdict-callout" id="dash-verdict-banner">
-            <div class="verdict-icon"><i class="fa-solid fa-circle-check"></i></div>
-            <div class="verdict-text">
-                <h4 style="margin-bottom: 0.25rem;">Recruiter Recommendation</h4>
-                <p id="dash-verdict-reason">Strong match. Proceed with full portfolio interview loops immediately.</p>
+        <!-- Artifact Quality Banner -->
+        <div class="artifact-banner excellent" id="dash-artifact-banner">
+            <div class="artifact-banner-icon"><i class="fa-solid fa-layer-group"></i></div>
+            <div>
+                <h4 style="margin-bottom: 0.25rem;">Design Artifact Analysis</h4>
+                <p id="dash-artifact-summary">Analyzing portfolio design artifacts and documentation depth.</p>
             </div>
-            <div class="verdict-badge" id="dash-verdict-badge">MUST INTERVIEW</div>
-        </div>
-
-        <!-- Hidden Talent Callout -->
-        <div class="hidden-talent-alert" id="dash-hidden-talent-box" style="display: none; margin-bottom: 2rem;">
-            <i class="fa-solid fa-wand-magic-sparkles"></i>
-            <div class="hidden-talent-content">
-                <h5>Hidden Talent Pattern Detected</h5>
-                <p id="dash-hidden-talent-note">The presentation displays deep domain methodologies which might be initially overlooked by raw visual reviews.</p>
-            </div>
+            <div class="verdict-badge" id="dash-artifact-quality-badge">EXCELLENT</div>
         </div>
 
         <!-- Dashboard Body Layout -->
@@ -1450,8 +1428,8 @@
                     
                     <div class="readiness-gauge">
                         <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
-                            <span>Industry Readiness</span>
-                            <span id="dash-metric-readiness">80%</span>
+                            <span>Artifact Richness</span>
+                            <span id="dash-metric-readiness">0%</span>
                         </div>
                         <div class="readiness-bar-bg">
                             <div class="readiness-bar-fill" id="dash-readiness-bar"></div>
@@ -1505,16 +1483,14 @@
         let activeSourceType = 'pdf'; // pdf, behance, figma, web
         let activeJobId = null;
         let jobReportData = null; // Store full results object
-        let simulatorMode = false;
-        
-        // Modules weight configurations
+
+        // 7-module real engine weight configurations
         const MODULE_KEYS = [
             "deep_analysis",
             "skill_extractor",
+            "design_artifacts",
             "innovation_score",
-            "benchmarking",
-            "hidden_talent",
-            "portfolio_coach",
+            "project_quality",
             "tech_depth",
             "consistency"
         ];
@@ -1522,10 +1498,9 @@
         const MODULE_LABELS = {
             deep_analysis: "Deep Analysis (UX/UI)",
             skill_extractor: "Skill Extractor",
+            design_artifacts: "Design Artifacts",
             innovation_score: "Innovation & Originality",
-            benchmarking: "Industry Benchmarking",
-            hidden_talent: "Hidden Talent Signals",
-            portfolio_coach: "Improvement Coach",
+            project_quality: "Project Quality",
             tech_depth: "Technical Depth",
             consistency: "Design Consistency"
         };
@@ -1533,54 +1508,49 @@
         const MODULE_ICONS = {
             deep_analysis: "fa-solid fa-magnifying-glass",
             skill_extractor: "fa-solid fa-list-check",
+            design_artifacts: "fa-solid fa-layer-group",
             innovation_score: "fa-solid fa-lightbulb",
-            benchmarking: "fa-solid fa-chart-line",
-            hidden_talent: "fa-solid fa-wand-magic-sparkles",
-            portfolio_coach: "fa-solid fa-user-tie",
+            project_quality: "fa-solid fa-briefcase",
             tech_depth: "fa-solid fa-code-fork",
             consistency: "fa-solid fa-align-left"
         };
 
         const PRESET_WEIGHTS = {
             startup: {
-                deep_analysis: 0.10,
-                skill_extractor: 0.15,
-                innovation_score: 0.20,
-                benchmarking: 0.05,
-                hidden_talent: 0.15,
-                portfolio_coach: 0.10,
-                tech_depth: 0.20,
+                deep_analysis: 0.15,
+                skill_extractor: 0.10,
+                design_artifacts: 0.15,
+                innovation_score: 0.25,
+                project_quality: 0.15,
+                tech_depth: 0.15,
                 consistency: 0.05
             },
             corporate: {
-                deep_analysis: 0.15,
-                skill_extractor: 0.10,
+                deep_analysis: 0.20,
+                skill_extractor: 0.15,
+                design_artifacts: 0.25,
                 innovation_score: 0.05,
-                benchmarking: 0.20,
-                hidden_talent: 0.05,
-                portfolio_coach: 0.15,
+                project_quality: 0.15,
                 tech_depth: 0.10,
-                consistency: 0.20
+                consistency: 0.10
             },
             agency: {
                 deep_analysis: 0.20,
                 skill_extractor: 0.10,
-                innovation_score: 0.25,
-                benchmarking: 0.10,
-                hidden_talent: 0.10,
-                portfolio_coach: 0.10,
+                design_artifacts: 0.25,
+                innovation_score: 0.20,
+                project_quality: 0.10,
                 tech_depth: 0.05,
                 consistency: 0.10
             },
             product: {
                 deep_analysis: 0.20,
                 skill_extractor: 0.15,
+                design_artifacts: 0.20,
                 innovation_score: 0.10,
-                benchmarking: 0.10,
-                hidden_talent: 0.10,
-                portfolio_coach: 0.15,
+                project_quality: 0.20,
                 tech_depth: 0.10,
-                consistency: 0.10
+                consistency: 0.05
             }
         };
 
@@ -1845,9 +1815,8 @@
                     throw new Error(err.detail || "Ingestion failed.");
                 }
             } catch (error) {
-                addLog(`Backend connection unreachable: ${error.message}`, "warn");
-                addLog("Falling back to local client-side Browser Simulator Engine.", "system");
-                activateSimulator(role, sen);
+                addLog(`Backend connection unreachable: ${error.message}`, "error");
+                addLog("Please ensure the backend server is running and retry.", "warn");
             }
         }
 
@@ -1884,159 +1853,16 @@
                         renderDashboard();
                     } else if (data.status === "error") {
                         clearInterval(timer);
-                        addLog("Job returned code ERROR on worker thread.", "warn");
-                        activateSimulator(data.role_target, data.seniority);
+                        addLog("Analysis job encountered an error on the server. Please retry.", "error");
                     }
                 } catch (e) {
                     clearInterval(timer);
-                    addLog(`Connection interrupted: ${e.message}`, "warn");
-                    activateSimulator("UX Designer", "Mid");
+                    addLog(`Connection interrupted: ${e.message}. Please check the backend and retry.`, "error");
                 }
             }, 2500);
         }
 
-        // Offline Simulator fallback if backend is offline or Render free instances are spinning up
-        function activateSimulator(role, seniority) {
-            simulatorMode = true;
-            document.getElementById('simulator-badge').style.display = "block";
-
-            let stepLogs = {
-                pdf: 'PDF text structures and layout vectors parsing locally.',
-                behance: 'BeautifulSoup scraping Behance project tags and grids...',
-                figma: 'Mocking Figma REST document layer parser details...',
-                web: 'Scraping target website elements and markup components...'
-            };
-
-            let steps = [
-                { id: 'step-upload', log: 'Secure document buffers initialized locally.', status: 'Local' },
-                { id: 'step-extract', log: stepLogs[activeSourceType], status: 'Complete' },
-                { id: 'step-understand', log: 'Generating local vectors and matching against role criteria...', status: 'Complete' },
-                { id: 'step-modules', log: 'Evaluating 8 modules in parallel threads...', status: 'Complete' },
-                { id: 'step-finalize', log: 'Persisting job details and formatting dashboard visuals...', status: 'Complete' }
-            ];
-
-            let curStep = 0;
-            let runInterval = setInterval(() => {
-                if (curStep > 0) {
-                    updateStepStatus(steps[curStep-1].id, 'completed', steps[curStep-1].status);
-                }
-                
-                if (curStep < steps.length) {
-                    updateStepStatus(steps[curStep].id, 'active', 'Running...');
-                    addLog(steps[curStep].log, "system");
-                    curStep++;
-                } else {
-                    clearInterval(runInterval);
-                    addLog("Compilation complete. Rerouting to dashboard views.", "success");
-                    
-                    const srcLabel = activeSourceType === 'pdf' ? (selectedFile ? selectedFile.name : "portfolio.pdf") : selectedUrl;
-                    jobReportData = generateSimulatedReport(srcLabel, role, seniority);
-                    setTimeout(() => renderDashboard(), 1000);
-                }
-            }, 1200);
-        }
-
-        // Generate mockup local report for simulator fallback
-        function generateSimulatedReport(filename, role, seniority) {
-            // Build key structures matching Heuristic review structure
-            const detectedSkills = {
-                design_tool: ["Figma", "Adobe XD", "Miro", "Photoshop"],
-                dev_tool: ["React", "JavaScript", "TailwindCSS", "CSS3", "HTML5", "Git"],
-                methodology: ["User Research", "Wireframing", "Prototyping", "Information Architecture"],
-                soft_skill: ["Problem Solving", "Collaboration", "Communication"]
-            };
-
-            let skillsList = [];
-            for (let cat in detectedSkills) {
-                detectedSkills[cat].forEach((name, idx) => {
-                    skillsList.push({
-                        name: name,
-                        category: cat,
-                        proficiency: idx === 0 ? "expert" : (idx < 2 ? "advanced" : "intermediate"),
-                        evidence: "Extracted from portfolio case projects."
-                    });
-                });
-            }
-
-            return {
-                report_id: "SIM-" + Math.floor(Math.random()*100000),
-                candidate_id: "CAN-SIM" + Math.floor(Math.random()*10000),
-                generated_at: new Date().toISOString(),
-                role_target: role,
-                deep_analysis: {
-                    ui_quality: { score: 85, evidence: "High typographic consistency and structural grid alignments.", comment: "Visual quality exhibits great precision and refined visual balance." },
-                    ux_thinking: { score: 78, evidence: "Includes persona mapping and iterative user validation steps.", comment: "Good application of user research though quantitative metrics are light." },
-                    project_maturity: { score: 80, evidence: "Illustrates multi-platform product scopes.", comment: "Projects show solid execution with clear real-world delivery details." },
-                    overall_score: 81,
-                    summary: "A robust portfolio highlighting strong creative foundations, structured design thinking patterns, and polished layouts."
-                },
-                skill_extractor: {
-                    skills: skillsList,
-                    primary_skills: ["Figma", "React", "User Research"],
-                    skill_gaps: ["Design Tokens (JSON)", "Docker", "Unit Testing"],
-                    total_skills_detected: skillsList.length
-                },
-                innovation_score: {
-                    originality_score: 76,
-                    creative_risk_level: "medium",
-                    standout_moments: [
-                        { project: "E-Commerce Re-design", innovation: "Re-modeled checkouts using dynamic sliding drawers instead of multi-step paginations.", impact: "Optimizes transactional speeds and eliminates checkout drop-offs." }
-                    ],
-                    pattern_dependency: "Moderate usage of template grids; custom component definitions are clear.",
-                    innovation_summary: "Shows clear styling and a personalized layout structure.",
-                    score_rationale: "Displays custom design assets while respecting layout standards."
-                },
-                benchmarking: {
-                    industry_score: 82,
-                    percentile_estimate: "top 18%",
-                    present: ["Interactive prototype layouts", "Refined responsive components"],
-                    partial: ["User research test surveys", "Design system tokens"],
-                    missing: ["Interactive custom animation variables"],
-                    vs_top_portfolios: `Exhibits strong layout patterns and content polish matching standard ${seniority} level demands.`,
-                    industry_readiness: "ready_now"
-                },
-                hidden_talent: {
-                    hidden_potential_score: 85,
-                    presentation_vs_substance_gap: "medium",
-                    hidden_signals: [
-                        { signal: "Strong detail documentation", location: "Case studies", why_it_matters: "Shows comprehensive and clean developer-ready handoff details." }
-                    ],
-                    overlooked_strengths: ["Clear project specifications", "Highly readable hierarchy"],
-                    recruiter_flag: "must_interview",
-                    flag_reason: "High score consistency across both visual polish and structural maturity."
-                },
-                portfolio_coach: {
-                    suggestions: [
-                        { priority: "critical", area: "Quantitative Metrics", problem: "Design reviews miss explicit test outcome metrics.", fix: "Show quantitative metrics demonstrating optimization.", example: "e.g., 'Usability tests showed success rates increase from 60% to 92%.'" },
-                        { priority: "medium", area: "Design Token Specification", problem: "Typography values are styled without explicit grid styles.", fix: "Add layout spacing tokens (rem/px) guides to project details.", example: "Define a 4px/8px layout system chart." }
-                    ],
-                    quick_wins: [
-                        "Link live deployment links at the top of case projects",
-                        "Include standard role/duration detail cards",
-                        "Optimize styling of code documentation snippets"
-                    ],
-                    overall_coach_note: "Your layouts are exceptionally clear. Work on integrating quantitative user research results and explicit developer-handout specs to further elevate your hire rates."
-                },
-                tech_depth: {
-                    technical_score: 82,
-                    complexity_level: "advanced",
-                    tools_and_stack: ["Figma", "React", "Git", "TailwindCSS", "Node.js"],
-                    complexity_evidence: [
-                        { project: "Responsive Application Workspace", technical_detail: "Interactive state rendering and responsive layout models.", sophistication: "Demonstrates standard engineering and component modeling skills." }
-                    ],
-                    technical_gaps: ["AWS cloud services", "Docker container models"],
-                    technical_summary: "Exhibits excellent engineering foundations and component layout awareness."
-                },
-                consistency: {
-                    consistency_score: 88,
-                    layout_coherence: { score: 90, issues: [] },
-                    brand_consistency: { score: 86, issues: [] },
-                    completeness: { score: 92, missing_sections: [] },
-                    professionalism_flag: "publication_ready",
-                    consistency_summary: "Outstanding design coherence. Font weights and card parameters align cleanly."
-                }
-            };
-        }
+        // No simulator — real engine only
 
         // Render Report Results to Dashboard View
         function renderDashboard() {
@@ -2054,24 +1880,13 @@
             // Calculate and display scores
             recalculateWeightedScore();
 
-            // Recruiter Verdict
-            const banner = document.getElementById('dash-verdict-banner');
-            const badge = document.getElementById('dash-verdict-badge');
-            const reason = document.getElementById('dash-verdict-reason');
-            const rec = jobReportData.recruiter_recommendation;
-
-            banner.className = `verdict-callout ${rec}`;
-            badge.textContent = rec.replace('_', ' ');
-            reason.textContent = jobReportData.recommendation_reason;
-
-            // Hidden Talent Panel
-            const talentBox = document.getElementById('dash-hidden-talent-box');
-            if (jobReportData.hidden_talent_flag === "yes" || jobReportData.hidden_talent.hidden_potential_score > 75) {
-                talentBox.style.display = "flex";
-                document.getElementById('dash-hidden-talent-note').textContent = jobReportData.hidden_talent_note || jobReportData.hidden_talent.hidden_signals[0].why_it_matters;
-            } else {
-                talentBox.style.display = "none";
-            }
+            // Design Artifact Banner
+            const da = jobReportData.design_artifacts || {};
+            const artBanner = document.getElementById('dash-artifact-banner');
+            const artQuality = da.artifact_quality || 'fair';
+            artBanner.className = `artifact-banner ${artQuality}`;
+            document.getElementById('dash-artifact-quality-badge').textContent = artQuality.toUpperCase();
+            document.getElementById('dash-artifact-summary').textContent = da.artifact_summary || 'Design artifact analysis complete.';
 
             // Skills Matrix
             renderSkillsCol('skills-advanced-box', jobReportData.skill_extractor.skills.filter(s => s.proficiency === 'expert' || s.proficiency === 'advanced'));
@@ -2112,8 +1927,10 @@
             document.getElementById('dash-coach-note').innerHTML = `<strong>Coach Note:</strong> ${jobReportData.portfolio_coach.overall_coach_note}`;
 
             // Sidebar General Metrics
-            document.getElementById('dash-metric-readiness').textContent = `${jobReportData.benchmarking.industry_score}%`;
-            document.getElementById('dash-readiness-bar').style.width = `${jobReportData.benchmarking.industry_score}%`;
+            const artifactScore = jobReportData.design_artifacts ? (jobReportData.design_artifacts.artifacts_found?.length || 0) * 10 : 0;
+            const artifactPct = Math.min(100, artifactScore);
+            document.getElementById('dash-metric-readiness').textContent = `${artifactPct}%`;
+            document.getElementById('dash-readiness-bar').style.width = `${artifactPct}%`;
             document.getElementById('dash-metric-visual').textContent = `${jobReportData.deep_analysis.ui_quality.score}/100`;
             document.getElementById('dash-metric-ux').textContent = `${jobReportData.deep_analysis.ux_thinking.score}/100`;
             document.getElementById('dash-metric-creativity').textContent = jobReportData.innovation_score.creative_risk_level;
@@ -2127,16 +1944,15 @@
         function recalculateWeightedScore() {
             if (!jobReportData) return;
 
-            // Module raw scores mapping
+            // Module raw scores mapping (7 real engine modules)
             const rawScores = {
-                deep_analysis: jobReportData.deep_analysis.overall_score || 70,
-                skill_extractor: Math.min(100, (jobReportData.skill_extractor.total_skills_detected || 5) * 8),
-                innovation_score: jobReportData.innovation_score.originality_score || 70,
-                benchmarking: jobReportData.benchmarking.industry_score || 70,
-                hidden_talent: jobReportData.hidden_talent.hidden_potential_score || 70,
-                portfolio_coach: 80,
-                tech_depth: jobReportData.tech_depth.technical_score || 70,
-                consistency: jobReportData.consistency.consistency_score || 70
+                deep_analysis: jobReportData.deep_analysis?.overall_score || 70,
+                skill_extractor: Math.min(100, (jobReportData.skill_extractor?.total_skills_detected || 5) * 8),
+                design_artifacts: jobReportData.design_artifacts ? Math.min(100, (jobReportData.design_artifacts.artifacts_found?.length || 0) * 10 + 30) : 50,
+                innovation_score: jobReportData.innovation_score?.originality_score || 70,
+                project_quality: jobReportData.project_quality?.quality_score || 70,
+                tech_depth: jobReportData.tech_depth?.technical_score || 70,
+                consistency: jobReportData.consistency?.consistency_score || 70
             };
 
             let weightedSum = 0;
@@ -2183,21 +1999,20 @@
                 } else if (key === 'skill_extractor') {
                     evidenceText = `Detected ${jobReportData.skill_extractor.total_skills_detected} skills.`;
                     commentText = `Primary skills: ${jobReportData.skill_extractor.primary_skills.join(', ')}`;
+                } else if (key === 'design_artifacts') {
+                    const da = jobReportData.design_artifacts || {};
+                    evidenceText = `Artifacts found: ${(da.artifacts_found || []).join(', ') || 'None detected'}`;
+                    commentText = da.artifact_summary || 'Artifact analysis complete.';
                 } else if (key === 'innovation_score') {
-                    evidenceText = jobReportData.innovation_score.standout_moments[0]?.innovation || "Unique style features.";
-                    commentText = jobReportData.innovation_score.score_rationale;
-                } else if (key === 'benchmarking') {
-                    evidenceText = jobReportData.benchmarking.vs_top_portfolios;
-                    commentText = `Ready level: ${jobReportData.benchmarking.industry_readiness.replace('_', ' ')}`;
-                } else if (key === 'hidden_talent') {
-                    evidenceText = jobReportData.hidden_talent.hidden_signals[0]?.signal || "None";
-                    commentText = jobReportData.hidden_talent.flag_reason;
-                } else if (key === 'portfolio_coach') {
-                    evidenceText = `Suggestions Count: ${jobReportData.portfolio_coach.suggestions.length}`;
-                    commentText = `Quick wins: ${jobReportData.portfolio_coach.quick_wins.length}`;
+                    evidenceText = jobReportData.innovation_score?.standout_moments[0]?.innovation || "Unique style features.";
+                    commentText = jobReportData.innovation_score?.score_rationale || '';
+                } else if (key === 'project_quality') {
+                    const pq = jobReportData.project_quality || {};
+                    evidenceText = `${pq.projects_found?.length || 0} project(s) found — ${pq.complexity_level || 'intermediate'} complexity`;
+                    commentText = pq.quality_summary || 'Project quality analysis complete.';
                 } else if (key === 'tech_depth') {
-                    evidenceText = jobReportData.tech_depth.complexity_evidence[0]?.technical_detail || "None";
-                    commentText = jobReportData.tech_depth.technical_summary;
+                    evidenceText = jobReportData.tech_depth?.complexity_evidence[0]?.technical_detail || "None";
+                    commentText = jobReportData.tech_depth?.technical_summary || '';
                 } else if (key === 'consistency') {
                     evidenceText = `Completeness: ${jobReportData.consistency.completeness.score}/100`;
                     commentText = jobReportData.consistency.consistency_summary;
@@ -2233,9 +2048,9 @@
             const cy = 110;
             const r = 72;
             const levels = 5;
-            const numAxis = 8;
+            const numAxis = 7;
             const angleSlice = (Math.PI * 2) / numAxis;
-            const labels = ["UI", "Skills", "Originality", "Bench", "Talent", "Coach", "Tech", "Coherence"];
+            const labels = ["UI/UX", "Skills", "Artifacts", "Originality", "Projects", "Tech", "Coherence"];
 
             // 1. Draw Level concentric rings (Polygons instead of circles for standard radar look!)
             for (let j = 1; j <= levels; j++) {
