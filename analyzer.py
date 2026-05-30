@@ -327,8 +327,8 @@ def run_ai_analysis(text: str, filename: str, role_target: str, seniority: str) 
     if groq_key:
         try:
             from openai import OpenAI
-            # Get configured Groq model or default to the flagship llama-3.3-70b-specdec
-            groq_model = os.getenv("GROQ_MODEL", "llama-3.3-70b-specdec")
+            # Get configured Groq model or default to the flagship llama-3.3-70b-versatile
+            groq_model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
             # Groq is fully OpenAI-compatible. We just specify their base URL and API key.
             client = OpenAI(api_key=groq_key, base_url="https://api.groq.com/openai/v1")
             response = client.chat.completions.create(
