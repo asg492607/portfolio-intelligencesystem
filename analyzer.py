@@ -44,7 +44,7 @@ def extract_text_from_pdf(file_path: str) -> str:
         print(f"Error reading PDF: {e}")
     return text_content.strip()
 
-# 2. Web Scraping for Website / Behance
+# 2. Web Scraping for Website / Behance (Enhanced Accuracy Boilerplate Stripping)
 async def scrape_url_content(url: str) -> str:
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
@@ -55,9 +55,19 @@ async def scrape_url_content(url: str) -> str:
             if response.status_code == 200:
                 soup = BeautifulSoup(response.text, "html.parser")
                 
-                # Strip scripts and styles
-                for script in soup(["script", "style"]):
-                    script.extract()
+                # Extract meta description for high-level context
+                meta_desc = ""
+                meta_tag = soup.find("meta", attrs={"name": "description"}) or soup.find("meta", attrs={"property": "og:description"})
+                if meta_tag:
+                    meta_desc = meta_tag.get("content", "").strip()
+
+                # Strip structural navigation, scripts, styles, headers, and footers to isolate project body text
+                for noise in soup(["script", "style", "nav", "header", "footer", "aside", "noscript"]):
+                    noise.extract()
+                
+                # Further purge generic elements by class/id matching typical template noise
+                for class_noise in soup.find_all(class_=re.compile(r"footer|header|menu|nav|sidebar|copyright|cookie|social|advert", re.IGNORECASE)):
+                    class_noise.extract()
                 
                 # Extract text contents
                 lines = (line.strip() for line in soup.get_text().splitlines())
@@ -65,13 +75,17 @@ async def scrape_url_content(url: str) -> str:
                 text = "\n".join(chunk for chunk in chunks if chunk)
                 
                 title = soup.title.string if soup.title else "Scraped Portfolio"
-                return f"URL: {url}\nTitle: {title}\nContent:\n{text[:15000]}"
+                
+                context_str = f"URL: {url}\nTitle: {title}\n"
+                if meta_desc:
+                    context_str += f"Meta Description: {meta_desc}\n"
+                return f"{context_str}Content:\n{text[:18000]}"
             else:
                 return f"Failed to retrieve URL {url}. Status code: {response.status_code}"
     except Exception as e:
         return f"Error occurred scraping URL {url}: {str(e)}"
 
-# 3. Figma API Parser
+# 3. Figma API Parser (Enhanced to extract Structural Design Artifact Signals)
 def extract_figma_file_key(url: str) -> str:
     """Extract 22-character alpha-numeric Figma key from URL."""
     match = re.search(r'/(?:file|design)/([a-zA-Z0-9]{22,})', url)
@@ -95,11 +109,32 @@ async def parse_figma_content(url: str) -> str:
                 data = response.json()
                 
                 text_layers = []
+                detected_artifacts = set()
                 styles_count = len(data.get("styles", {}))
                 components_count = len(data.get("components", {}))
                 
+                # Mapping of figma layer names to design artifacts (to help AI evaluate with 100% accuracy)
+                artifact_indicators = {
+                    "wireframe": "Wireframe / Lo-fi Screen",
+                    "user flow": "User Flow / Journey Map",
+                    "prototype": "Interactive Prototype",
+                    "persona": "User Persona Profile",
+                    "moodboard": "Inspiration Moodboard",
+                    "style guide": "Style Guide / Token Sheet",
+                    "design system": "Design System Library",
+                    "mockup": "Hi-fi Mockup Screen",
+                    "usability": "Usability Testing Results"
+                }
+
                 # Helper to traverse Figma JSON Document Nodes
                 def traverse_nodes(node):
+                    node_name = str(node.get("name", "")).lower()
+                    
+                    # Inspect layer name to check if it matches design artifacts
+                    for keyword, tag in artifact_indicators.items():
+                        if keyword in node_name:
+                            detected_artifacts.add(tag)
+
                     if node.get("type") == "TEXT":
                         char_text = node.get("characters", "").strip()
                         if char_text:
@@ -112,7 +147,9 @@ async def parse_figma_content(url: str) -> str:
                     traverse_nodes(data["document"])
 
                 compiled_text = "\n".join(text_layers[:400]) # Cap to avoid huge string sizes
-                return f"Figma File: {data.get('name', 'Unnamed')}\nComponents count: {components_count}\nStyles count: {styles_count}\nContent:\n{compiled_text}"
+                artifacts_str = ", ".join(detected_artifacts) if detected_artifacts else "None directly labeled in frame hierarchy"
+                
+                return f"Figma File: {data.get('name', 'Unnamed')}\nComponents count: {components_count}\nStyles count: {styles_count}\nStructural Artifact Signals: [{artifacts_str}]\nContent:\n{compiled_text}"
             else:
                 return f"Figma API error. Status: {response.status_code}. Detail: {response.text}"
     except Exception as e:
