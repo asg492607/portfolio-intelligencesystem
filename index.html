@@ -1377,7 +1377,7 @@
                     <div class="step-icon-box"><i class="fa-solid fa-cubes"></i></div>
                     <div class="step-details">
                         <div class="step-title">4. Core Intelligence Modules (Parallel)</div>
-                        <div class="step-desc">Evaluating 8 modules including benchmarking, tech depth, and coach.</div>
+                        <div class="step-desc">Running 7 AI modules: deep analysis, artifact detection, skill extraction, innovation scoring, project quality, tech depth, and consistency.</div>
                     </div>
                     <div class="step-status">Pending</div>
                 </div>
@@ -2018,20 +2018,22 @@
             document.getElementById('dash-artifact-summary').textContent = daBanner.artifact_summary || 'Design artifact analysis complete.';
 
 
-            // Skills Matrix
-            renderSkillsCol('skills-advanced-box', jobReportData.skill_extractor.skills.filter(s => s.proficiency === 'expert' || s.proficiency === 'advanced'));
-            renderSkillsCol('skills-intermediate-box', jobReportData.skill_extractor.skills.filter(s => s.proficiency === 'intermediate'));
-            renderSkillsCol('skills-beginner-box', jobReportData.skill_extractor.skills.filter(s => s.proficiency === 'beginner'));
-            document.getElementById('dash-skill-gaps').textContent = jobReportData.skill_extractor.skill_gaps.join(', ') || "None detected";
+            // Skills Matrix (safe guards)
+            const skillsData = jobReportData.skill_extractor || { skills: [], skill_gaps: [], primary_skills: [] };
+            renderSkillsCol('skills-advanced-box', (skillsData.skills || []).filter(s => s.proficiency === 'expert' || s.proficiency === 'advanced'));
+            renderSkillsCol('skills-intermediate-box', (skillsData.skills || []).filter(s => s.proficiency === 'intermediate'));
+            renderSkillsCol('skills-beginner-box', (skillsData.skills || []).filter(s => s.proficiency === 'beginner'));
+            document.getElementById('dash-skill-gaps').textContent = (skillsData.skill_gaps || []).join(', ') || "None detected";
 
-            // Strengths and Weaknesses
-            renderListItems('dash-strengths-box', jobReportData.strengths, 'fa-solid fa-thumbs-up', 'var(--emerald)');
-            renderListItems('dash-weaknesses-box', jobReportData.weaknesses, 'fa-solid fa-triangle-exclamation', 'var(--rose)');
+            // Strengths and Weaknesses (safe guards)
+            renderListItems('dash-strengths-box', jobReportData.strengths || [], 'fa-solid fa-thumbs-up', 'var(--emerald)');
+            renderListItems('dash-weaknesses-box', jobReportData.weaknesses || [], 'fa-solid fa-triangle-exclamation', 'var(--rose)');
 
-            // Coach Suggestions
+            // Coach Suggestions (safe guard if portfolio_coach missing)
+            const coachData = jobReportData.portfolio_coach || { suggestions: [], quick_wins: [], overall_coach_note: jobReportData.coach_note || '' };
             const suggBox = document.getElementById('dash-coach-suggestions');
             suggBox.innerHTML = "";
-            jobReportData.portfolio_coach.suggestions.forEach(sugg => {
+            (coachData.suggestions || []).forEach(sugg => {
                 const card = document.createElement('div');
                 card.className = "suggestion-card";
                 card.innerHTML = `
@@ -2046,15 +2048,15 @@
                 suggBox.appendChild(card);
             });
 
-            // Quickwins & Note
+            // Quick wins & coach note
             const winsBox = document.getElementById('dash-coach-quickwins');
             winsBox.innerHTML = "";
-            jobReportData.portfolio_coach.quick_wins.forEach(win => {
+            (coachData.quick_wins || []).forEach(win => {
                 const li = document.createElement('li');
                 li.textContent = win;
                 winsBox.appendChild(li);
             });
-            document.getElementById('dash-coach-note').innerHTML = `<i class="fa-solid fa-comment-dots" style="color:var(--primary);margin-right:0.4rem;"></i><strong>Coach Note:</strong> ${jobReportData.portfolio_coach.overall_coach_note || jobReportData.coach_note || ''}`;
+            document.getElementById('dash-coach-note').innerHTML = `<i class="fa-solid fa-comment-dots" style="color:var(--primary);margin-right:0.4rem;"></i><strong>Coach Note:</strong> ${coachData.overall_coach_note || jobReportData.coach_note || ''}`;
 
             // ── Design Artifacts Panel ─────────────────────────────────────────
             const da = jobReportData.design_artifacts || {};
@@ -2127,10 +2129,10 @@
             const artifactPct = Math.min(100, artifactFoundCount * 10);
             document.getElementById('dash-metric-readiness').textContent = `${artifactFoundCount} found`;
             document.getElementById('dash-readiness-bar').style.width = `${artifactPct}%`;
-            document.getElementById('dash-metric-visual').textContent = `${jobReportData.deep_analysis.ui_quality.score}/100`;
-            document.getElementById('dash-metric-ux').textContent = `${jobReportData.deep_analysis.ux_thinking.score}/100`;
-            document.getElementById('dash-metric-creativity').textContent = jobReportData.innovation_score.creative_risk_level;
-            document.getElementById('dash-metric-tech').textContent = jobReportData.tech_depth.complexity_level;
+            document.getElementById('dash-metric-visual').textContent = `${jobReportData.deep_analysis?.ui_quality?.score ?? '—'}/100`;
+            document.getElementById('dash-metric-ux').textContent = `${jobReportData.deep_analysis?.ux_thinking?.score ?? '—'}/100`;
+            document.getElementById('dash-metric-creativity').textContent = (jobReportData.innovation_score?.creative_risk_level || '—');
+            document.getElementById('dash-metric-tech').textContent = (jobReportData.tech_depth?.complexity_level || '—');
 
             // Render live sidebar weights sliders
             renderSliders(dashSlidersContainer, 'dash');
@@ -2143,13 +2145,13 @@
 
             // Module raw scores mapping (7 real engine modules)
             const rawScores = {
-                deep_analysis: jobReportData.deep_analysis?.overall_score || 70,
-                skill_extractor: Math.min(100, (jobReportData.skill_extractor?.total_skills_detected || 5) * 8),
-                design_artifacts: jobReportData.design_artifacts ? Math.min(100, (jobReportData.design_artifacts.artifacts_found?.length || 0) * 10 + 30) : 50,
-                innovation_score: jobReportData.innovation_score?.originality_score || 70,
-                project_quality: jobReportData.project_quality?.quality_score || 70,
-                tech_depth: jobReportData.tech_depth?.technical_score || 70,
-                consistency: jobReportData.consistency?.consistency_score || 70
+                deep_analysis: jobReportData.score_breakdown?.deep_analysis?.raw_score ?? jobReportData.deep_analysis?.overall_score ?? 70,
+                skill_extractor: jobReportData.score_breakdown?.skill_extractor?.raw_score ?? Math.min(100, (jobReportData.skill_extractor?.total_skills_detected || 5) * 8),
+                design_artifacts: jobReportData.score_breakdown?.design_artifacts?.raw_score ?? (jobReportData.design_artifacts ? Math.min(100, (jobReportData.design_artifacts.artifacts_found?.length || 0) * 10 + 30) : 50),
+                innovation_score: jobReportData.score_breakdown?.innovation_score?.raw_score ?? jobReportData.innovation_score?.originality_score ?? 70,
+                project_quality: jobReportData.score_breakdown?.project_quality?.raw_score ?? jobReportData.project_quality?.quality_score ?? 70,
+                tech_depth: jobReportData.score_breakdown?.tech_depth?.raw_score ?? jobReportData.tech_depth?.technical_score ?? 70,
+                consistency: jobReportData.score_breakdown?.consistency?.raw_score ?? jobReportData.consistency?.consistency_score ?? 70
             };
 
             let weightedSum = 0;
@@ -2191,28 +2193,30 @@
                 let commentText = "";
 
                 if (key === 'deep_analysis') {
-                    evidenceText = jobReportData.deep_analysis.ui_quality.evidence;
-                    commentText = jobReportData.deep_analysis.summary;
+                    evidenceText = jobReportData.deep_analysis?.ui_quality?.evidence || "Visual presentation check complete.";
+                    commentText = jobReportData.deep_analysis?.summary || "Deep visual layout analysis finished.";
                 } else if (key === 'skill_extractor') {
-                    evidenceText = `Detected ${jobReportData.skill_extractor.total_skills_detected} skills.`;
-                    commentText = `Primary skills: ${jobReportData.skill_extractor.primary_skills.join(', ')}`;
+                    const sk = jobReportData.skill_extractor || {};
+                    evidenceText = `Detected ${sk.total_skills_detected ?? 0} skills.`;
+                    commentText = `Primary skills: ${(sk.primary_skills || []).join(', ') || 'None listed'}`;
                 } else if (key === 'design_artifacts') {
                     const da = jobReportData.design_artifacts || {};
                     evidenceText = `Artifacts found: ${(da.artifacts_found || []).join(', ') || 'None detected'}`;
                     commentText = da.artifact_summary || 'Artifact analysis complete.';
                 } else if (key === 'innovation_score') {
-                    evidenceText = jobReportData.innovation_score?.standout_moments[0]?.innovation || "Unique style features.";
+                    evidenceText = jobReportData.innovation_score?.standout_moments?.[0]?.innovation || "Unique style features.";
                     commentText = jobReportData.innovation_score?.score_rationale || '';
                 } else if (key === 'project_quality') {
                     const pq = jobReportData.project_quality || {};
                     evidenceText = `${pq.projects_found?.length || 0} project(s) found — ${pq.complexity_level || 'intermediate'} complexity`;
                     commentText = pq.quality_summary || 'Project quality analysis complete.';
                 } else if (key === 'tech_depth') {
-                    evidenceText = jobReportData.tech_depth?.complexity_evidence[0]?.technical_detail || "None";
+                    evidenceText = jobReportData.tech_depth?.complexity_evidence?.[0]?.technical_detail || "None";
                     commentText = jobReportData.tech_depth?.technical_summary || '';
                 } else if (key === 'consistency') {
-                    evidenceText = `Completeness: ${jobReportData.consistency.completeness.score}/100`;
-                    commentText = jobReportData.consistency.consistency_summary;
+                    const co = jobReportData.consistency || {};
+                    evidenceText = `Completeness: ${co.completeness?.score ?? 0}/100`;
+                    commentText = co.consistency_summary || 'Consistency and alignment checked.';
                 }
 
                 card.innerHTML = `

@@ -25,12 +25,6 @@ DEFAULT_WEIGHTS = {
     "consistency": 0.10
 }
 
-TECH_KEYWORDS = {
-    "design_tool": ["figma", "sketch", "photoshop", "illustrator", "adobe xd", "invision", "miro", "canva", "zeplin", "framer"],
-    "dev_tool": ["react", "vue", "angular", "next.js", "node.js", "javascript", "typescript", "python", "django", "fastapi", "flask", "postgresql", "mongodb", "docker", "aws", "git", "tailwind", "css", "html"],
-    "methodology": ["user research", "wireframing", "prototyping", "usability testing", "agile", "scrum", "design thinking", "information architecture", "persona", "user flows"],
-    "soft_skill": ["communication", "collaboration", "leadership", "problem solving", "time management", "adaptability", "critical thinking"]
-}
 
 # 1. PDF parsing using PyMuPDF (fitz)
 def extract_text_from_pdf(file_path: str) -> str:
@@ -137,8 +131,9 @@ async def generate_text_embedding(text: str) -> list:
                 content=text[:2000],
                 task_type="retrieval_document"
             )
-            if "embedding" in result:
-                return result["embedding"]
+            embedding = result.get("embedding") if isinstance(result, dict) else getattr(result, "embedding", None)
+            if embedding:
+                return embedding
         except Exception as e:
             print(f"Error generating embedding via Gemini API: {e}")
             
@@ -276,8 +271,7 @@ def run_ai_analysis(text: str, filename: str, role_target: str, seniority: str) 
         try:
             import google.generativeai as genai
             genai.configure(api_key=gemini_key)
-            model = genai.GenerativeModel('gemini-1.5-flash')
-            
+            model = genai.GenerativeModel('gemini-2.0-flash')
             response = model.generate_content(prompt)
             clean_text = response.text.strip()
             # Strip all markdown code fence variants
@@ -309,23 +303,9 @@ def run_ai_analysis(text: str, filename: str, role_target: str, seniority: str) 
                 response_format={"type": "json_object"}
             )
             clean_text = response.choices[0].message.content.strip()
-            return json.loads(clean_text)
-        except Exception as e:
-            print(f"Error calling Groq in analyzer: {e}. Trying OpenAI fallback.")
-
-    if openai_key:
-        try:
-            from openai import OpenAI
-            client = OpenAI(api_key=openai_key)
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": "You are a Portfolio Intelligence Agent API that evaluates portfolios and outputs valid JSON strictly matching templates."},
-                    {"role": "user", "content": prompt}
-                ],
-                response_format={"type": "json_object"}
-            )
-            clean_text = response.choices[0].message.content.strip()
+            match = re.search(r'\{[\s\S]*\}', clean_text)
+            if match:
+                clean_text = match.group(0)
             return json.loads(clean_text)
         except Exception as e:
             print(f"Error calling OpenAI in analyzer: {e}. Falling back to heuristics.")

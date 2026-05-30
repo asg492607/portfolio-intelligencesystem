@@ -54,7 +54,8 @@ class VectorDBClient:
             return
         
         try:
-            point_id = hash(f"{job_id}_{chunk_index}") & 0xFFFFFFFFFFFFFFFF
+            import hashlib
+            point_id = int(hashlib.md5(f"{job_id}_{chunk_index}".encode()).hexdigest(), 16) % (2**63)
             
             self.client.upsert(
                 collection_name=COLLECTION_NAME,
@@ -74,10 +75,10 @@ class VectorDBClient:
         except Exception as e:
             print(f"Error indexing chunk to Qdrant: {e}")
 
-    def query_benchmarks(self, vector: list, limit: int = 3) -> list:
-        """Search Qdrant for similar benchmark chunks."""
+    def query_similar_portfolios(self, vector: list, limit: int = 3) -> list:
+        """Search Qdrant for similar portfolio chunks for RAG context."""
         if not self.client or len(vector) != VECTOR_SIZE:
-            # Fallback mock benchmark chunks if Qdrant isn't working
+            # Fallback mock portfolio chunks if Qdrant isn't working
             return [
                 {
                     "text": "Senior UX Lead: Core case study highlights key conversions, showing user flow maps, spacing tokens, and explicit test metrics.",

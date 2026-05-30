@@ -9,3 +9,23 @@ services:
         value: 3.10.0
       - key: GEMINI_API_KEY
         sync: false # User can set this in the Render dashboard to unlock real Gemini AI analysis
+      - key: DATABASE_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_ACCESS_KEY
+        sync: false
+      - key: S3_SECRET_KEY
+        sync: false
+      - key: S3_BUCKET_NAME
+        sync: false
+      - key: FIGMA_ACCESS_TOKEN
+        sync: false

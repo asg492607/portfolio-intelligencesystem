@@ -46,7 +46,7 @@ class UrlAnalyzeRequest(BaseModel):
     seniority: str = "Mid"
 
 async def process_portfolio_job(job_id: str, content: str, source_label: str, role_target: str, seniority: str, local_file_to_clean: str = None):
-    """Orchestrates the complete 6-stage architecture background processing pipeline."""
+    """Orchestrates the background analysis pipeline: S3 storage -> vector embedding -> AI analysis -> DB update."""
     from database import SessionLocal
     db = SessionLocal()
     try:
@@ -65,7 +65,7 @@ async def process_portfolio_job(job_id: str, content: str, source_label: str, ro
         # Step 3: Embed content for Qdrant Vector search
         try:
             embedding = await generate_text_embedding(content)
-            # Add to Qdrant collection for RAG benchmarking
+            # Add to Qdrant collection for RAG-based similarity search
             await asyncio.to_thread(
                 vector_db.add_portfolio_chunk,
                 job_id=job_id,
