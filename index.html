@@ -645,10 +645,18 @@
         .artifact-banner.good .artifact-banner-icon { color: var(--cyan); }
         .artifact-banner.excellent .artifact-banner-icon { color: var(--emerald); }
 
-        .verdict-text {
-            font-size: 0.9rem;
-            line-height: 1.5;
+        .artifact-banner-badge {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
         }
+        .artifact-banner.poor .artifact-banner-badge { background: rgba(244,63,94,0.12); color: var(--rose); border: 1px solid rgba(244,63,94,0.25); }
+        .artifact-banner.fair .artifact-banner-badge { background: rgba(245,158,11,0.12); color: var(--amber); border: 1px solid rgba(245,158,11,0.25); }
+        .artifact-banner.good .artifact-banner-badge { background: rgba(34,211,238,0.12); color: var(--cyan); border: 1px solid rgba(34,211,238,0.25); }
+        .artifact-banner.excellent .artifact-banner-badge { background: rgba(16,185,129,0.12); color: var(--emerald); border: 1px solid rgba(16,185,129,0.25); }
 
         .verdict-badge {
             font-family: 'Space Grotesk', sans-serif;
@@ -658,10 +666,6 @@
             border-radius: 6px;
             font-size: 0.85rem;
         }
-
-        .must_interview .verdict-badge { background-color: var(--emerald-glow); color: var(--emerald); border: 1px solid rgba(16,185,129,0.3); }
-        .recommend .verdict-badge { background-color: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(34,211,238,0.3); }
-        .consider .verdict-badge { background-color: var(--amber-glow); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
 
         /* Main Dashboard Grid */
         .dash-layout {
@@ -682,12 +686,106 @@
             gap: 2.5rem;
         }
 
-        /* 8 Intelligence Modules Grid */
+        /* 7 Intelligence Modules Grid */
         .modules-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 1.25rem;
         }
+
+        /* Artifact tag chips */
+        .artifact-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            background: rgba(34,211,238,0.08);
+            border: 1px solid rgba(34,211,238,0.2);
+            color: var(--cyan);
+        }
+        .artifact-chip.missing {
+            background: rgba(244,63,94,0.06);
+            border-color: rgba(244,63,94,0.18);
+            color: var(--rose);
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        /* Project quality card */
+        .project-card {
+            background: var(--bg-card-hover);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .project-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .project-card-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+        .project-depth-badge {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 0.2rem 0.55rem;
+            border-radius: 20px;
+        }
+        .project-depth-badge.deep { background: rgba(16,185,129,0.12); color: var(--emerald); border: 1px solid rgba(16,185,129,0.25); }
+        .project-depth-badge.moderate { background: rgba(34,211,238,0.10); color: var(--cyan); border: 1px solid rgba(34,211,238,0.2); }
+        .project-depth-badge.shallow { background: rgba(245,158,11,0.10); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+        .project-card-type { font-size: 0.78rem; color: var(--text-muted); }
+        .project-quality-indicators {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+            margin-top: 0.25rem;
+        }
+        .quality-indicator-tag {
+            font-size: 0.72rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            background: rgba(99,102,241,0.08);
+            color: var(--primary);
+            border: 1px solid rgba(99,102,241,0.15);
+        }
+
+        /* Top 3 improvements */
+        .improvement-item {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            padding: 0.9rem 1rem;
+            border-radius: 10px;
+            background: var(--bg-card-hover);
+            border: 1px solid var(--border-color);
+            transition: border-color 0.2s;
+        }
+        .improvement-item:hover { border-color: var(--primary); }
+        .improvement-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--cyan));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .improvement-text { font-size: 0.87rem; line-height: 1.5; color: var(--text-muted); padding-top: 0.2rem; }
 
         .module-card {
             background-color: var(--bg-card);
@@ -1399,14 +1497,45 @@
 
                 <!-- Coach suggestions -->
                 <div class="glass-card" style="display: flex; flex-direction: column; gap: 1.25rem;">
-                    <h3 class="list-card-title" style="border: none; padding: 0;"><i class="fa-solid fa-user-tie" style="color: var(--amber);"></i> Career Coach Review & Recommendations</h3>
+                    <h3 class="list-card-title" style="border: none; padding: 0;"><i class="fa-solid fa-user-tie" style="color: var(--amber);"></i> Portfolio Coach: Action Plan</h3>
                     <div class="suggestions-list" id="dash-coach-suggestions"></div>
-                    <div style="background-color: rgba(245,158,11,0.03); border: 1px solid rgba(245,158,11,0.1); border-radius: 8px; padding: 1rem;">
-                        <h5 style="color: var(--amber); font-size: 0.9rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-bolt"></i> Prioritized Quick Wins (< 1 Day Effort)</h5>
-                        <ul id="dash-coach-quickwins" style="font-size: 0.8rem; color: var(--text-muted); padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                    <div style="background-color: rgba(245,158,11,0.04); border: 1px solid rgba(245,158,11,0.15); border-radius: 10px; padding: 1rem;">
+                        <h5 style="color: var(--amber); font-size: 0.88rem; margin-bottom: 0.6rem;"><i class="fa-solid fa-bolt"></i> Quick Wins &lt; 1 Day</h5>
+                        <ul id="dash-coach-quickwins" style="font-size: 0.82rem; color: var(--text-muted); padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.4rem;">
                         </ul>
                     </div>
-                    <div style="font-size: 0.85rem; font-style: italic; border-left: 3px solid var(--primary); padding-left: 0.75rem; color: var(--text-muted);" id="dash-coach-note"></div>
+                    <div style="font-size: 0.85rem; font-style: italic; border-left: 3px solid var(--primary); padding-left: 0.85rem; color: var(--text-muted); line-height: 1.6;" id="dash-coach-note"></div>
+                </div>
+
+                <!-- Design Artifacts Panel -->
+                <div class="glass-card" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <h3 class="list-card-title" style="border: none; padding: 0;"><i class="fa-solid fa-layer-group" style="color: var(--cyan);"></i> Design Artifacts Identified</h3>
+                    <div>
+                        <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Found in Portfolio</p>
+                        <div id="dash-artifacts-found" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
+                    </div>
+                    <div>
+                        <p style="font-size: 0.78rem; color: var(--rose); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;"><i class="fa-solid fa-circle-xmark"></i> Missing / Not Found</p>
+                        <div id="dash-artifacts-missing" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
+                    </div>
+                    <div style="display: flex; gap: 1.5rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color); font-size: 0.82rem;">
+                        <div><span style="color: var(--text-muted);">Depth: </span><strong id="dash-artifact-depth">—</strong></div>
+                        <div><span style="color: var(--text-muted);">Quality: </span><strong id="dash-artifact-quality-text">—</strong></div>
+                    </div>
+                    <p style="font-size: 0.83rem; color: var(--text-muted); border-left: 3px solid var(--cyan); padding-left: 0.75rem; line-height: 1.55;" id="dash-artifact-detail-summary"></p>
+                </div>
+
+                <!-- Project Quality Panel -->
+                <div class="glass-card" id="dash-projects-panel" style="display: none; flex-direction: column; gap: 1.25rem;">
+                    <h3 class="list-card-title" style="border: none; padding: 0;"><i class="fa-solid fa-briefcase" style="color: var(--primary);"></i> Project Quality Breakdown</h3>
+                    <div id="dash-projects-list" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+                    <p style="font-size: 0.83rem; color: var(--text-muted); border-left: 3px solid var(--primary); padding-left: 0.75rem; line-height: 1.55;" id="dash-project-quality-summary"></p>
+                </div>
+
+                <!-- Top 3 Improvements -->
+                <div class="glass-card" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <h3 class="list-card-title" style="border: none; padding: 0;"><i class="fa-solid fa-arrow-trend-up" style="color: var(--emerald);"></i> Top 3 Priority Improvements</h3>
+                    <div id="dash-top3-improvements" style="display: flex; flex-direction: column; gap: 0.65rem;"></div>
                 </div>
 
             </div>
@@ -1880,13 +2009,14 @@
             // Calculate and display scores
             recalculateWeightedScore();
 
-            // Design Artifact Banner
-            const da = jobReportData.design_artifacts || {};
+            // Design Artifact Banner (top summary)
+            const daBanner = jobReportData.design_artifacts || {};
             const artBanner = document.getElementById('dash-artifact-banner');
-            const artQuality = da.artifact_quality || 'fair';
+            const artQuality = daBanner.artifact_quality || 'fair';
             artBanner.className = `artifact-banner ${artQuality}`;
             document.getElementById('dash-artifact-quality-badge').textContent = artQuality.toUpperCase();
-            document.getElementById('dash-artifact-summary').textContent = da.artifact_summary || 'Design artifact analysis complete.';
+            document.getElementById('dash-artifact-summary').textContent = daBanner.artifact_summary || 'Design artifact analysis complete.';
+
 
             // Skills Matrix
             renderSkillsCol('skills-advanced-box', jobReportData.skill_extractor.skills.filter(s => s.proficiency === 'expert' || s.proficiency === 'advanced'));
@@ -1924,12 +2054,78 @@
                 li.textContent = win;
                 winsBox.appendChild(li);
             });
-            document.getElementById('dash-coach-note').innerHTML = `<strong>Coach Note:</strong> ${jobReportData.portfolio_coach.overall_coach_note}`;
+            document.getElementById('dash-coach-note').innerHTML = `<i class="fa-solid fa-comment-dots" style="color:var(--primary);margin-right:0.4rem;"></i><strong>Coach Note:</strong> ${jobReportData.portfolio_coach.overall_coach_note || jobReportData.coach_note || ''}`;
+
+            // ── Design Artifacts Panel ─────────────────────────────────────────
+            const da = jobReportData.design_artifacts || {};
+            const foundBox = document.getElementById('dash-artifacts-found');
+            const missingBox = document.getElementById('dash-artifacts-missing');
+            foundBox.innerHTML = '';
+            missingBox.innerHTML = '';
+
+            (da.artifacts_found || []).forEach(a => {
+                const chip = document.createElement('span');
+                chip.className = 'artifact-chip';
+                chip.innerHTML = `<i class="fa-solid fa-check-circle"></i> ${a}`;
+                foundBox.appendChild(chip);
+            });
+            (da.artifacts_missing || []).slice(0, 6).forEach(a => {
+                const chip = document.createElement('span');
+                chip.className = 'artifact-chip missing';
+                chip.textContent = a;
+                missingBox.appendChild(chip);
+            });
+            document.getElementById('dash-artifact-depth').textContent = (da.documentation_depth || '—').replace('_', ' ');
+            document.getElementById('dash-artifact-quality-text').textContent = (da.artifact_quality || '—');
+            document.getElementById('dash-artifact-detail-summary').textContent = da.artifact_summary || '';
+
+            // ── Project Quality Panel ──────────────────────────────────────────
+            const pq = jobReportData.project_quality;
+            const projectsPanel = document.getElementById('dash-projects-panel');
+            const projectsList = document.getElementById('dash-projects-list');
+            projectsList.innerHTML = '';
+            if (pq && pq.projects_found && pq.projects_found.length > 0) {
+                projectsPanel.style.display = 'flex';
+                pq.projects_found.forEach(proj => {
+                    const card = document.createElement('div');
+                    card.className = 'project-card';
+                    const depthClass = proj.depth || 'moderate';
+                    const indicators = (proj.quality_indicators || []).map(ind =>
+                        `<span class="quality-indicator-tag">${ind}</span>`
+                    ).join('');
+                    card.innerHTML = `
+                        <div class="project-card-header">
+                            <span class="project-card-name"><i class="fa-solid fa-folder-open" style="color:var(--primary);margin-right:0.4rem;"></i>${proj.name || 'Unnamed Project'}</span>
+                            <span class="project-depth-badge ${depthClass}">${depthClass}</span>
+                        </div>
+                        <div class="project-card-type">${proj.type || ''}</div>
+                        ${indicators ? `<div class="project-quality-indicators">${indicators}</div>` : ''}
+                    `;
+                    projectsList.appendChild(card);
+                });
+                document.getElementById('dash-project-quality-summary').textContent = pq.quality_summary || '';
+            } else {
+                projectsPanel.style.display = 'none';
+            }
+
+            // ── Top 3 Priority Improvements ────────────────────────────────────
+            const top3Box = document.getElementById('dash-top3-improvements');
+            top3Box.innerHTML = '';
+            const improvements = jobReportData.top_3_improvements || [];
+            improvements.forEach((imp, i) => {
+                const item = document.createElement('div');
+                item.className = 'improvement-item';
+                item.innerHTML = `
+                    <div class="improvement-number">${i + 1}</div>
+                    <div class="improvement-text">${imp}</div>
+                `;
+                top3Box.appendChild(item);
+            });
 
             // Sidebar General Metrics
-            const artifactScore = jobReportData.design_artifacts ? (jobReportData.design_artifacts.artifacts_found?.length || 0) * 10 : 0;
-            const artifactPct = Math.min(100, artifactScore);
-            document.getElementById('dash-metric-readiness').textContent = `${artifactPct}%`;
+            const artifactFoundCount = (jobReportData.design_artifacts?.artifacts_found?.length || 0);
+            const artifactPct = Math.min(100, artifactFoundCount * 10);
+            document.getElementById('dash-metric-readiness').textContent = `${artifactFoundCount} found`;
             document.getElementById('dash-readiness-bar').style.width = `${artifactPct}%`;
             document.getElementById('dash-metric-visual').textContent = `${jobReportData.deep_analysis.ui_quality.score}/100`;
             document.getElementById('dash-metric-ux').textContent = `${jobReportData.deep_analysis.ux_thinking.score}/100`;
@@ -1939,6 +2135,7 @@
             // Render live sidebar weights sliders
             renderSliders(dashSlidersContainer, 'dash');
         }
+
 
         // Recalculate weights and overall score on fly
         function recalculateWeightedScore() {

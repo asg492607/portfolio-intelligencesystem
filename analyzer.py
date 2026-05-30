@@ -14,15 +14,14 @@ except ImportError:
     use_fitz = False
     from pypdf import PdfReader
 
-# Default weights profile for calculation
+# Default weights — 7-module real engine
 DEFAULT_WEIGHTS = {
-    "deep_analysis": 0.15,
+    "deep_analysis": 0.20,
     "skill_extractor": 0.15,
+    "design_artifacts": 0.20,
     "innovation_score": 0.10,
-    "benchmarking": 0.10,
-    "hidden_talent": 0.10,
-    "portfolio_coach": 0.15,
-    "tech_depth": 0.15,
+    "project_quality": 0.15,
+    "tech_depth": 0.10,
     "consistency": 0.10
 }
 
@@ -281,12 +280,14 @@ def run_ai_analysis(text: str, filename: str, role_target: str, seniority: str) 
             
             response = model.generate_content(prompt)
             clean_text = response.text.strip()
-            if clean_text.startswith("```json"):
-                clean_text = clean_text[7:]
-            if clean_text.endswith("```"):
-                clean_text = clean_text[:-3]
+            # Strip all markdown code fence variants
+            clean_text = re.sub(r'^```[a-zA-Z]*\s*', '', clean_text)
+            clean_text = re.sub(r'\s*```$', '', clean_text)
             clean_text = clean_text.strip()
-            
+            # Extract first valid JSON object if extra text present
+            match = re.search(r'\{[\s\S]*\}', clean_text)
+            if match:
+                clean_text = match.group(0)
             return json.loads(clean_text)
         except Exception as e:
             print(f"Error calling Gemini in analyzer: {e}. Trying Groq fallback.")
