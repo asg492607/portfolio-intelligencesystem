@@ -24,24 +24,24 @@
         }
         
         :root {
-            --bg-deep: #080b14;
-            --bg-card: #111827;
-            --bg-card-hover: #1f2937;
-            --border-color: rgba(255, 255, 255, 0.08);
+            --bg-deep: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f1f5f9;
+            --border-color: #e2e8f0;
             
-            --primary: #6366f1; /* Electric Indigo */
-            --primary-glow: rgba(99, 102, 241, 0.15);
-            --cyan: #22d3ee;
-            --cyan-glow: rgba(34, 211, 238, 0.15);
-            --emerald: #10b981;
-            --emerald-glow: rgba(16, 185, 129, 0.15);
-            --amber: #f59e0b;
-            --amber-glow: rgba(245, 158, 11, 0.15);
-            --rose: #f43f5e;
-            --rose-glow: rgba(244, 63, 94, 0.15);
+            --primary: #4f46e5; /* Deep Indigo */
+            --primary-glow: rgba(79, 70, 229, 0.08);
+            --cyan: #0891b2; /* Deep Cyan */
+            --cyan-glow: rgba(8, 145, 178, 0.08);
+            --emerald: #059669; /* Professional Emerald Green */
+            --emerald-glow: rgba(5, 150, 105, 0.08);
+            --amber: #d97706;
+            --amber-glow: rgba(217, 119, 6, 0.08);
+            --rose: #e11d48;
+            --rose-glow: rgba(225, 29, 72, 0.08);
             
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
+            --text-main: #0f172a;
+            --text-muted: #475569;
             --text-dark: #64748b;
         }
 
@@ -52,8 +52,8 @@
             overflow-x: hidden;
             min-height: 100vh;
             background-image: 
-                radial-gradient(at 10% 20%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
-                radial-gradient(at 90% 80%, rgba(34, 211, 238, 0.1) 0px, transparent 50%);
+                radial-gradient(at 10% 20%, rgba(79, 70, 229, 0.04) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(8, 145, 178, 0.04) 0px, transparent 50%);
             background-attachment: fixed;
         }
 
@@ -66,7 +66,7 @@
         h1 {
             font-size: 1.25rem;
             font-weight: 700;
-            background: linear-gradient(to right, #ffffff, #94a3b8);
+            background: linear-gradient(to right, #0f172a, #334155);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin: 0;
@@ -95,7 +95,7 @@
         /* Top Navbar */
         header {
             border-bottom: 1px solid var(--border-color);
-            background-color: rgba(11, 15, 26, 0.8);
+            background-color: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(12px);
             position: sticky;
             top: 0;
@@ -120,22 +120,13 @@
         }
 
         .logo-icon {
-            background: linear-gradient(135deg, var(--primary), var(--cyan));
-            width: 2.25rem;
-            height: 2.25rem;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.1rem;
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+            display: none;
         }
 
         .logo-text {
             font-size: 1.25rem;
             font-weight: 700;
-            background: linear-gradient(to right, #ffffff, #94a3b8);
+            background: linear-gradient(to right, #0f172a, #475569);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -148,7 +139,7 @@
 
         .btn-outline {
             border: 1px solid var(--border-color);
-            background: transparent;
+            background: #ffffff;
             color: var(--text-main);
             padding: 0.5rem 1rem;
             border-radius: 6px;
@@ -158,21 +149,23 @@
             align-items: center;
             gap: 0.5rem;
             transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
         .btn-outline:hover {
-            background-color: rgba(255, 255, 255, 0.05);
-            border-color: var(--text-muted);
+            background-color: #f1f5f9;
+            border-color: var(--text-dark);
         }
 
         /* Glassmorphism Card Style */
         .glass-card {
-            background: rgba(17, 24, 39, 0.6);
+            background: rgba(255, 255, 255, 0.95);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 1.5rem;
             backdrop-filter: blur(8px);
             transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
         }
 
         /* Tabs UI for Sources */
@@ -236,8 +229,8 @@
         }
 
         .drop-zone {
-            border: 2px dashed rgba(99, 102, 241, 0.3);
-            background: rgba(17, 24, 39, 0.4);
+            border: 2px dashed rgba(79, 70, 229, 0.2);
+            background: #f8fafc;
             border-radius: 12px;
             padding: 3rem 2rem;
             text-align: center;
@@ -250,9 +243,9 @@
         }
 
         .drop-zone:hover, .drop-zone.dragover {
-            border-color: var(--cyan);
-            background: rgba(34, 211, 238, 0.04);
-            box-shadow: 0 0 20px rgba(34, 211, 238, 0.1);
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.04);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.05);
         }
 
         .drop-zone i {
@@ -287,7 +280,7 @@
         }
 
         .form-select, .form-input {
-            background-color: rgba(11, 15, 26, 0.8);
+            background-color: #ffffff;
             border: 1px solid var(--border-color);
             border-radius: 8px;
             color: var(--text-main);
@@ -295,7 +288,7 @@
             font-size: 1rem;
             outline: none;
             width: 100%;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         .form-select:focus, .form-input:focus {
@@ -313,10 +306,10 @@
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
-            background: rgba(11, 15, 26, 0.4);
+            background: var(--bg-card-hover);
             padding: 0.75rem 1rem;
             border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
         }
 
         .slider-header {
@@ -414,7 +407,7 @@
             gap: 1.5rem;
             padding: 1.25rem;
             border-radius: 10px;
-            background: rgba(17, 24, 39, 0.4);
+            background: var(--bg-card);
             border: 1px solid var(--border-color);
             transition: all 0.3s;
         }
@@ -437,7 +430,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: var(--bg-card-hover);
             color: var(--text-dark);
             font-size: 1.1rem;
             position: relative;
@@ -488,7 +481,7 @@
 
         /* Terminal Console */
         .console-box {
-            background-color: #05070c;
+            background-color: #1e293b;
             border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 1rem;
@@ -500,7 +493,7 @@
             display: flex;
             flex-direction: column;
             gap: 0.25rem;
-            box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.15);
         }
 
         .console-line {
@@ -534,9 +527,9 @@
         }
 
         .cand-badge {
-            background-color: rgba(99, 102, 241, 0.15);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            color: #a5b4fc;
+            background-color: var(--primary-glow);
+            border: 1px solid rgba(79, 70, 229, 0.25);
+            color: var(--primary);
             padding: 0.25rem 0.6rem;
             border-radius: 4px;
             font-size: 0.75rem;
@@ -552,7 +545,7 @@
         }
 
         .headline-pill {
-            background-color: rgba(255, 255, 255, 0.04);
+            background-color: var(--bg-card-hover);
             border: 1px solid var(--border-color);
             padding: 0.4rem 0.8rem;
             border-radius: 20px;
@@ -571,7 +564,7 @@
             display: flex;
             align-items: center;
             gap: 1.5rem;
-            background: rgba(255,255,255,0.02);
+            background: var(--bg-card-hover);
             padding: 1rem 1.5rem;
             border-radius: 12px;
             border: 1px solid var(--border-color);
@@ -823,8 +816,8 @@
             gap: 0.4rem;
             padding: 0.75rem 1rem;
             border-radius: 8px;
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255, 255, 255, 0.03);
+            background: var(--bg-card-hover);
+            border: 1px solid var(--border-color);
         }
 
         .list-item-title {
@@ -861,7 +854,7 @@
         }
 
         .skills-col {
-            background-color: rgba(255, 255, 255, 0.01);
+            background-color: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 1rem;
@@ -880,7 +873,7 @@
         }
 
         .skills-col-title span {
-            background-color: rgba(255,255,255,0.05);
+            background-color: var(--bg-card-hover);
             padding: 0.1rem 0.4rem;
             border-radius: 4px;
             font-size: 0.75rem;
@@ -893,9 +886,9 @@
         }
 
         .skill-tag {
-            background-color: rgba(99, 102, 241, 0.06);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            color: #c7d2fe;
+            background-color: var(--primary-glow);
+            border: 1px solid rgba(79, 70, 229, 0.2);
+            color: var(--primary);
             padding: 0.3rem 0.6rem;
             border-radius: 4px;
             font-size: 0.75rem;
@@ -903,15 +896,15 @@
         }
 
         .skill-tag.dev_tool {
-            background-color: rgba(34, 211, 238, 0.06);
-            border-color: rgba(34, 211, 238, 0.2);
-            color: #a5f3fc;
+            background-color: var(--cyan-glow);
+            border-color: rgba(8, 145, 178, 0.2);
+            color: var(--cyan);
         }
 
         .skill-tag.methodology {
-            background-color: rgba(16, 185, 129, 0.06);
-            border-color: rgba(16, 185, 129, 0.2);
-            color: #a7f3d0;
+            background-color: var(--emerald-glow);
+            border-color: rgba(5, 150, 105, 0.2);
+            color: var(--emerald);
         }
 
         /* Sidebar info & custom weight live editor */
@@ -1025,7 +1018,7 @@
         .priority-badge.critical { background-color: var(--rose-glow); color: var(--rose); border: 1px solid rgba(244,63,94,0.3); }
         .priority-badge.high { background-color: var(--amber-glow); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
         .priority-badge.medium { background-color: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(34,211,238,0.3); }
-        .priority-badge.low { background-color: rgba(255,255,255,0.06); color: var(--text-muted); }
+        .priority-badge.low { background-color: var(--bg-card-hover); color: var(--text-muted); border: 1px solid var(--border-color); }
 
         .suggestion-area {
             font-size: 0.85rem;
@@ -1041,7 +1034,7 @@
 
         .suggestion-fix {
             font-size: 0.8rem;
-            color: #c7d2fe;
+            color: var(--primary);
             background-color: rgba(99, 102, 241, 0.04);
             border-left: 2.5px solid var(--primary);
             padding: 0.4rem 0.6rem;
@@ -1111,11 +1104,11 @@
     <!-- Header Section -->
     <header>
         <div class="nav-container">
-            <a href="#" class="logo-group" id="btn-logo-home">
-                <div class="logo-icon">
-                    <i class="fa-solid fa-brain"></i>
-                </div>
-                <h1 class="logo-text">Portfolio Intelligence Agent</h1>
+            <a href="#" class="logo-group" id="btn-logo-home" style="display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem; text-decoration: none;">
+                <h1 class="logo-text" style="font-size: 1.35rem; background: linear-gradient(to right, #0f172a, #4f46e5); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Portfolio Intelligence</h1>
+                <span style="font-size: 0.7rem; color: #059669; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; display: flex; align-items: center; gap: 0.25rem;">
+                    <i class="fa-solid fa-circle-check"></i> Human-Validated Audit
+                </span>
             </a>
             <div class="nav-actions">
                 <span id="simulator-badge" style="display: none; background-color: var(--amber-glow); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-family: 'Fira Code', monospace;">
@@ -1131,7 +1124,7 @@
     <!-- VIEW 1: UPLOAD & CONFIGURATION -->
     <section class="view-section active" id="view-upload">
         <div style="text-align: center; max-width: 650px; margin: 0 auto 2rem;">
-            <h2 style="font-size: 2.25rem; margin-bottom: 0.5rem; background: linear-gradient(to right, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Evaluate Design & Dev Portfolios</h2>
+            <h2 style="font-size: 2.25rem; margin-bottom: 0.5rem; background: linear-gradient(to right, #0f172a, #475569); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Evaluate Design & Dev Portfolios</h2>
             <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.5;">Evaluate visual quality, UX thinking, technical depth, and career readiness against real-world industry benchmarks in seconds.</p>
         </div>
 
