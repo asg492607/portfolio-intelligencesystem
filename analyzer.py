@@ -184,17 +184,16 @@ from analyzer_heuristics import run_heuristic_analysis
 def run_ai_analysis(text: str, filename: str) -> dict:
     """Runs data extraction using Gemini, Groq, OpenAI, or falls back to heuristics."""
     gemini_key = os.getenv("GEMINI_API_KEY")
-    openai_key = os.getenv("OPENAI_API_KEY")
 
     prompt = f"""
-    You are Portfolio Ingestion Agent — an AI system that analyzes design and development portfolios to extract stack tools, identify design artifacts, and list projects.
-
-    Your task is to analyze the portfolio content below and extract structured data.
+    You are Portfolio Ingestion Agent — an AI system that analyzes portfolios to extract stack tools, identify design artifacts, and list projects.
+    Your task is to analyze the portfolio content below and extract structured data. Focus strictly on objective data extraction; do not include ratings, reviews, recommendations, or grading of any kind.
+    
     Source Context: {filename}
 
     Portfolio text content:
     ---
-    {text[:9000]}
+    {text[:12000]}
     ---
 
     Return a JSON object matching EXACTLY this structure. Output only valid JSON — no markdown, no preambles:
@@ -202,102 +201,23 @@ def run_ai_analysis(text: str, filename: str) -> dict:
       "report_id": "unique-uuid",
       "candidate_id": "CAN-XXXXXX",
       "generated_at": "ISO-TIMESTAMP",
-      "deep_analysis": {{
-        "ui_quality": {{ "score": 0-100, "evidence": "specific design elements found", "comment": "1 sentence" }},
-        "ux_thinking": {{ "score": 0-100, "evidence": "research/process artifacts found", "comment": "1 sentence" }},
-        "project_maturity": {{ "score": 0-100, "evidence": "project complexity indicators", "comment": "1 sentence" }},
-        "overall_score": 0-100,
-        "summary": "2 sentences summarizing the portfolio quality"
-      }},
-      "skill_extractor": {{
-        "skills": [
-          {{ "name": "skill name", "category": "design_tool|dev_tool|methodology|soft_skill", "proficiency": "beginner|intermediate|advanced|expert", "evidence": "where this skill was demonstrated" }}
-        ],
-        "primary_skills": ["top 3 skills"],
-        "skill_gaps": ["skills expected for this role but not found in portfolio"],
-        "total_skills_detected": 0
+      "skills": {{
+        "design_tool": ["list of design tools found, e.g. Figma, Photoshop, Sketch"],
+        "dev_tool": ["list of development tools/languages, e.g. React, Python, Docker"],
+        "methodology": ["list of methodologies, e.g. Wireframing, User Research, Agile"],
+        "soft_skill": ["list of soft skills, e.g. Collaboration, Problem Solving"]
       }},
       "design_artifacts": {{
         "artifacts_found": ["list of identified design artifacts e.g. wireframes, mockups, case studies, user flows, prototypes, design systems, style guides"],
-        "artifacts_missing": ["important artifacts not found"],
-        "artifact_quality": "poor|fair|good|excellent",
-        "documentation_depth": "shallow|moderate|detailed|comprehensive",
-        "artifact_summary": "2 sentences describing the artifacts found"
+        "artifacts_missing": ["expected design artifacts not found in the content"]
       }},
-      "innovation_score": {{
-        "originality_score": 0-100,
-        "creative_risk_level": "low|medium|high",
-        "standout_moments": [
-          {{ "project": "project name", "innovation": "what is unconventional", "impact": "why it matters" }}
-        ],
-        "pattern_dependency": "description of reliance on templates/conventions",
-        "innovation_summary": "2 sentences",
-        "score_rationale": "1 sentence"
-      }},
-      "project_quality": {{
-        "quality_score": 0-100,
-        "complexity_level": "basic|intermediate|advanced|expert",
-        "projects_found": [
-          {{ "name": "project name", "type": "type of project", "quality_indicators": ["quality signals found"], "depth": "shallow|moderate|deep" }}
-        ],
-        "documentation_quality": "poor|fair|good|excellent",
-        "quality_summary": "2 sentences"
-      }},
-      "tech_depth": {{
-        "technical_score": 0-100,
-        "complexity_level": "basic|intermediate|advanced|expert",
-        "tools_and_stack": ["tools and technologies identified"],
-        "complexity_evidence": [
-          {{ "project": "name", "technical_detail": "what makes it complex", "sophistication": "impressive aspect" }}
-        ],
-        "technical_summary": "2 sentences",
-        "technical_gaps": ["expected tools/skills not found"]
-      }},
-      "consistency": {{
-        "consistency_score": 0-100,
-        "layout_coherence": {{ "score": 0-100, "issues": ["any issues found"] }},
-        "brand_consistency": {{ "score": 0-100, "issues": ["any issues found"] }},
-        "completeness": {{ "score": 0-100, "missing_sections": ["missing portfolio sections"] }},
-        "professionalism_flag": "publication_ready|minor_polish_needed|needs_significant_work",
-        "consistency_summary": "2 sentences"
-      }},
-      "portfolio_coach": {{
-        "suggestions": [
-          {{ "priority": "critical|high|medium|low", "area": "area to improve", "problem": "what is wrong", "fix": "actionable improvement", "example": "concrete example" }}
-        ],
-        "quick_wins": ["3 improvements that can be done in under 1 day"],
-        "overall_coach_note": "2-3 sentences of overall guidance"
-      }},
-      "weighted_final_score": 0-100,
-      "score_breakdown": {{
-        "deep_analysis": {{ "raw_score": 0-100, "weight": 0.20, "weighted_contribution": 0.0 }},
-        "skill_extractor": {{ "raw_score": 0-100, "weight": 0.15, "weighted_contribution": 0.0 }},
-        "design_artifacts": {{ "raw_score": 0-100, "weight": 0.20, "weighted_contribution": 0.0 }},
-        "innovation_score": {{ "raw_score": 0-100, "weight": 0.10, "weighted_contribution": 0.0 }},
-        "project_quality": {{ "raw_score": 0-100, "weight": 0.15, "weighted_contribution": 0.0 }},
-        "tech_depth": {{ "raw_score": 0-100, "weight": 0.10, "weighted_contribution": 0.0 }},
-        "consistency": {{ "raw_score": 0-100, "weight": 0.10, "weighted_contribution": 0.0 }}
-      }},
-      "headline_scores": {{
-        "portfolio_quality": 0-100,
-        "creativity": "low|medium|high|exceptional",
-        "problem_solving": "weak|developing|strong|exceptional",
-        "artifact_richness": "low|medium|high|exceptional",
-        "weighted_final_score": 0-100
-      }},
-      "detected_skills": {{
-        "advanced": ["skills"],
-        "intermediate": ["skills"],
-        "beginner": ["skills"]
-      }},
-      "strengths": [
-        {{ "point": "strength found", "evidence": "where in the portfolio" }}
-      ],
-      "weaknesses": [
-        {{ "point": "weakness found", "fix": "how to fix it" }}
-      ],
-      "top_3_improvements": ["improvement1", "improvement2", "improvement3"],
-      "coach_note": "3 sentences of actionable portfolio guidance"
+      "projects": [
+        {{ 
+          "name": "project name", 
+          "type": "type of project, e.g. Mobile App, E-Commerce Website, Branding", 
+          "details": "brief description of project scope, technologies used, and contribution details"
+        }}
+      ]
     }}
     """
 
@@ -326,12 +246,11 @@ def run_ai_analysis(text: str, filename: str) -> dict:
             from openai import OpenAI
             # Get configured Groq model or default to the flagship llama-3.3-70b-versatile
             groq_model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
-            # Groq is fully OpenAI-compatible. We just specify their base URL and API key.
             client = OpenAI(api_key=groq_key, base_url="https://api.groq.com/openai/v1")
             response = client.chat.completions.create(
                 model=groq_model,
                 messages=[
-                    {"role": "system", "content": "You are a Portfolio Intelligence Agent API that evaluates portfolios and outputs valid JSON strictly matching templates."},
+                    {"role": "system", "content": "You are a Portfolio Ingestion Agent API that extracts structured data from portfolios and outputs valid JSON matching templates."},
                     {"role": "user", "content": prompt}
                 ],
                 response_format={"type": "json_object"}

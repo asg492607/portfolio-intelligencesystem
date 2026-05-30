@@ -1976,64 +1976,18 @@
             switchView('view-dashboard');
 
             // Render Header and Metadata
-            document.getElementById('dash-candidate-id').textContent = `CANDIDATE: ${jobReportData.candidate_id}`;
+            document.getElementById('dash-candidate-id').textContent = `INGESTION ID: ${jobReportData.candidate_id || 'N/A'}`;
             document.getElementById('dash-role-target').textContent = `Portfolio Data Extraction Report`;
             document.getElementById('btn-download-json').style.display = 'inline-flex';
             document.getElementById('dash-meta-date').textContent = new Date(jobReportData.generated_at).toLocaleDateString();
 
-            // Calculate and display scores
-            recalculateWeightedScore();
+            // Skills Matrix
+            const skillsData = jobReportData.skills || { design_tool: [], dev_tool: [], methodology: [], soft_skill: [] };
+            renderSkillsCol('skills-advanced-box', skillsData.design_tool || []);
+            renderSkillsCol('skills-intermediate-box', skillsData.dev_tool || []);
+            renderSkillsCol('skills-beginner-box', [...(skillsData.methodology || []), ...(skillsData.soft_skill || [])]);
 
-            // Design Artifact Banner (top summary)
-            const daBanner = jobReportData.design_artifacts || {};
-            const artBanner = document.getElementById('dash-artifact-banner');
-            const artQuality = daBanner.artifact_quality || 'fair';
-            artBanner.className = `artifact-banner ${artQuality}`;
-            document.getElementById('dash-artifact-quality-badge').textContent = artQuality.toUpperCase();
-            document.getElementById('dash-artifact-summary').textContent = daBanner.artifact_summary || 'Design artifact analysis complete.';
-
-
-            // Skills Matrix (safe guards)
-            const skillsData = jobReportData.skill_extractor || { skills: [], skill_gaps: [], primary_skills: [] };
-            renderSkillsCol('skills-advanced-box', (skillsData.skills || []).filter(s => s.category === 'design_tool'));
-            renderSkillsCol('skills-intermediate-box', (skillsData.skills || []).filter(s => s.category === 'dev_tool'));
-            renderSkillsCol('skills-beginner-box', (skillsData.skills || []).filter(s => s.category === 'methodology' || s.category === 'soft_skill'));
-            document.getElementById('dash-skill-gaps').textContent = "";
-
-            // Strengths and Weaknesses (safe guards)
-            renderListItems('dash-strengths-box', jobReportData.strengths || [], 'fa-solid fa-thumbs-up', 'var(--emerald)');
-            renderListItems('dash-weaknesses-box', jobReportData.weaknesses || [], 'fa-solid fa-triangle-exclamation', 'var(--rose)');
-
-            // Coach Suggestions (safe guard if portfolio_coach missing)
-            const coachData = jobReportData.portfolio_coach || { suggestions: [], quick_wins: [], overall_coach_note: jobReportData.coach_note || '' };
-            const suggBox = document.getElementById('dash-coach-suggestions');
-            suggBox.innerHTML = "";
-            (coachData.suggestions || []).forEach(sugg => {
-                const card = document.createElement('div');
-                card.className = "suggestion-card";
-                card.innerHTML = `
-                    <div class="suggestion-header">
-                        <span class="suggestion-area">${sugg.area}</span>
-                        <span class="priority-badge ${sugg.priority}">${sugg.priority}</span>
-                    </div>
-                    <div class="suggestion-problem"><strong>Problem:</strong> ${sugg.problem}</div>
-                    <div class="suggestion-fix"><strong>Actionable Fix:</strong> ${sugg.fix}</div>
-                    ${sugg.example ? `<div class="suggestion-example"><strong>Example:</strong> ${sugg.example}</div>` : ''}
-                `;
-                suggBox.appendChild(card);
-            });
-
-            // Quick wins & coach note
-            const winsBox = document.getElementById('dash-coach-quickwins');
-            winsBox.innerHTML = "";
-            (coachData.quick_wins || []).forEach(win => {
-                const li = document.createElement('li');
-                li.textContent = win;
-                winsBox.appendChild(li);
-            });
-            document.getElementById('dash-coach-note').innerHTML = `<i class="fa-solid fa-comment-dots" style="color:var(--primary);margin-right:0.4rem;"></i><strong>Coach Note:</strong> ${coachData.overall_coach_note || jobReportData.coach_note || ''}`;
-
-            // ── Design Artifacts Panel ─────────────────────────────────────────
+            // Design Artifacts Panel
             const da = jobReportData.design_artifacts || {};
             const foundBox = document.getElementById('dash-artifacts-found');
             const missingBox = document.getElementById('dash-artifacts-missing');
@@ -2046,279 +2000,34 @@
                 chip.innerHTML = `<i class="fa-solid fa-check-circle"></i> ${a}`;
                 foundBox.appendChild(chip);
             });
-            (da.artifacts_missing || []).slice(0, 6).forEach(a => {
+            (da.artifacts_missing || []).forEach(a => {
                 const chip = document.createElement('span');
                 chip.className = 'artifact-chip missing';
                 chip.textContent = a;
                 missingBox.appendChild(chip);
             });
-            document.getElementById('dash-artifact-depth').textContent = (da.documentation_depth || '—').replace('_', ' ');
-            document.getElementById('dash-artifact-quality-text').textContent = (da.artifact_quality || '—');
-            document.getElementById('dash-artifact-detail-summary').textContent = da.artifact_summary || '';
 
-            // ── Project Quality Panel ──────────────────────────────────────────
-            const pq = jobReportData.project_quality;
+            // Extracted Projects Panel
             const projectsPanel = document.getElementById('dash-projects-panel');
             const projectsList = document.getElementById('dash-projects-list');
             projectsList.innerHTML = '';
-            if (pq && pq.projects_found && pq.projects_found.length > 0) {
+            const projects = jobReportData.projects || [];
+            if (projects.length > 0) {
                 projectsPanel.style.display = 'flex';
-                pq.projects_found.forEach(proj => {
+                projects.forEach(proj => {
                     const card = document.createElement('div');
                     card.className = 'project-card';
-                    const depthClass = proj.depth || 'moderate';
-                    const indicators = (proj.quality_indicators || []).map(ind =>
-                        `<span class="quality-indicator-tag">${ind}</span>`
-                    ).join('');
                     card.innerHTML = `
                         <div class="project-card-header">
                             <span class="project-card-name"><i class="fa-solid fa-folder-open" style="color:var(--primary);margin-right:0.4rem;"></i>${proj.name || 'Unnamed Project'}</span>
                         </div>
-                        <div class="project-card-type">${proj.type || ''}</div>
-                        ${indicators ? `<div class="project-quality-indicators">${indicators}</div>` : ''}
+                        <div class="project-card-type">${proj.type || 'Project'}</div>
+                        <div class="project-card-details" style="font-size:0.82rem; color:var(--text-muted); margin-top:0.4rem;">${proj.details || ''}</div>
                     `;
                     projectsList.appendChild(card);
                 });
-                document.getElementById('dash-project-quality-summary').textContent = '';
             } else {
                 projectsPanel.style.display = 'none';
-            }
-
-            // ── Top 3 Priority Improvements ────────────────────────────────────
-            const top3Box = document.getElementById('dash-top3-improvements');
-            top3Box.innerHTML = '';
-            const improvements = jobReportData.top_3_improvements || [];
-            improvements.forEach((imp, i) => {
-                const item = document.createElement('div');
-                item.className = 'improvement-item';
-                item.innerHTML = `
-                    <div class="improvement-number">${i + 1}</div>
-                    <div class="improvement-text">${imp}</div>
-                `;
-                top3Box.appendChild(item);
-            });
-
-            // Sidebar General Metrics
-            const artifactFoundCount = (jobReportData.design_artifacts?.artifacts_found?.length || 0);
-            const artifactPct = Math.min(100, artifactFoundCount * 10);
-            document.getElementById('dash-metric-readiness').textContent = `${artifactFoundCount} found`;
-            document.getElementById('dash-readiness-bar').style.width = `${artifactPct}%`;
-            document.getElementById('dash-metric-visual').textContent = `${jobReportData.deep_analysis?.ui_quality?.score ?? '—'}/100`;
-            document.getElementById('dash-metric-ux').textContent = `${jobReportData.deep_analysis?.ux_thinking?.score ?? '—'}/100`;
-            document.getElementById('dash-metric-creativity').textContent = (jobReportData.innovation_score?.creative_risk_level || '—');
-            document.getElementById('dash-metric-tech').textContent = (jobReportData.tech_depth?.complexity_level || '—');
-
-            // Render live sidebar weights sliders
-            renderSliders(dashSlidersContainer, 'dash');
-        }
-
-
-        // Recalculate weights and overall score on fly
-        function recalculateWeightedScore() {
-            if (!jobReportData) return;
-
-            // Module raw scores mapping (7 real engine modules)
-            const rawScores = {
-                deep_analysis: jobReportData.score_breakdown?.deep_analysis?.raw_score ?? jobReportData.deep_analysis?.overall_score ?? 70,
-                skill_extractor: jobReportData.score_breakdown?.skill_extractor?.raw_score ?? Math.min(100, (jobReportData.skill_extractor?.total_skills_detected || 5) * 8),
-                design_artifacts: jobReportData.score_breakdown?.design_artifacts?.raw_score ?? (jobReportData.design_artifacts ? Math.min(100, (jobReportData.design_artifacts.artifacts_found?.length || 0) * 10 + 30) : 50),
-                innovation_score: jobReportData.score_breakdown?.innovation_score?.raw_score ?? jobReportData.innovation_score?.originality_score ?? 70,
-                project_quality: jobReportData.score_breakdown?.project_quality?.raw_score ?? jobReportData.project_quality?.quality_score ?? 70,
-                tech_depth: jobReportData.score_breakdown?.tech_depth?.raw_score ?? jobReportData.tech_depth?.technical_score ?? 70,
-                consistency: jobReportData.score_breakdown?.consistency?.raw_score ?? jobReportData.consistency?.consistency_score ?? 70
-            };
-
-            let weightedSum = 0;
-            MODULE_KEYS.forEach(key => {
-                weightedSum += rawScores[key] * weights[key];
-            });
-
-            const finalScore = Math.round(weightedSum);
-
-            // Update SVG score dial
-            const ring = document.getElementById('dash-score-ring');
-            const dashOffset = 226 - (226 * finalScore) / 100;
-            ring.style.strokeDashoffset = dashOffset;
-            
-            document.getElementById('dash-score-text').textContent = finalScore;
-            
-            // Set rating label text
-            let label = "Beginner Portfolio";
-            if (finalScore > 80) label = "Exceptional Portfolio";
-            else if (finalScore > 65) label = "Professional Portfolio";
-            else if (finalScore > 40) label = "Intermediate Portfolio";
-            document.getElementById('dash-score-rating').textContent = label;
-
-            // Draw SVG dimensions radar chart
-            drawRadarChart(rawScores);
-
-            // Render Core Modules Grid List (recalculating contribution value dynamically)
-            const listContainer = document.getElementById('modules-list-container');
-            listContainer.innerHTML = "";
-            MODULE_KEYS.forEach(key => {
-                const raw = rawScores[key];
-                const w = weights[key];
-                const contrib = (raw * w).toFixed(1);
-                
-                const card = document.createElement('div');
-                card.className = "module-card";
-                
-                let evidenceText = "";
-                let commentText = "";
-
-                if (key === 'deep_analysis') {
-                    evidenceText = jobReportData.deep_analysis?.ui_quality?.evidence || "Visual presentation check complete.";
-                    commentText = jobReportData.deep_analysis?.summary || "Deep visual layout analysis finished.";
-                } else if (key === 'skill_extractor') {
-                    const sk = jobReportData.skill_extractor || {};
-                    evidenceText = `Detected ${sk.total_skills_detected ?? 0} skills.`;
-                    commentText = `Primary skills: ${(sk.primary_skills || []).join(', ') || 'None listed'}`;
-                } else if (key === 'design_artifacts') {
-                    const da = jobReportData.design_artifacts || {};
-                    evidenceText = `Artifacts found: ${(da.artifacts_found || []).join(', ') || 'None detected'}`;
-                    commentText = da.artifact_summary || 'Artifact analysis complete.';
-                } else if (key === 'innovation_score') {
-                    evidenceText = jobReportData.innovation_score?.standout_moments?.[0]?.innovation || "Unique style features.";
-                    commentText = jobReportData.innovation_score?.score_rationale || '';
-                } else if (key === 'project_quality') {
-                    const pq = jobReportData.project_quality || {};
-                    evidenceText = `${pq.projects_found?.length || 0} project(s) found — ${pq.complexity_level || 'intermediate'} complexity`;
-                    commentText = pq.quality_summary || 'Project quality analysis complete.';
-                } else if (key === 'tech_depth') {
-                    evidenceText = jobReportData.tech_depth?.complexity_evidence?.[0]?.technical_detail || "None";
-                    commentText = jobReportData.tech_depth?.technical_summary || '';
-                } else if (key === 'consistency') {
-                    const co = jobReportData.consistency || {};
-                    evidenceText = `Completeness: ${co.completeness?.score ?? 0}/100`;
-                    commentText = co.consistency_summary || 'Consistency and alignment checked.';
-                }
-
-                card.innerHTML = `
-                    <div class="module-card-header">
-                        <div class="module-title-box">
-                            <i class="${MODULE_ICONS[key]}"></i>
-                            <h4>${MODULE_LABELS[key]}</h4>
-                        </div>
-                        <span class="module-score-badge">${raw}/100</span>
-                    </div>
-                    <div class="module-progress-bg">
-                        <div class="module-progress-fill" style="width: ${raw}%;"></div>
-                    </div>
-                    <div class="module-evidence">${evidenceText}</div>
-                    <div class="module-comment">${commentText}</div>
-                    <div style="font-size: 0.75rem; text-align: right; color: var(--text-dark); border-top: 1px solid rgba(255,255,255,0.03); padding-top: 0.4rem; margin-top: 0.25rem;">
-                        Weight: <strong>${Math.round(w*100)}%</strong> (Contrib: <strong>+${contrib}</strong>)
-                    </div>
-                `;
-                listContainer.appendChild(card);
-            });
-        }
-
-        function drawRadarChart(scores) {
-            const svg = document.getElementById('radar-chart');
-            if (!svg) return;
-            svg.innerHTML = "";
-
-            const cx = 110;
-            const cy = 110;
-            const r = 72;
-            const levels = 5;
-            const numAxis = 7;
-            const angleSlice = (Math.PI * 2) / numAxis;
-            const labels = ["UI/UX", "Skills", "Artifacts", "Originality", "Projects", "Tech", "Coherence"];
-
-            // 1. Draw Level concentric rings (Polygons instead of circles for standard radar look!)
-            for (let j = 1; j <= levels; j++) {
-                const radius = (r / levels) * j;
-                const levelPoints = [];
-                for (let i = 0; i < numAxis; i++) {
-                    const angle = angleSlice * i - Math.PI / 2;
-                    const x = cx + radius * Math.cos(angle);
-                    const y = cy + radius * Math.sin(angle);
-                    levelPoints.push(`${x},${y}`);
-                }
-                const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-                polygon.setAttribute("points", levelPoints.join(" "));
-                polygon.setAttribute("fill", "none");
-                polygon.setAttribute("stroke", "rgba(255, 255, 255, 0.04)");
-                polygon.setAttribute("stroke-width", "1");
-                svg.appendChild(polygon);
-            }
-
-            // 2. Draw axes lines and labels
-            for (let i = 0; i < numAxis; i++) {
-                const angle = angleSlice * i - Math.PI / 2;
-                const ax = cx + r * Math.cos(angle);
-                const ay = cy + r * Math.sin(angle);
-
-                // Axis line
-                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                line.setAttribute("x1", cx);
-                line.setAttribute("y1", cy);
-                line.setAttribute("x2", ax);
-                line.setAttribute("y2", ay);
-                line.setAttribute("stroke", "rgba(255, 255, 255, 0.08)");
-                line.setAttribute("stroke-width", "1");
-                svg.appendChild(line);
-
-                // Axis label
-                const labelText = labels[i];
-                const textR = r + 15;
-                const lx = cx + textR * Math.cos(angle);
-                // Offset vertical slightly depending on position for better spacing
-                const ly = cy + textR * Math.sin(angle) + (Math.sin(angle) * 4);
-
-                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                text.setAttribute("x", lx);
-                text.setAttribute("y", ly);
-                text.setAttribute("fill", "var(--text-muted)");
-                text.setAttribute("font-size", "9px");
-                text.setAttribute("font-weight", "500");
-                text.setAttribute("font-family", "Space Grotesk, sans-serif");
-                text.setAttribute("text-anchor", "middle");
-                text.setAttribute("alignment-baseline", "middle");
-                text.textContent = labelText;
-                svg.appendChild(text);
-            }
-
-            // 3. Compute and draw candidate score polygon
-            const points = [];
-            for (let i = 0; i < numAxis; i++) {
-                const key = MODULE_KEYS[i];
-                const score = scores[key] || 0;
-                const radius = (r * score) / 100;
-                const angle = angleSlice * i - Math.PI / 2;
-                const x = cx + radius * Math.cos(angle);
-                const y = cy + radius * Math.sin(angle);
-                points.push(`${x},${y}`);
-            }
-
-            // Polygon shape
-            const scorePolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-            scorePolygon.setAttribute("points", points.join(" "));
-            scorePolygon.setAttribute("fill", "rgba(99, 102, 241, 0.2)");
-            scorePolygon.setAttribute("stroke", "#22d3ee");
-            scorePolygon.setAttribute("stroke-width", "2");
-            scorePolygon.setAttribute("style", "filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.6))");
-            svg.appendChild(scorePolygon);
-
-            // Vertices circles
-            for (let i = 0; i < numAxis; i++) {
-                const key = MODULE_KEYS[i];
-                const score = scores[key] || 0;
-                const radius = (r * score) / 100;
-                const angle = angleSlice * i - Math.PI / 2;
-                const x = cx + radius * Math.cos(angle);
-                const y = cy + radius * Math.sin(angle);
-
-                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                circle.setAttribute("cx", x);
-                circle.setAttribute("cy", y);
-                circle.setAttribute("r", "3.5");
-                circle.setAttribute("fill", "#22d3ee");
-                circle.setAttribute("stroke", "#080b14");
-                circle.setAttribute("stroke-width", "1");
-                svg.appendChild(circle);
             }
         }
 
@@ -2333,11 +2042,10 @@
                 return;
             }
 
-            list.forEach(skill => {
+            list.forEach(skillName => {
                 const pill = document.createElement('span');
-                pill.className = `skill-tag ${skill.category || 'design_tool'}`;
-                pill.textContent = skill.name;
-                pill.title = skill.evidence;
+                pill.className = `skill-tag`;
+                pill.textContent = skillName;
                 container.appendChild(pill);
             });
         }
