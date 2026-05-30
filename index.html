@@ -211,9 +211,10 @@
         /* VIEW 1: UPLOAD & CONFIGURATION */
         .config-grid {
             display: grid;
-            grid-template-columns: 1fr 400px;
+            grid-template-columns: 1fr;
+            max-width: 800px;
+            margin: 2rem auto 0;
             gap: 2rem;
-            margin-top: 2rem;
         }
 
         @media (max-width: 968px) {
@@ -1278,60 +1279,26 @@
                         <span id="selected-file-name" style="font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%;"></span>
                         <button class="btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="clearSelectedSource()"><i class="fa-solid fa-xmark"></i></button>
                     </div>
-                </div>
 
-                <div class="glass-card" style="display: flex; flex-direction: column; gap: 1.5rem;">
-                    <h3 style="font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="fa-solid fa-sliders" style="color: var(--primary);"></i> 2. Target Profile Specifications
-                    </h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Target Role</label>
-                            <select class="form-select" id="role-target">
-                                <option value="UX Designer">UX Designer</option>
-                                <option value="Product Designer">Product Designer</option>
-                                <option value="Frontend Developer">Frontend Developer</option>
-                                <option value="Full-Stack Developer">Full-Stack Developer</option>
-                                <option value="Creative Director">Creative Director</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Seniority Target</label>
-                            <select class="form-select" id="seniority">
-                                <option value="Junior">Junior (0-2 YOE)</option>
-                                <option value="Mid" selected>Mid (2-5 YOE)</option>
-                                <option value="Senior">Senior (5+ YOE)</option>
-                            </select>
-                        </div>
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 1.25rem; margin-top: 1.25rem;">
+                        <button class="btn-pulse" id="btn-submit" disabled onclick="startAnalysis()" style="width: 100%;">
+                            <i class="fa-solid fa-magnifying-glass-chart"></i> Run Portfolio Intelligence
+                        </button>
                     </div>
                 </div>
-            </div>
 
-            <!-- Right Weight Config -->
-            <div class="glass-card" style="display: flex; flex-direction: column; gap: 1.25rem;">
-                <h3 style="font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fa-solid fa-sliders" style="color: var(--cyan);"></i> 3. Analysis Weight Configuration
-                </h3>
-                
-                <div class="form-group">
-                    <label>Weight Presets</label>
-                    <select class="form-select" id="weight-preset" onchange="applyWeightPreset(this.value)">
-                        <option value="startup">🚀 Startup (Innovation & Tech Depth)</option>
-                        <option value="corporate">🏢 Corporate (Consistency & Benchmarks)</option>
-                        <option value="agency" selected>🎨 Creative Agency (UI Quality & Innovation)</option>
-                        <option value="product">📦 Product Org (UX Thinking & Depth)</option>
-                        <option value="custom">⚙️ Custom Manual Weights</option>
+                <!-- Hidden parameters to preserve backend and JS bindings -->
+                <div style="display: none;">
+                    <select id="role-target">
+                        <option value="Product Designer" selected>Product Designer</option>
                     </select>
-                </div>
-
-                <div class="profile-container" id="sliders-container">
-                    <!-- Sliders populated dynamically -->
-                </div>
-
-                <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 0.5rem;">
-                    <button class="btn-pulse" id="btn-submit" disabled onclick="startAnalysis()">
-                        <i class="fa-solid fa-magnifying-glass-chart"></i> Run Portfolio Intelligence
-                    </button>
+                    <select id="seniority">
+                        <option value="Mid" selected>Mid</option>
+                    </select>
+                    <select id="weight-preset">
+                        <option value="agency" selected>Creative Agency</option>
+                    </select>
+                    <div id="sliders-container"></div>
                 </div>
             </div>
         </div>
