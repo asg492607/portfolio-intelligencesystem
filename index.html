@@ -2031,12 +2031,28 @@
                 projects.forEach(proj => {
                     const card = document.createElement('div');
                     card.className = 'project-card';
+                    
+                    let projectImagesHtml = "";
+                    if (proj.images && proj.images.length > 0) {
+                        projectImagesHtml = `
+                            <div class="project-images-gallery" style="display:flex; gap:0.5rem; overflow-x:auto; margin-top:0.75rem; padding-bottom:0.4rem;">
+                                ${proj.images.map(imgUrl => `
+                                    <div style="position:relative; width:120px; height:80px; flex-shrink:0; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:6px; overflow:hidden;">
+                                        <img src="${imgUrl}" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'100\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'%2364748b\\' stroke-width=\\'2\\' stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\'><rect width=\\'18\\' height=\\'18\\' x=\\'3\\' y=\\'3\\' rx=\\'2\\' ry=\\'2\\'/><circle cx=\\'9\\' cy=\\'9\\' r=\\'2\\'/><path d=\\'m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21\\'/></svg>';">
+                                        <a href="${imgUrl}" target="_blank" style="position:absolute; bottom:2px; right:2px; background:rgba(0,0,0,0.6); color:#fff; border-radius:3px; padding:1px 4px; font-size:0.6rem; text-decoration:none;"><i class="fa-solid fa-up-right-from-square"></i></a>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+
                     card.innerHTML = `
                         <div class="project-card-header">
                             <span class="project-card-name"><i class="fa-solid fa-folder-open" style="color:var(--primary);margin-right:0.4rem;"></i>${proj.name || 'Unnamed Project'}</span>
                         </div>
                         <div class="project-card-type">${proj.type || 'Project'}</div>
                         <div class="project-card-details" style="font-size:0.82rem; color:var(--text-muted); margin-top:0.4rem;">${proj.details || ''}</div>
+                        ${projectImagesHtml}
                     `;
                     projectsList.appendChild(card);
                 });
@@ -2086,6 +2102,27 @@
             }
         }
 
+        const SKILL_ICONS = {
+            figma: '<i class="fa-brands fa-figma" style="color:#F24E1E; margin-right:4px;"></i>',
+            photoshop: '<i class="fa-solid fa-image" style="color:#31A8FF; margin-right:4px;"></i>',
+            illustrator: '<i class="fa-solid fa-pen-nib" style="color:#FF9A00; margin-right:4px;"></i>',
+            sketch: '<i class="fa-brands fa-sketch" style="color:#FDB300; margin-right:4px;"></i>',
+            react: '<i class="fa-brands fa-react" style="color:#61DAFB; margin-right:4px;"></i>',
+            angular: '<i class="fa-brands fa-angular" style="color:#DD0031; margin-right:4px;"></i>',
+            vue: '<i class="fa-brands fa-vuejs" style="color:#4FC08D; margin-right:4px;"></i>',
+            "node.js": '<i class="fa-brands fa-node-js" style="color:#339933; margin-right:4px;"></i>',
+            javascript: '<i class="fa-brands fa-js" style="color:#F7DF1E; margin-right:4px;"></i>',
+            typescript: '<i class="fa-solid fa-code" style="color:#3178C6; margin-right:4px;"></i>',
+            python: '<i class="fa-brands fa-python" style="color:#3776AB; margin-right:4px;"></i>',
+            aws: '<i class="fa-brands fa-aws" style="color:#FF9900; margin-right:4px;"></i>',
+            docker: '<i class="fa-brands fa-docker" style="color:#2496ED; margin-right:4px;"></i>',
+            git: '<i class="fa-brands fa-git-alt" style="color:#F05032; margin-right:4px;"></i>',
+            github: '<i class="fa-brands fa-github" style="margin-right:4px;"></i>',
+            html: '<i class="fa-brands fa-html5" style="color:#E34F26; margin-right:4px;"></i>',
+            css: '<i class="fa-brands fa-css3-alt" style="color:#1572B6; margin-right:4px;"></i>',
+            tailwind: '<i class="fa-solid fa-wind" style="color:#06B6D4; margin-right:4px;"></i>'
+        };
+
         function renderSkillsCol(containerId, list) {
             const container = document.getElementById(containerId);
             container.innerHTML = "";
@@ -2100,7 +2137,17 @@
             list.forEach(skillName => {
                 const pill = document.createElement('span');
                 pill.className = `skill-tag`;
-                pill.textContent = skillName;
+                
+                const lowerName = skillName.toLowerCase();
+                let iconHtml = "";
+                for (const key in SKILL_ICONS) {
+                    if (lowerName.includes(key)) {
+                        iconHtml = SKILL_ICONS[key];
+                        break;
+                    }
+                }
+                
+                pill.innerHTML = iconHtml + skillName;
                 container.appendChild(pill);
             });
         }

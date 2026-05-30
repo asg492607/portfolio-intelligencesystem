@@ -53,14 +53,16 @@ def run_heuristic_analysis(text: str, filename: str) -> dict:
                 extracted_projects.append({
                     "name": p_name.title(),
                     "type": "Case Study / Project",
-                    "details": "Heuristically extracted project case study from text content."
+                    "details": "Heuristically extracted project case study from text content.",
+                    "images": []
                 })
     else:
         # Fallback project placeholder
         extracted_projects.append({
             "name": "General Portfolio Project",
             "type": "Case Study",
-            "details": "Extracted project from portfolio content."
+            "details": "Extracted project from portfolio content.",
+            "images": []
         })
 
     # ── Clean report structure ──────────────────────────────────────────────────

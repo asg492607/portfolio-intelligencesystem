@@ -150,12 +150,12 @@ async def analyze_pdf(
     except Exception as e:
         print(f"MinIO/S3 PDF upload failed: {e}")
 
-    # Extract text immediately for background handoff
-    text_content = extract_text_from_pdf(temp_file_path)
+    # Extract text immediately for background handoff (injects image placeholders)
+    text_content = extract_text_from_pdf(temp_file_path, job_id=job_id)
     
-    # Extract images and reference links from PDF
-    extracted_images = extract_images_from_pdf(temp_file_path, job_id)
+    # Extract links and images via placeholders
     import re
+    extracted_images = re.findall(r'\[IMAGE_URL:\s*([^\s\]]+)', text_content)
     extracted_links = re.findall(r'https?://[^\s<>"\']+|www\.[^\s<>"\']+', text_content)[:15]
 
     # Queue async processing

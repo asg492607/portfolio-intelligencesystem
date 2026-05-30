@@ -27,13 +27,36 @@ DEFAULT_WEIGHTS = {
 
 
 # 1. PDF parsing using PyMuPDF (fitz)
-def extract_text_from_pdf(file_path: str) -> str:
+def extract_text_from_pdf(file_path: str, job_id: str = None) -> str:
     text_content = ""
     try:
         if use_fitz:
             doc = fitz.open(file_path)
-            for page in doc:
-                text_content += page.get_text() + "\n"
+            for page_num in range(len(doc)):
+                page = doc[page_num]
+                page_text = page.get_text()
+                
+                # If job_id is provided, extract images on the fly and embed placeholders
+                page_images_placeholders = ""
+                if job_id:
+                    os.makedirs(f"local_storage/{job_id}", exist_ok=True)
+                    image_list = page.get_images(full=True)
+                    for img_idx, img in enumerate(image_list):
+                        xref = img[0]
+                        base_image = doc.extract_image(xref)
+                        image_bytes = base_image["image"]
+                        image_ext = base_image["ext"]
+                        img_filename = f"{job_id}/extracted_img_{page_num + 1}_{img_idx + 1}.{image_ext}"
+                        
+                        from storage import storage_client
+                        url = storage_client.upload_data(image_bytes, img_filename, f"image/{image_ext}")
+                        
+                        if url.startswith("local_storage/"):
+                            url = "/" + url
+                        
+                        page_images_placeholders += f"\n[IMAGE_URL: {url} CAPTION: Page {page_num + 1} Image {img_idx + 1}]\n"
+                
+                text_content += page_text + "\n" + page_images_placeholders + "\n"
         else:
             reader = PdfReader(file_path)
             for page in reader.pages:
@@ -45,37 +68,9 @@ def extract_text_from_pdf(file_path: str) -> str:
     return text_content.strip()
 
 def extract_images_from_pdf(file_path: str, job_id: str) -> list:
-    extracted_image_paths = []
-    try:
-        if use_fitz:
-            doc = fitz.open(file_path)
-            os.makedirs(f"local_storage/{job_id}", exist_ok=True)
-            img_count = 0
-            for page_num in range(len(doc)):
-                page = doc[page_num]
-                image_list = page.get_images(full=True)
-                for img_idx, img in enumerate(image_list):
-                    xref = img[0]
-                    base_image = doc.extract_image(xref)
-                    image_bytes = base_image["image"]
-                    image_ext = base_image["ext"]
-                    img_filename = f"{job_id}/extracted_img_{page_num + 1}_{img_idx + 1}.{image_ext}"
-                    
-                    from storage import storage_client
-                    url = storage_client.upload_data(image_bytes, img_filename, f"image/{image_ext}")
-                    
-                    if url.startswith("local_storage/"):
-                        url = "/" + url
-                    
-                    extracted_image_paths.append(url)
-                    img_count += 1
-                    if img_count >= 15:
-                        break
-                if img_count >= 15:
-                    break
-    except Exception as e:
-        print(f"Error extracting images from PDF: {e}")
-    return extracted_image_paths
+    # Deprecated/Handled inline by extract_text_from_pdf to inject placeholders.
+    # Return empty list to prevent duplicate logic execution
+    return []
 
 # 2. Web Scraping for Website / Behance (Enhanced Accuracy Boilerplate Stripping)
 async def scrape_url_content(url: str) -> tuple:
@@ -88,10 +83,11 @@ async def scrape_url_content(url: str) -> tuple:
             if response.status_code == 200:
                 soup = BeautifulSoup(response.text, "html.parser")
                 
-                # Extract image URLs
+                # Extract image URLs and insert inline text markers
                 images = []
                 for img_tag in soup.find_all("img"):
                     src = img_tag.get("src") or img_tag.get("data-src") or img_tag.get("data-hi-res") or img_tag.get("srcset")
+                    alt = img_tag.get("alt") or ""
                     if src:
                         if "," in src:
                             src = src.split(",")[0].strip().split(" ")[0]
@@ -99,6 +95,12 @@ async def scrape_url_content(url: str) -> tuple:
                         absolute_url = urljoin(url, src)
                         if absolute_url.startswith("http") and not any(x in absolute_url.lower() for x in ["pixel", "analytics", "tracker", "sprite", "logo", "icon", "svg"]):
                             images.append(absolute_url)
+                            
+                            # Inject placeholder
+                            placeholder = soup.new_tag("p")
+                            placeholder.string = f"\n[IMAGE_URL: {absolute_url} CAPTION: {alt}]\n"
+                            img_tag.insert_after(placeholder)
+                            
                             if len(images) >= 15:
                                 break
                 
@@ -248,6 +250,8 @@ def run_ai_analysis(text: str, filename: str) -> dict:
     You are Portfolio Ingestion Agent — an AI system that analyzes portfolios to extract stack tools, identify design artifacts, and list projects.
     Your task is to analyze the portfolio content below and extract structured data. Focus strictly on objective data extraction; do not include ratings, reviews, recommendations, or grading of any kind.
     
+    IMPORTANT: Look for inline markers like `[IMAGE_URL: <url> CAPTION: <text>]` inside the text stream. Identify which images belong to which projects, and assign those exact image URLs to the corresponding project in the "projects" array below.
+
     Source Context: {filename}
 
     Portfolio text content:
@@ -274,7 +278,8 @@ def run_ai_analysis(text: str, filename: str) -> dict:
         {{ 
           "name": "project name", 
           "type": "type of project, e.g. Mobile App, E-Commerce Website, Branding", 
-          "details": "brief description of project scope, technologies used, and contribution details"
+          "details": "brief description of project scope, technologies used, and contribution details",
+          "images": ["list of matching IMAGE_URL strings found in the text for this project"]
         }}
       ]
     }}
