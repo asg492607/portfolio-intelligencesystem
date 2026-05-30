@@ -1187,14 +1187,14 @@
     <header>
         <div class="nav-container">
             <a href="#" class="logo-group" id="btn-logo-home" style="display: flex; align-items: center; text-decoration: none;">
-                <h1 class="logo-text" style="font-size: 1.35rem; background: linear-gradient(to right, #0f172a, #4f46e5); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Portfolio Intelligence</h1>
+                <h1 class="logo-text" style="font-size: 1.35rem; background: linear-gradient(to right, #0f172a, #4f46e5); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Portfolio Data Extractor</h1>
             </a>
             <div class="nav-actions" style="display: flex; gap: 0.75rem;">
                 <button class="btn-outline" id="btn-download-json" style="display: none;" onclick="downloadJSONReport()">
                     <i class="fa-solid fa-download"></i> Download JSON
                 </button>
                 <button class="btn-outline" id="btn-back-upload" style="display: none;" onclick="resetToUpload()">
-                    <i class="fa-solid fa-arrow-left"></i> Analyze New
+                    <i class="fa-solid fa-arrow-left"></i> Ingest New
                 </button>
             </div>
         </div>
@@ -1203,8 +1203,8 @@
     <!-- VIEW 1: UPLOAD & CONFIGURATION -->
     <section class="view-section active" id="view-upload">
         <div style="text-align: center; max-width: 650px; margin: 0 auto 2rem;">
-            <h2 style="font-size: 2.25rem; margin-bottom: 0.5rem; background: linear-gradient(to right, #0f172a, #475569); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Evaluate Design & Dev Portfolios</h2>
-            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.5;">Evaluate visual quality, UX thinking, technical depth, and career readiness against real-world industry benchmarks in seconds.</p>
+            <h2 style="font-size: 2.25rem; margin-bottom: 0.5rem; background: linear-gradient(to right, #0f172a, #475569); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Extract Data from Design & Dev Portfolios</h2>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.5;">Extract technology/methodology stack, identify design artifacts, and list projects from portfolios in seconds.</p>
         </div>
 
         <div class="config-grid">
@@ -1278,7 +1278,7 @@
 
                     <div style="border-top: 1px solid var(--border-color); padding-top: 1.25rem; margin-top: 1.25rem;">
                         <button class="btn-pulse" id="btn-submit" disabled onclick="startAnalysis()" style="width: 100%;">
-                            <i class="fa-solid fa-magnifying-glass-chart"></i> Run Portfolio Intelligence
+                            <i class="fa-solid fa-magnifying-glass-chart"></i> Run Portfolio Data Extraction
                         </button>
                     </div>
                 </div>
@@ -1303,8 +1303,8 @@
     <!-- VIEW 2: PIPELINE LOADER -->
     <section class="view-section" id="view-pipeline">
         <div style="text-align: center; max-width: 500px; margin: 0 auto 2rem;">
-            <h2 style="font-size: 1.75rem; margin-bottom: 0.5rem;">Running Portfolio Intelligence Pipeline</h2>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Extracting context and executing parallel evaluation modules.</p>
+            <h2 style="font-size: 1.75rem; margin-bottom: 0.5rem;">Running Portfolio Data Ingestion & Extraction</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Processing document files or scraping pages to extract data stack.</p>
         </div>
 
         <div class="pipeline-container">
@@ -1330,8 +1330,8 @@
                 <div class="pipeline-step pending" id="step-understand">
                     <div class="step-icon-box"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
                     <div class="step-details">
-                        <div class="step-title">3. AI Portfolio Contextualization</div>
-                        <div class="step-desc">Generating vector embeddings and indexing collections.</div>
+                        <div class="step-title">3. AI Portfolio Structure Analysis</div>
+                        <div class="step-desc">Generating vector embeddings and parsing text segments.</div>
                     </div>
                     <div class="step-status">Pending</div>
                 </div>
@@ -1339,8 +1339,8 @@
                 <div class="pipeline-step pending" id="step-modules">
                     <div class="step-icon-box"><i class="fa-solid fa-cubes"></i></div>
                     <div class="step-details">
-                        <div class="step-title">4. Core Intelligence Modules (Parallel)</div>
-                        <div class="step-desc">Running 7 AI modules: deep analysis, artifact detection, skill extraction, innovation scoring, project quality, tech depth, and consistency.</div>
+                        <div class="step-title">4. Dynamic Data Extraction Engine</div>
+                        <div class="step-desc">Extracting technology stack, design artifacts, and project lists.</div>
                     </div>
                     <div class="step-status">Pending</div>
                 </div>
@@ -1348,8 +1348,8 @@
                 <div class="pipeline-step pending" id="step-finalize">
                     <div class="step-icon-box"><i class="fa-solid fa-flag-checkered"></i></div>
                     <div class="step-details">
-                        <div class="step-title">5. Synthesize Intelligence Report</div>
-                        <div class="step-desc">Uploading results to S3, syncing Qdrant, and generating dashboard.</div>
+                        <div class="step-title">5. Compile Extraction Report</div>
+                        <div class="step-desc">Saving details to cloud storage and building the extraction dashboard.</div>
                     </div>
                     <div class="step-status">Pending</div>
                 </div>
