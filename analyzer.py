@@ -242,7 +242,7 @@ async def generate_text_embedding(text: str) -> list:
 # Heuristics local engine fallback (already built, import same)
 from analyzer_heuristics import run_heuristic_analysis
 
-def run_ai_analysis(text: str, filename: str) -> dict:
+def run_ai_analysis(text: str, filename: str, images: list = None, links: list = None) -> dict:
     """Runs data extraction using Gemini, Groq, OpenAI, or falls back to heuristics."""
     gemini_key = os.getenv("GEMINI_API_KEY")
 
@@ -327,5 +327,5 @@ def run_ai_analysis(text: str, filename: str) -> dict:
         except Exception as e:
             print(f"Error calling OpenAI in analyzer: {e}. Falling back to heuristics.")
 
-    return run_heuristic_analysis(text, filename)
+    return run_heuristic_analysis(text, filename, images=images)
 

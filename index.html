@@ -1135,8 +1135,9 @@
             body {
                 background: white !important;
                 color: black !important;
+                font-family: 'Inter', sans-serif !important;
             }
-            header, #view-upload, #view-pipeline, .live-weights-panel, .btn-outline, #btn-back-upload {
+            header, #view-upload, #view-pipeline, .btn-outline, #btn-back-upload, .live-weights-panel, .dashboard-header button, .dashboard-header a {
                 display: none !important;
             }
             .view-section {
@@ -1145,38 +1146,51 @@
                 max-width: 100% !important;
             }
             .dash-layout {
-                grid-template-columns: 1fr !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 1.5rem !important;
             }
             .glass-card {
-                background: transparent !important;
-                border: 1px solid #ddd !important;
+                background: white !important;
+                border: 1px solid #e2e8f0 !important;
                 color: black !important;
                 backdrop-filter: none !important;
                 box-shadow: none !important;
                 page-break-inside: avoid;
-            }
-            .module-score-badge {
-                background: #eee !important;
-                color: black !important;
-                border-color: #ccc !important;
+                padding: 1.5rem !important;
+                border-radius: 8px !important;
+                margin-bottom: 1.5rem !important;
             }
             .skill-tag {
-                background: #f3f4f6 !important;
-                color: black !important;
-                border-color: #ccc !important;
+                background: #f1f5f9 !important;
+                color: #0f172a !important;
+                border: 1px solid #cbd5e1 !important;
             }
-            polygon {
-                fill: rgba(99, 102, 241, 0.15) !important;
-                stroke: #0284c7 !important;
+            .artifact-chip {
+                background: #f1f5f9 !important;
+                color: #0f172a !important;
+                border: 1px solid #cbd5e1 !important;
             }
-            circle {
-                stroke: #e5e7eb !important;
+            .artifact-chip.missing {
+                background: #fef2f2 !important;
+                color: #991b1b !important;
+                border: 1px solid #fee2e2 !important;
             }
-            .score-circle-bg {
-                stroke: #e5e7eb !important;
+            .project-card {
+                background: #f8fafc !important;
+                border: 1px solid #e2e8f0 !important;
+                border-radius: 6px !important;
+                padding: 1rem !important;
+                page-break-inside: avoid;
             }
-            .score-circle-val {
-                stroke: #0284c7 !important;
+            .project-images-gallery {
+                overflow-x: visible !important;
+                flex-wrap: wrap !important;
+                display: flex !important;
+                gap: 0.5rem !important;
+            }
+            .project-images-gallery div {
+                border: 1px solid #cbd5e1 !important;
             }
         }
     </style>

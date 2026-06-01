@@ -85,7 +85,9 @@ async def process_portfolio_job(job_id: str, content: str, source_label: str, ex
         report_data = await asyncio.to_thread(
             run_ai_analysis,
             content,
-            source_label
+            source_label,
+            extracted_images,
+            extracted_links
         )
         if isinstance(report_data, dict):
             report_data["images"] = extracted_images or []

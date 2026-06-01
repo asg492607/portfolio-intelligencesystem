@@ -23,7 +23,7 @@ ARTIFACT_KEYWORDS = {
 }
 
 
-def run_heuristic_analysis(text: str, filename: str) -> dict:
+def run_heuristic_analysis(text: str, filename: str, images: list = None) -> dict:
     """Analyze text using heuristics to extract skills, design artifacts, and projects."""
     text_lower = text.lower()
 
@@ -46,15 +46,19 @@ def run_heuristic_analysis(text: str, filename: str) -> dict:
     # ── Project Extraction ───────────────────────────────────────────────────────
     extracted_projects = []
     project_matches = re.findall(r'(?:project|case\s+study)(?:\s+name)?\s*:\s*([^\n\r\.\,\;\:]{3,40})', text, re.IGNORECASE)
+    flat_images = images or []
     if project_matches:
-        for p_name in set(project_matches):
+        matches = list(set(project_matches))
+        for idx, p_name in enumerate(matches):
             p_name = p_name.strip()
             if p_name and len(p_name) > 3:
+                # Assign 1-2 images heuristically
+                p_images = flat_images[idx*2 : (idx+1)*2]
                 extracted_projects.append({
                     "name": p_name.title(),
                     "type": "Case Study / Project",
                     "details": "Heuristically extracted project case study from text content.",
-                    "images": []
+                    "images": p_images
                 })
     else:
         # Fallback project placeholder
@@ -62,7 +66,7 @@ def run_heuristic_analysis(text: str, filename: str) -> dict:
             "name": "General Portfolio Project",
             "type": "Case Study",
             "details": "Extracted project from portfolio content.",
-            "images": []
+            "images": flat_images[:3]
         })
 
     # ── Clean report structure ──────────────────────────────────────────────────
