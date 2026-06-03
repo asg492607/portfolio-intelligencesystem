@@ -251,19 +251,19 @@ def run_ai_analysis(text: str, filename: str, images: list = None, links: list =
       "full_name": "candidate full name or empty string if not found",
       "headline": "candidate professional headline or role title",
       "summary": "a brief professional summary/bio summarizing their background",
-      "target_roles": ["list of target roles/positions they want or have"],
+      "target_roles": ["the top 2-3 most aligned professional roles/positions they are most qualified for based on their actual project achievements and experience context"],
       "years_experience": float or null for years of experience,
       "industries": ["list of industries they worked in or design for"],
       "strengths": ["list of candidate's core strengths/qualities"],
       "tools": ["list of tools/technologies mentioned in the portfolio"],
       "skills": {{
-        "design_tool": ["list of design tools found, e.g. Figma, Photoshop, Sketch"],
-        "dev_tool": ["list of development tools/languages, e.g. React, Python, Docker"],
-        "methodology": ["list of methodologies, e.g. Wireframing, User Research, Agile"],
-        "soft_skill": ["list of soft skills, e.g. Collaboration, Problem Solving"]
+        "design_tool": ["inferred design skills and tools, extracted by deeply analyzing the candidate's actual projects, scope of work, and descriptions"],
+        "dev_tool": ["inferred developer skills, languages, and tools, extracted by deeply analyzing their actual project contributions and work details"],
+        "methodology": ["inferred methodologies, design thinking processes, and techniques identified by analyzing their project case studies"],
+        "soft_skill": ["core soft skills demonstrated by their project collaboration and problem-solving descriptions"]
       }},
       "design_artifacts": {{
-        "artifacts_found": ["list of identified design artifacts e.g. wireframes, mockups, case studies, user flows, prototypes, design systems, style guides"],
+        "artifacts_found": ["identified design artifacts e.g. wireframes, mockups, case studies, user flows, prototypes, design systems, style guides"],
         "artifacts_missing": ["expected design artifacts not found in the content"]
       }},
       "projects": [
