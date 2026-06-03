@@ -2196,11 +2196,23 @@
                     }
 
                     card.innerHTML = `
-                        <div class="project-card-header">
-                            <span class="project-card-name"><i class="fa-solid fa-folder-open" style="color:var(--primary);margin-right:0.4rem;"></i>${proj.name || 'Unnamed Project'}</span>
+                        <div class="project-card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="project-card-name" style="font-weight:700;"><i class="fa-solid fa-folder-open" style="color:var(--primary);margin-right:0.4rem;"></i>${proj.name || 'Unnamed Project'}</span>
+                            ${proj.role ? `<span style="font-size:0.75rem; background:rgba(99,102,241,0.1); color:var(--primary); border:1px solid rgba(99,102,241,0.2); padding:0.2rem 0.5rem; border-radius:4px; font-weight:600;">${proj.role}</span>` : ''}
                         </div>
-                        <div class="project-card-type">${proj.type || 'Project'}</div>
-                        <div class="project-card-details" style="font-size:0.82rem; color:var(--text-muted); margin-top:0.4rem;">${proj.details || ''}</div>
+                        <div class="project-card-type" style="font-size:0.78rem; color:var(--text-muted);">${proj.type || 'Project'}</div>
+                        <div class="project-card-details" style="font-size:0.82rem; color:var(--text-muted); margin-top:0.4rem; line-height:1.5;">${proj.details || ''}</div>
+                        ${proj.technologies && proj.technologies.length > 0 ? `
+                            <div style="margin-top:0.6rem; display:flex; flex-wrap:wrap; gap:0.35rem; align-items:center;">
+                                <strong style="font-size:0.75rem; color:var(--text-dark); margin-right:0.25rem;">Stack:</strong>
+                                ${proj.technologies.map(tech => `<span class="skill-tag" style="padding:0.1rem 0.4rem; font-size:0.7rem; background:rgba(255,255,255,0.02);">${tech}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                        ${proj.outcomes ? `
+                            <div style="margin-top:0.6rem; padding-top:0.6rem; border-top:1px solid var(--border-color); font-size:0.8rem; color:var(--text-muted); line-height:1.4;">
+                                <strong style="color:var(--emerald);"><i class="fa-solid fa-square-poll-vertical"></i> Outcome:</strong> ${proj.outcomes}
+                            </div>
+                        ` : ''}
                         ${projectImagesHtml}
                     `;
                     projectsList.appendChild(card);

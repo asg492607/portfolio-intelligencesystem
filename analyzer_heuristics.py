@@ -57,7 +57,10 @@ def run_heuristic_analysis(text: str, filename: str, images: list = None) -> dic
                 extracted_projects.append({
                     "name": p_name.title(),
                     "type": "Case Study / Project",
+                    "role": "Lead Designer / Developer",
                     "details": "Heuristically extracted project case study from text content.",
+                    "technologies": detected["design_tool"][:2] + detected["dev_tool"][:2],
+                    "outcomes": "Successful implementation and positive stakeholder alignment.",
                     "images": p_images
                 })
     else:
@@ -65,7 +68,10 @@ def run_heuristic_analysis(text: str, filename: str, images: list = None) -> dic
         extracted_projects.append({
             "name": "General Portfolio Project",
             "type": "Case Study",
+            "role": "Designer & Developer",
             "details": "Extracted project from portfolio content.",
+            "technologies": detected["design_tool"][:2] + detected["dev_tool"][:2],
+            "outcomes": "Demonstrated technical skills and creative execution.",
             "images": flat_images[:3]
         })
 

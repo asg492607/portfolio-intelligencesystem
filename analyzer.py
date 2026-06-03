@@ -270,7 +270,10 @@ def run_ai_analysis(text: str, filename: str, images: list = None, links: list =
         {{ 
           "name": "project name", 
           "type": "type of project, e.g. Mobile App, E-Commerce Website, Branding", 
-          "details": "brief description of project scope, technologies used, and contribution details",
+          "role": "candidate's specific role on this project, e.g. UX Designer, Full Stack Developer",
+          "details": "detailed description of the project scope, background context, and problem statement",
+          "technologies": ["list of tools, libraries, or technologies used specifically for this project"],
+          "outcomes": "key results, achievements, user feedback, or deliverables of the project",
           "images": ["list of matching IMAGE_URL strings found in the text for this project"]
         }}
       ]
