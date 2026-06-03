@@ -271,8 +271,12 @@ def run_ai_analysis(text: str, filename: str, images: list = None, links: list =
           "name": "project name", 
           "type": "type of project, e.g. Mobile App, E-Commerce Website, Branding", 
           "role": "candidate's specific title and level of contribution (e.g. Sole Designer, Lead Architect, Frontend Developer) on this project",
+          "client_or_organization": "the company, client, or organization the project was built for, e.g. Fintech Startup, Retail Client, or null if not mentioned",
+          "timeline": "project duration or dates, e.g., '3 months' or 'Jan - Mar 2025', or null if not mentioned",
+          "team_size": "the number of people on the team, e.g. 'Solo project', 'Team of 5', or null if not mentioned",
           "details": "detailed description of the project scope, background context, and problem statement (2-3 sentences)",
           "technologies": ["specific tools, libraries, or technologies used specifically to build/design this project"],
+          "challenges": "what major technical, design, or collaboration challenges they faced and how they resolved them",
           "outcomes": "key results, impact, user feedback, or deliverables of the project (be specific, e.g. 'Redesigned checkout flow resulting in a 15% increase in conversions')",
           "images": ["list of matching IMAGE_URL strings found in the text for this project"]
         }}

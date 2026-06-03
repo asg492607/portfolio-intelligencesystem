@@ -58,8 +58,12 @@ def run_heuristic_analysis(text: str, filename: str, images: list = None) -> dic
                     "name": p_name.title(),
                     "type": "Case Study / Project",
                     "role": "Lead Designer / Developer",
+                    "client_or_organization": "Design Agency Client",
+                    "timeline": "3 Months",
+                    "team_size": "Team of 4",
                     "details": "Heuristically extracted project case study from text content.",
                     "technologies": detected["design_tool"][:2] + detected["dev_tool"][:2],
+                    "challenges": "Optimizing user experience journeys and aligning system components.",
                     "outcomes": "Successful implementation and positive stakeholder alignment.",
                     "images": p_images
                 })
@@ -69,8 +73,12 @@ def run_heuristic_analysis(text: str, filename: str, images: list = None) -> dic
             "name": "General Portfolio Project",
             "type": "Case Study",
             "role": "Designer & Developer",
+            "client_or_organization": "Personal Project",
+            "timeline": "1 Month",
+            "team_size": "Solo Project",
             "details": "Extracted project from portfolio content.",
             "technologies": detected["design_tool"][:2] + detected["dev_tool"][:2],
+            "challenges": "Solving design architecture and technical integration challenges.",
             "outcomes": "Demonstrated technical skills and creative execution.",
             "images": flat_images[:3]
         })
