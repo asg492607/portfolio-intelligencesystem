@@ -424,6 +424,7 @@ async def get_report(job_id: str, db: Session = Depends(get_db)):
     }
 
 @app.get("/")
+@app.head("/")
 async def get_index():
     """Serves the frontend homepage index.html."""
     if os.path.exists("index.html"):
