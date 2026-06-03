@@ -256,12 +256,11 @@ def run_ai_analysis(text: str, filename: str, images: list = None, links: list =
       "industries": ["list of industries they worked in or design for"],
       "strengths": ["list of candidate's core strengths/qualities"],
       "tools": ["list of tools/technologies mentioned in the portfolio"],
-      "skills": {{
-        "design_tool": ["Design tools and technical design capabilities (e.g. Figma, Photoshop). Extract these by deeply analyzing the candidate's actual projects, scope of work, and layouts described below."],
-        "dev_tool": ["Developer tools, programming languages, and frameworks. Extract these by analyzing project implementation and tech details in the case studies below."],
-        "methodology": ["Methodologies, design thinking processes, and techniques (e.g. User Research, Wireframing, Agile). Extract these by analyzing their project workflow, problem-solving, and case study descriptions."],
-        "soft_skill": ["Demonstrated soft skills (e.g. Collaboration, Problem Solving). Extract these by analyzing project teamwork, leadership, and communication details in the case studies below."]
-      }},
+      "skills": {
+        "design_tools": ["Design software, tools, and visual technical capabilities (e.g. Figma, Sketch, Photoshop, Illustrator, Procreate). Extract these by deeply analyzing the projects, work scopes, and layouts described below."],
+        "methodologies_and_processes": ["Design methodologies, frameworks, UX research methods, design thinking, and workflow processes (e.g. User Research, Wireframing, Prototyping, Usability Testing). Extract these by analyzing their project case studies below."],
+        "soft_skills": ["Demonstrated soft skills (e.g. Team Collaboration, Leadership, Problem Solving) extracted from project descriptions and teamwork context."]
+      },
       "design_artifacts": {{
         "artifacts_found": ["identified design artifacts e.g. wireframes, mockups, case studies, user flows, prototypes, design systems, style guides"],
         "artifacts_missing": ["expected design artifacts not found in the content"]
@@ -318,10 +317,98 @@ def run_ai_analysis(text: str, filename: str, images: list = None, links: list =
             if "generated_at" not in result or not result["generated_at"]:
                 result["generated_at"] = datetime.datetime.utcnow().isoformat() + "Z"
                 
-            return result
+            return sync_project_skills_to_profile(result)
         except Exception as e:
             print(f"Error calling Groq model in analyzer: {e}. Trying heuristics fallback.")
 
-    return run_heuristic_analysis(text, filename, images=images)
+    fallback_result = run_heuristic_analysis(text, filename, images=images)
+    return sync_project_skills_to_profile(fallback_result)
+
+
+def sync_project_skills_to_profile(report: dict) -> dict:
+    """Extracts skills and technologies from each project and updates them in the main skills and tools sections."""
+    if not report or not isinstance(report, dict):
+        return report
+
+    # Ensure sections exist
+    if "skills" not in report or not isinstance(report["skills"], dict):
+        report["skills"] = {"design_tools": [], "methodologies_and_processes": [], "soft_skills": []}
+    
+    skills = report["skills"]
+    if "design_tools" not in skills:
+        skills["design_tools"] = []
+    if "methodologies_and_processes" not in skills:
+        skills["methodologies_and_processes"] = []
+    if "soft_skills" not in skills:
+        skills["soft_skills"] = []
+        
+    if "tools" not in report or not isinstance(report["tools"], list):
+        report["tools"] = []
+        
+    tools_set = {t.strip().lower(): t for t in report["tools"]}
+    design_tools_set = {t.strip().lower(): t for t in skills.get("design_tools", [])}
+    methodologies_set = {m.strip().lower(): m for m in skills.get("methodologies_and_processes", [])}
+    soft_skills_set = {s.strip().lower(): s for s in skills.get("soft_skills", [])}
+    
+    # Predefined keyword matching lists for mapping project skills to correct subcategories
+    design_tool_keywords = [
+        "figma", "sketch", "photoshop", "illustrator", "adobe xd", "invision", "miro", "canva", "zeplin", "framer",
+        "react", "vue", "angular", "next.js", "node.js", "javascript", "typescript", "python", "django", "fastapi", 
+        "flask", "postgresql", "mongodb", "docker", "aws", "git", "tailwind", "css", "html", "webflow", "procreate",
+        "indesign", "after effects", "premiere", "xd", "figma jam", "jira", "confluence", "spline", "blender", "cinema 4d"
+    ]
+    methodology_keywords = [
+        "user research", "wireframing", "prototyping", "usability testing", "agile", "scrum", "design thinking", 
+        "information architecture", "persona", "user flows", "journey mapping", "storyboarding", "card sorting", 
+        "heuristic evaluation", "site mapping", "user testing", "ab testing", "a/b testing", "affinity diagramming",
+        "ux research", "ui design", "product design", "interaction design", "visual design", "branding", "packaging"
+    ]
+    soft_skill_keywords = [
+        "communication", "collaboration", "leadership", "problem solving", "time management", "adaptability", 
+        "critical thinking", "teamwork", "empathy", "facilitation", "presentation", "stakeholder management"
+    ]
+
+    projects = report.get("projects", [])
+    if isinstance(projects, list):
+        for proj in projects:
+            if not isinstance(proj, dict):
+                continue
+            
+            # Technologies/Skills explicitly listed in project
+            proj_techs = proj.get("technologies", [])
+            if isinstance(proj_techs, list):
+                for tech in proj_techs:
+                    if not isinstance(tech, str) or not tech.strip():
+                        continue
+                    
+                    tech_clean = tech.strip()
+                    tech_lower = tech_clean.lower()
+                    
+                    # Update global tools list
+                    if tech_lower not in tools_set:
+                        tools_set[tech_lower] = tech_clean
+                        
+                    # Classify into specific skills categories
+                    # 1. Methodology Check
+                    if any(kw in tech_lower for kw in methodology_keywords):
+                        if tech_lower not in methodologies_set:
+                            methodologies_set[tech_lower] = tech_clean
+                    # 2. Soft Skill Check
+                    elif any(kw in tech_lower for kw in soft_skill_keywords):
+                        if tech_lower not in soft_skills_set:
+                            soft_skills_set[tech_lower] = tech_clean
+                    # 3. Default to Design Tools / Capabilities
+                    else:
+                        if tech_lower not in design_tools_set:
+                            design_tools_set[tech_lower] = tech_clean
+
+    # Reassign updated and deduplicated lists back to report
+    report["tools"] = list(tools_set.values())
+    skills["design_tools"] = list(design_tools_set.values())
+    skills["methodologies_and_processes"] = list(methodologies_set.values())
+    skills["soft_skills"] = list(soft_skills_set.values())
+    
+    return report
+
 
 
