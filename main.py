@@ -244,14 +244,19 @@ async def match_custom_job(job_id: str, payload: MatchRequest, db: Session = Dep
     }}
     """
 
+    groq_key = os.getenv("GROQ_API_KEY")
+    groq_model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    if not groq_key:
+        raise HTTPException(status_code=400, detail="GROQ_API_KEY environment variable is not configured.")
+
     try:
-        # Use local Ollama instance (running OpenAI compatible API)
+        # Use Groq Llama API
         client = OpenAI(
-            base_url="http://localhost:11434/v1",
-            api_key="sk-local"
+            base_url="https://api.groq.com/openai/v1",
+            api_key=groq_key
         )
         response = client.chat.completions.create(
-            model="llama3.1",
+            model=groq_model,
             messages=[
                 {"role": "system", "content": "You are a professional recruiting assistant specialized in matching candidate portfolios to job roles."},
                 {"role": "user", "content": prompt}

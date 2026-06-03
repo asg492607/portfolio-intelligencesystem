@@ -277,39 +277,43 @@ def run_ai_analysis(text: str, filename: str, images: list = None, links: list =
     }}
     """
 
-    try:
-        # Use local Ollama instance (running OpenAI compatible API)
-        client = OpenAI(
-            base_url="http://localhost:11434/v1",
-            api_key="sk-local"
-        )
-        response = client.chat.completions.create(
-            model="llama3.1",
-            messages=[
-                {"role": "system", "content": "You are a Portfolio Ingestion Agent API that extracts structured candidate profile data from portfolios and outputs valid JSON matching templates."},
-                {"role": "user", "content": prompt}
-            ],
-            response_format={"type": "json_object"},
-            temperature=0.2
-        )
-        clean_text = response.choices[0].message.content.strip()
-        match = re.search(r'\{[\s\S]*\}', clean_text)
-        if match:
-            clean_text = match.group(0)
-        
-        result = json.loads(clean_text)
-        
-        # Guarantee fallback keys
-        if "candidate_id" not in result or not result["candidate_id"]:
-            result["candidate_id"] = f"CAN-{str(uuid.uuid4())[:8].upper()}"
-        if "report_id" not in result or not result["report_id"]:
-            result["report_id"] = str(uuid.uuid4())
-        if "generated_at" not in result or not result["generated_at"]:
-            result["generated_at"] = datetime.datetime.utcnow().isoformat() + "Z"
+    groq_key = os.getenv("GROQ_API_KEY")
+    groq_model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+
+    if groq_key:
+        try:
+            # Use Groq Cloud Llama API
+            client = OpenAI(
+                base_url="https://api.groq.com/openai/v1",
+                api_key=groq_key
+            )
+            response = client.chat.completions.create(
+                model=groq_model,
+                messages=[
+                    {"role": "system", "content": "You are a Portfolio Ingestion Agent API that extracts structured candidate profile data from portfolios and outputs valid JSON matching templates."},
+                    {"role": "user", "content": prompt}
+                ],
+                response_format={"type": "json_object"},
+                temperature=0.2
+            )
+            clean_text = response.choices[0].message.content.strip()
+            match = re.search(r'\{[\s\S]*\}', clean_text)
+            if match:
+                clean_text = match.group(0)
             
-        return result
-    except Exception as e:
-        print(f"Error calling local Ollama model in analyzer: {e}. Trying heuristics fallback.")
+            result = json.loads(clean_text)
+            
+            # Guarantee fallback keys
+            if "candidate_id" not in result or not result["candidate_id"]:
+                result["candidate_id"] = f"CAN-{str(uuid.uuid4())[:8].upper()}"
+            if "report_id" not in result or not result["report_id"]:
+                result["report_id"] = str(uuid.uuid4())
+            if "generated_at" not in result or not result["generated_at"]:
+                result["generated_at"] = datetime.datetime.utcnow().isoformat() + "Z"
+                
+            return result
+        except Exception as e:
+            print(f"Error calling Groq model in analyzer: {e}. Trying heuristics fallback.")
 
     return run_heuristic_analysis(text, filename, images=images)
 
