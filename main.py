@@ -154,7 +154,7 @@ async def process_portfolio_job(job_id: str, content: str, source_label: str, ex
                 print(f"Failed deleting temporary file: {ex}")
 
 def compute_job_match(portfolio: dict, job: dict) -> dict:
-    """Helper to calculate skills match score and breakdown."""
+    """Helper to calculate skills match score and breakdown by scanning candidate profile and project details."""
     port_skills = set()
     if "skills" in portfolio and isinstance(portfolio["skills"], dict):
         for cat in portfolio["skills"].values():
@@ -164,6 +164,23 @@ def compute_job_match(portfolio: dict, job: dict) -> dict:
     if "tools" in portfolio and isinstance(portfolio["tools"], list):
         for t in portfolio["tools"]:
             port_skills.add(t.lower())
+
+    # Deep integration: Scan project-level technologies and text contexts for skills
+    if "projects" in portfolio and isinstance(portfolio["projects"], list):
+        import re
+        for proj in portfolio["projects"]:
+            if isinstance(proj, dict):
+                # Gather project-specific technologies
+                if "technologies" in proj and isinstance(proj["technologies"], list):
+                    for tech in proj["technologies"]:
+                        port_skills.add(tech.lower())
+                # Scrape keywords from other fields
+                for field in ["details", "role", "outcomes", "challenges", "name", "type"]:
+                    val = proj.get(field, "")
+                    if val and isinstance(val, str):
+                        # Extract alpha-numeric words (e.g. wireframing, react, looker, figma)
+                        for word in re.findall(r'\b[a-zA-Z0-9\-\+#]{3,20}\b', val.lower()):
+                            port_skills.add(word)
 
     req_skills = [s.lower() for s in job["required_skills"]]
     req_tools = [t.lower() for t in job["tools"]]
