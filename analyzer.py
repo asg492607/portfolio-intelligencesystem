@@ -251,16 +251,16 @@ def run_ai_analysis(text: str, filename: str, images: list = None, links: list =
       "full_name": "candidate full name or empty string if not found",
       "headline": "candidate professional headline or role title",
       "summary": "a brief professional summary/bio summarizing their background",
-      "target_roles": ["the top 2-3 most aligned professional roles/positions they are most qualified for based on their actual project achievements and experience context"],
+      "target_roles": ["Suggest exactly 1 to 3 primary target roles that are highly aligned matches for the candidate (e.g. 'F&B Branding Designer' or 'Fintech Frontend Developer' based on their project industries and strengths, listed from highest match to lowest)"],
       "years_experience": float or null for years of experience,
       "industries": ["list of industries they worked in or design for"],
       "strengths": ["list of candidate's core strengths/qualities"],
       "tools": ["list of tools/technologies mentioned in the portfolio"],
       "skills": {{
-        "design_tool": ["inferred design skills and tools, extracted by deeply analyzing the candidate's actual projects, scope of work, and descriptions"],
-        "dev_tool": ["inferred developer skills, languages, and tools, extracted by deeply analyzing their actual project contributions and work details"],
-        "methodology": ["inferred methodologies, design thinking processes, and techniques identified by analyzing their project case studies"],
-        "soft_skill": ["core soft skills demonstrated by their project collaboration and problem-solving descriptions"]
+        "design_tool": ["Design tools and technical design capabilities (e.g. Figma, Photoshop). Extract these by deeply analyzing the candidate's actual projects, scope of work, and layouts described below."],
+        "dev_tool": ["Developer tools, programming languages, and frameworks. Extract these by analyzing project implementation and tech details in the case studies below."],
+        "methodology": ["Methodologies, design thinking processes, and techniques (e.g. User Research, Wireframing, Agile). Extract these by analyzing their project workflow, problem-solving, and case study descriptions."],
+        "soft_skill": ["Demonstrated soft skills (e.g. Collaboration, Problem Solving). Extract these by analyzing project teamwork, leadership, and communication details in the case studies below."]
       }},
       "design_artifacts": {{
         "artifacts_found": ["identified design artifacts e.g. wireframes, mockups, case studies, user flows, prototypes, design systems, style guides"],
@@ -270,10 +270,10 @@ def run_ai_analysis(text: str, filename: str, images: list = None, links: list =
         {{ 
           "name": "project name", 
           "type": "type of project, e.g. Mobile App, E-Commerce Website, Branding", 
-          "role": "candidate's specific role on this project, e.g. UX Designer, Full Stack Developer",
-          "details": "detailed description of the project scope, background context, and problem statement",
-          "technologies": ["list of tools, libraries, or technologies used specifically for this project"],
-          "outcomes": "key results, achievements, user feedback, or deliverables of the project",
+          "role": "candidate's specific title and level of contribution (e.g. Sole Designer, Lead Architect, Frontend Developer) on this project",
+          "details": "detailed description of the project scope, background context, and problem statement (2-3 sentences)",
+          "technologies": ["specific tools, libraries, or technologies used specifically to build/design this project"],
+          "outcomes": "key results, impact, user feedback, or deliverables of the project (be specific, e.g. 'Redesigned checkout flow resulting in a 15% increase in conversions')",
           "images": ["list of matching IMAGE_URL strings found in the text for this project"]
         }}
       ]
