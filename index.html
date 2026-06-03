@@ -1478,18 +1478,14 @@
 
                 <!-- Skills Extraction Matrix -->
                 <div class="glass-card">
-                    <h3 class="list-card-title" style="border: none; padding: 0;"><i class="fa-solid fa-list-check" style="color: var(--emerald);"></i> Technology & Methodology Stack</h3>
-                    <div class="skills-grid">
+                    <h3 class="list-card-title" style="border: none; padding: 0;"><i class="fa-solid fa-list-check" style="color: var(--emerald);"></i> Design Skills & Tools</h3>
+                    <div class="skills-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
                         <div class="skills-col">
-                            <div class="skills-col-title">Design Stack <span></span></div>
+                            <div class="skills-col-title">Design Tools & Software <span></span></div>
                             <div class="skill-tags" id="skills-advanced-box"></div>
                         </div>
                         <div class="skills-col">
-                            <div class="skills-col-title">Developer Stack <span></span></div>
-                            <div class="skill-tags" id="skills-intermediate-box"></div>
-                        </div>
-                        <div class="skills-col">
-                            <div class="skills-col-title">Methodologies & Core Skills <span></span></div>
+                            <div class="skills-col-title">Methodologies & Process <span></span></div>
                             <div class="skill-tags" id="skills-beginner-box"></div>
                         </div>
                     </div>
@@ -2146,8 +2142,10 @@
 
             // Skills Matrix
             const skillsData = jobReportData.skills || { design_tool: [], dev_tool: [], methodology: [], soft_skill: [] };
-            renderSkillsCol('skills-advanced-box', skillsData.design_tool || []);
-            renderSkillsCol('skills-intermediate-box', skillsData.dev_tool || []);
+            const designTools = [...(skillsData.design_tool || []), ...(jobReportData.tools || [])];
+            const uniqueDesignTools = [...new Set(designTools)];
+            
+            renderSkillsCol('skills-advanced-box', uniqueDesignTools);
             renderSkillsCol('skills-beginner-box', [...(skillsData.methodology || []), ...(skillsData.soft_skill || [])]);
 
             // Design Artifacts Panel
