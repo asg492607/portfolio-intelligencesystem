@@ -69,11 +69,61 @@ def run_heuristic_analysis(text: str, filename: str, images: list = None) -> dic
             "images": flat_images[:3]
         })
 
+    # ── Intelligent heuristic extraction for candidate profile fields ──────────
+    lines = [l.strip() for l in text.split('\n') if l.strip()]
+    guessed_name = ""
+    if lines:
+        first_line = lines[0]
+        if len(first_line) < 40 and not any(x in first_line.lower() for x in ["http", "portfolio", "resume", "cv", "page", "work"]):
+            guessed_name = first_line
+    if not guessed_name:
+        guessed_name = filename.split('.')[0].replace('_', ' ').replace('-', ' ').title()
+
+    guessed_headline = "Creative & Design Professional"
+    for line in lines[:5]:
+        if any(x in line.lower() for x in ["designer", "developer", "engineer", "manager", "strategist", "illustrator"]):
+            if len(line) < 100:
+                guessed_headline = line
+                break
+
+    guessed_summary = text[:300].strip() + "..." if len(text) > 300 else text
+
+    # Extract years experience if mentioned
+    exp_match = re.search(r'(\d+(?:\.\d+)?)\s*\+?\s*years?\s+(?:of\s+)?experience', text_lower)
+    years_experience = float(exp_match.group(1)) if exp_match else None
+
+    # Extra target roles
+    target_roles = []
+    role_match = re.search(r'target\s+roles?\s*:\s*([^\n]+)', text_lower)
+    if role_match:
+        target_roles = [r.strip().title() for r in role_match.group(1).split(',') if r.strip()]
+    else:
+        target_roles = [guessed_headline.title()]
+
+    # Industries extraction heuristics
+    industries_list = ["technology", "finance", "healthcare", "education", "retail", "e-commerce", "food & beverage", "entertainment"]
+    detected_industries = [ind.title() for ind in industries_list if ind in text_lower]
+
+    # Strengths extraction heuristics
+    strengths_list = ["creative thinking", "problem solving", "collaboration", "communication", "detail-oriented", "leadership"]
+    detected_strengths = [s.title() for s in strengths_list if s in text_lower]
+
+    # Tools flat list (Design + Dev tools combined)
+    flat_tools = detected["design_tool"] + detected["dev_tool"]
+
     # ── Clean report structure ──────────────────────────────────────────────────
     report = {
         "report_id": str(uuid.uuid4()),
         "candidate_id": f"CAN-{str(uuid.uuid4())[:8].upper()}",
         "generated_at": datetime.datetime.utcnow().isoformat() + "Z",
+        "full_name": guessed_name,
+        "headline": guessed_headline,
+        "summary": guessed_summary,
+        "target_roles": target_roles,
+        "years_experience": years_experience,
+        "industries": detected_industries,
+        "strengths": detected_strengths,
+        "tools": flat_tools,
         "skills": detected,
         "design_artifacts": {
             "artifacts_found": artifacts_found,
@@ -82,3 +132,4 @@ def run_heuristic_analysis(text: str, filename: str, images: list = None) -> dic
         "projects": extracted_projects
     }
     return report
+

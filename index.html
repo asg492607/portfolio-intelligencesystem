@@ -1445,6 +1445,37 @@
                     </div>
                 </div>
 
+                <!-- Candidate Profile Panel -->
+                <div class="glass-card" id="dash-profile-panel" style="display: none; flex-direction: column; gap: 1.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <h2 id="profile-full-name" style="font-size: 1.75rem; font-weight: 700; color: var(--text-light); margin: 0 0 0.25rem 0;"></h2>
+                            <p id="profile-headline" style="font-size: 1.1rem; color: var(--primary); font-weight: 600; margin: 0;"></p>
+                        </div>
+                        <div class="headline-pill" id="profile-experience-pill" style="margin: 0; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem;">
+                            <i class="fa-solid fa-hourglass-half" style="color: var(--primary);"></i> Experience: <strong id="profile-years-experience" style="color: var(--text-light);">0 years</strong>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--emerald);"><i class="fa-solid fa-address-card"></i> Professional Summary</h4>
+                        <p id="profile-summary" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin: 0;"></p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+                        <div>
+                            <h4 style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; color: var(--cyan);"><i class="fa-solid fa-user-tag"></i> Target Roles</h4>
+                            <div id="profile-target-roles" style="display: flex; flex-wrap: wrap; gap: 0.4rem;"></div>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; color: var(--amber);"><i class="fa-solid fa-industry"></i> Industries</h4>
+                            <div id="profile-industries" style="display: flex; flex-wrap: wrap; gap: 0.4rem;"></div>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; color: var(--rose);"><i class="fa-solid fa-gem"></i> Strengths</h4>
+                            <div id="profile-strengths" style="display: flex; flex-wrap: wrap; gap: 0.4rem;"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Skills Extraction Matrix -->
                 <div class="glass-card">
                     <h3 class="list-card-title" style="border: none; padding: 0;"><i class="fa-solid fa-list-check" style="color: var(--emerald);"></i> Technology & Methodology Stack</h3>
@@ -1522,6 +1553,54 @@
                     <div id="dash-projects-list" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
                     <div style="display: none;">
                         <p style="font-size: 0.83rem; color: var(--text-muted); border-left: 3px solid var(--primary); padding-left: 0.75rem; line-height: 1.55;" id="dash-project-quality-summary"></p>
+                    </div>
+                </div>
+
+                <!-- AI Job Matchmaking Panel -->
+                <div class="glass-card" id="dash-matchmaking-panel" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <h3 class="list-card-title" style="border: none; padding: 0; margin-bottom: 0.25rem;"><i class="fa-solid fa-briefcase" style="color: var(--amber);"></i> AI Job Matchmaking</h3>
+                    <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;">Analyze matches against target roles or run custom job matching comparisons.</p>
+                    
+                    <!-- Preseeded Job Matches -->
+                    <div id="job-matches-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; margin-top: 0.5rem;">
+                        <!-- Populate dynamically -->
+                    </div>
+
+                    <!-- Custom Job Matcher Form -->
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                        <h4 style="font-size: 0.95rem; color: var(--text-light); margin: 0;"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i> Match Against Custom Job Description</h4>
+                        <textarea id="custom-job-desc" placeholder="Paste your target job description here..." style="width: 100%; height: 120px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-light); padding: 0.75rem; font-size: 0.85rem; resize: vertical; font-family: inherit; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border-color)'"></textarea>
+                        <button class="btn-primary" style="align-self: flex-start; padding: 0.6rem 1.2rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;" onclick="runCustomJobMatch()" id="btn-custom-match">
+                            <i class="fa-solid fa-compress"></i> Match Custom Job
+                        </button>
+                    </div>
+
+                    <!-- Custom Match Results Display -->
+                    <div id="custom-match-results" style="display: none; background: rgba(99, 102, 241, 0.04); border: 1px solid rgba(99, 102, 241, 0.15); border-radius: 8px; padding: 1.25rem; flex-direction: column; gap: 1rem; transition: all 0.3s ease;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                            <div>
+                                <h5 style="font-size: 1.05rem; margin: 0; color: var(--text-light);">Custom Match Breakdown</h5>
+                                <span style="font-size: 0.78rem; color: var(--text-muted);" id="custom-match-status">Fit Status</span>
+                            </div>
+                            <div style="background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 0.4rem 0.8rem; border-radius: 6px; font-weight: 700; font-size: 1.1rem; border: 1px solid rgba(99, 102, 241, 0.2);" id="custom-match-score">0% Match</div>
+                        </div>
+                        <div>
+                            <p style="font-size: 0.83rem; color: var(--text-muted); line-height: 1.6; margin: 0;" id="custom-match-reason"></p>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 0.75rem;">
+                            <div>
+                                <strong style="font-size: 0.8rem; color: var(--emerald); display: block; margin-bottom: 0.4rem;">Matched Skills / Tools</strong>
+                                <div id="custom-match-aligned" style="display: flex; flex-wrap: wrap; gap: 0.4rem;"></div>
+                            </div>
+                            <div>
+                                <strong style="font-size: 0.8rem; color: var(--rose); display: block; margin-bottom: 0.4rem;">Missing / Unmatched Requirements</strong>
+                                <div id="custom-match-missing" style="display: flex; flex-wrap: wrap; gap: 0.4rem;"></div>
+                            </div>
+                        </div>
+                        <div style="border-top: 1px solid var(--border-color); padding-top: 0.75rem;">
+                            <strong style="font-size: 0.8rem; color: var(--amber); display: block; margin-bottom: 0.4rem;"><i class="fa-solid fa-lightbulb"></i> Optimization Recommendations</strong>
+                            <ul id="custom-match-advice" style="font-size: 0.82rem; color: var(--text-muted); padding-left: 1.2rem; margin: 0; display: flex; flex-direction: column; gap: 0.3rem;"></ul>
+                        </div>
                     </div>
                 </div>
 
@@ -2003,6 +2082,62 @@
 
             switchView('view-dashboard');
 
+            // Render Profile Panel
+            const profilePanel = document.getElementById('dash-profile-panel');
+            if (jobReportData.full_name || jobReportData.headline || jobReportData.summary) {
+                profilePanel.style.display = 'flex';
+                document.getElementById('profile-full-name').textContent = jobReportData.full_name || 'Anonymous Candidate';
+                document.getElementById('profile-headline').textContent = jobReportData.headline || 'Creative Professional';
+                
+                const expPill = document.getElementById('profile-experience-pill');
+                if (jobReportData.years_experience !== null && jobReportData.years_experience !== undefined) {
+                    document.getElementById('profile-years-experience').textContent = `${jobReportData.years_experience} Years`;
+                    expPill.style.display = 'inline-flex';
+                } else {
+                    expPill.style.display = 'none';
+                }
+                
+                document.getElementById('profile-summary').textContent = jobReportData.summary || 'No professional summary extracted.';
+                
+                // Target roles
+                const rolesBox = document.getElementById('profile-target-roles');
+                rolesBox.innerHTML = '';
+                (jobReportData.target_roles || []).forEach(role => {
+                    const tag = document.createElement('span');
+                    tag.className = 'skill-tag';
+                    tag.style.background = 'rgba(6, 182, 212, 0.08)';
+                    tag.style.borderColor = 'rgba(6, 182, 212, 0.2)';
+                    tag.textContent = role;
+                    rolesBox.appendChild(tag);
+                });
+                
+                // Industries
+                const indBox = document.getElementById('profile-industries');
+                indBox.innerHTML = '';
+                (jobReportData.industries || []).forEach(ind => {
+                    const tag = document.createElement('span');
+                    tag.className = 'skill-tag';
+                    tag.style.background = 'rgba(245, 158, 11, 0.08)';
+                    tag.style.borderColor = 'rgba(245, 158, 11, 0.2)';
+                    tag.textContent = ind;
+                    indBox.appendChild(tag);
+                });
+                
+                // Strengths
+                const strengthsBox = document.getElementById('profile-strengths');
+                strengthsBox.innerHTML = '';
+                (jobReportData.strengths || []).forEach(str => {
+                    const tag = document.createElement('span');
+                    tag.className = 'skill-tag';
+                    tag.style.background = 'rgba(244, 63, 94, 0.08)';
+                    tag.style.borderColor = 'rgba(244, 63, 94, 0.2)';
+                    tag.textContent = str;
+                    strengthsBox.appendChild(tag);
+                });
+            } else {
+                profilePanel.style.display = 'none';
+            }
+
             // Render Header and Metadata
             document.getElementById('dash-candidate-id').textContent = `INGESTION ID: ${jobReportData.candidate_id || 'N/A'}`;
             document.getElementById('dash-role-target').textContent = `Portfolio Data Extraction Report`;
@@ -2114,6 +2249,43 @@
             } else {
                 linksList.innerHTML = `<span style="font-size:0.8rem; color:var(--text-dark)">No external reference links found.</span>`;
             }
+
+            // Render Job Matchmaking Panel
+            const matchesGrid = document.getElementById('job-matches-grid');
+            matchesGrid.innerHTML = '';
+            
+            const matches = jobReportData.job_matches || [];
+            if (matches.length > 0) {
+                matches.forEach(match => {
+                    const matchCard = document.createElement('div');
+                    matchCard.className = 'project-card';
+                    matchCard.style.cssText = "display:flex; flex-direction:column; gap:0.6rem; border:1px solid var(--border-color); border-radius:8px; padding:1rem; background:rgba(255,255,255,0.01);";
+                    
+                    const color = match.score >= 75 ? 'var(--emerald)' : (match.score >= 45 ? 'var(--amber)' : 'var(--rose)');
+                    
+                    matchCard.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="color:var(--text-light); font-size:0.95rem;">${match.job_title}</strong>
+                            <span style="background:${color}15; color:${color}; border:1px solid ${color}30; padding:0.2rem 0.5rem; border-radius:4px; font-weight:700; font-size:0.8rem;">${match.score}% Match</span>
+                        </div>
+                        <div style="font-size:0.75rem; color:var(--text-muted); display:flex; gap:0.6rem;">
+                            <span><i class="fa-solid fa-building"></i> ${match.company}</span>
+                            <span><i class="fa-solid fa-map-marker-alt"></i> ${match.location}</span>
+                            <span><i class="fa-solid fa-level-up-alt"></i> ${match.seniority.toUpperCase()}</span>
+                        </div>
+                        <p style="font-size:0.78rem; color:var(--text-muted); line-height:1.4; margin:0.3rem 0;">${match.summary || ''}</p>
+                        <div style="display:flex; flex-direction:column; gap:0.3rem; border-top:1px solid var(--border-color); padding-top:0.5rem; margin-top:0.2rem;">
+                            <span style="font-size:0.75rem; color:var(--emerald); line-height: 1.4;"><strong>Matched:</strong> ${match.matched_skills.slice(0, 4).join(', ') || 'None'}</span>
+                            <span style="font-size:0.75rem; color:var(--text-dark); line-height: 1.4;"><strong>Missing:</strong> ${match.missing_skills.slice(0, 4).join(', ') || 'None'}</span>
+                        </div>
+                    `;
+                    matchesGrid.appendChild(matchCard);
+                });
+            }
+            
+            // Hide custom match results from previous runs
+            document.getElementById('custom-match-results').style.display = 'none';
+            document.getElementById('custom-job-desc').value = '';
         }
 
         const SKILL_ICONS = {
@@ -2182,6 +2354,102 @@
                 `;
                 container.appendChild(div);
             });
+        }
+
+        async function runCustomJobMatch() {
+            const desc = document.getElementById('custom-job-desc').value.trim();
+            if (!desc) {
+                alert("Please paste a job description first.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-custom-match');
+            const resultsBox = document.getElementById('custom-match-results');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analyzing Match...';
+            resultsBox.style.display = 'none';
+
+            try {
+                const response = await fetch(`/api/v1/report/${activeJobId}/match`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        job_description: desc
+                    })
+                });
+
+                if (response.ok) {
+                    const match = await response.json();
+                    
+                    document.getElementById('custom-match-score').textContent = `${match.match_score}% Match`;
+                    document.getElementById('custom-match-status').textContent = `FIT VERDICT: ${match.fit_status}`;
+                    
+                    const color = match.match_score >= 75 ? 'var(--emerald)' : (match.match_score >= 45 ? 'var(--amber)' : 'var(--rose)');
+                    document.getElementById('custom-match-score').style.color = color;
+                    document.getElementById('custom-match-score').style.borderColor = color + '30';
+                    document.getElementById('custom-match-score').style.background = color + '10';
+
+                    document.getElementById('custom-match-reason').textContent = match.fit_reason || '';
+                    
+                    // Aligned skills
+                    const alignedBox = document.getElementById('custom-match-aligned');
+                    alignedBox.innerHTML = '';
+                    if (match.matching_skills && match.matching_skills.length > 0) {
+                        match.matching_skills.forEach(s => {
+                            const pill = document.createElement('span');
+                            pill.className = 'skill-tag';
+                            pill.style.background = 'rgba(16, 185, 129, 0.08)';
+                            pill.style.borderColor = 'rgba(16, 185, 129, 0.2)';
+                            pill.textContent = s;
+                            alignedBox.appendChild(pill);
+                        });
+                    } else {
+                        alignedBox.innerHTML = '<span style="font-size:0.75rem; color:var(--text-dark)">None identified</span>';
+                    }
+
+                    // Missing skills
+                    const missingBox = document.getElementById('custom-match-missing');
+                    missingBox.innerHTML = '';
+                    if (match.missing_skills && match.missing_skills.length > 0) {
+                        match.missing_skills.forEach(s => {
+                            const pill = document.createElement('span');
+                            pill.className = 'skill-tag';
+                            pill.style.background = 'rgba(244, 63, 94, 0.08)';
+                            pill.style.borderColor = 'rgba(244, 63, 94, 0.2)';
+                            pill.textContent = s;
+                            missingBox.appendChild(pill);
+                        });
+                    } else {
+                        missingBox.innerHTML = '<span style="font-size:0.75rem; color:var(--text-dark)">None identified</span>';
+                    }
+
+                    // Advice/recommendations
+                    const adviceBox = document.getElementById('custom-match-advice');
+                    adviceBox.innerHTML = '';
+                    if (match.recommendations && match.recommendations.length > 0) {
+                        match.recommendations.forEach(rec => {
+                            const li = document.createElement('li');
+                            li.textContent = rec;
+                            adviceBox.appendChild(li);
+                        });
+                    } else {
+                        adviceBox.innerHTML = '<li>No recommendations required.</li>';
+                    }
+
+                    resultsBox.style.display = 'flex';
+                } else {
+                    const err = await response.json();
+                    alert("Matchmaking failed: " + (err.detail || "Server error"));
+                }
+            } catch (e) {
+                alert("Connection failed: " + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-compress"></i> Match Custom Job';
+            }
         }
 
         // Export JSON payload

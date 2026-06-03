@@ -218,23 +218,7 @@ async def parse_figma_content(url: str) -> str:
 
 # 4. Generate Embeddings (Optional Vector representation)
 async def generate_text_embedding(text: str) -> list:
-    """Generate embedding vector using Gemini Embedding API (or return dummy vector)."""
-    gemini_key = os.getenv("GEMINI_API_KEY")
-    if gemini_key:
-        try:
-            import google.generativeai as genai
-            genai.configure(api_key=gemini_key)
-            result = genai.embed_content(
-                model="models/text-embedding-004",
-                content=text[:2000],
-                task_type="retrieval_document"
-            )
-            embedding = result.get("embedding") if isinstance(result, dict) else getattr(result, "embedding", None)
-            if embedding:
-                return embedding
-        except Exception as e:
-            print(f"Error generating embedding via Gemini API: {e}")
-            
+    """Generate embedding vector (returns dummy vector to remove external API dependency)."""
     # Dummy embedding fallback matching Qdrant size
     import random
     return [random.uniform(-0.1, 0.1) for _ in range(768)]
@@ -243,11 +227,11 @@ async def generate_text_embedding(text: str) -> list:
 from analyzer_heuristics import run_heuristic_analysis
 
 def run_ai_analysis(text: str, filename: str, images: list = None, links: list = None) -> dict:
-    """Runs data extraction using Gemini, Groq, OpenAI, or falls back to heuristics."""
-    gemini_key = os.getenv("GEMINI_API_KEY")
+    """Runs data extraction using local Ollama LLM (llama3.1), or falls back to heuristics."""
+    from openai import OpenAI
 
     prompt = f"""
-    You are Portfolio Ingestion Agent — an AI system that analyzes portfolios to extract stack tools, identify design artifacts, and list projects.
+    You are Portfolio Ingestion Agent — an AI system that analyzes portfolios to extract candidate profiles, technology stack tools, identify design artifacts, and list projects.
     Your task is to analyze the portfolio content below and extract structured data. Focus strictly on objective data extraction; do not include ratings, reviews, recommendations, or grading of any kind.
     
     IMPORTANT: Look for inline markers like `[IMAGE_URL: <url> CAPTION: <text>]` inside the text stream. Identify which images belong to which projects, and assign those exact image URLs to the corresponding project in the "projects" array below.
@@ -256,7 +240,7 @@ def run_ai_analysis(text: str, filename: str, images: list = None, links: list =
 
     Portfolio text content:
     ---
-    {text[:12000]}
+    {text[:15000]}
     ---
 
     Return a JSON object matching EXACTLY this structure. Output only valid JSON — no markdown, no preambles:
@@ -264,6 +248,14 @@ def run_ai_analysis(text: str, filename: str, images: list = None, links: list =
       "report_id": "unique-uuid",
       "candidate_id": "CAN-XXXXXX",
       "generated_at": "ISO-TIMESTAMP",
+      "full_name": "candidate full name or empty string if not found",
+      "headline": "candidate professional headline or role title",
+      "summary": "a brief professional summary/bio summarizing their background",
+      "target_roles": ["list of target roles/positions they want or have"],
+      "years_experience": float or null for years of experience,
+      "industries": ["list of industries they worked in or design for"],
+      "strengths": ["list of candidate's core strengths/qualities"],
+      "tools": ["list of tools/technologies mentioned in the portfolio"],
       "skills": {{
         "design_tool": ["list of design tools found, e.g. Figma, Photoshop, Sketch"],
         "dev_tool": ["list of development tools/languages, e.g. React, Python, Docker"],
@@ -285,47 +277,40 @@ def run_ai_analysis(text: str, filename: str, images: list = None, links: list =
     }}
     """
 
-    if gemini_key:
-        try:
-            import google.generativeai as genai
-            genai.configure(api_key=gemini_key)
-            model = genai.GenerativeModel('gemini-2.0-flash')
-            response = model.generate_content(prompt)
-            clean_text = response.text.strip()
-            # Strip all markdown code fence variants
-            clean_text = re.sub(r'^```[a-zA-Z]*\s*', '', clean_text)
-            clean_text = re.sub(r'\s*```$', '', clean_text)
-            clean_text = clean_text.strip()
-            # Extract first valid JSON object if extra text present
-            match = re.search(r'\{[\s\S]*\}', clean_text)
-            if match:
-                clean_text = match.group(0)
-            return json.loads(clean_text)
-        except Exception as e:
-            print(f"Error calling Gemini in analyzer: {e}. Trying Groq fallback.")
-
-    groq_key = os.getenv("GROQ_API_KEY")
-    if groq_key:
-        try:
-            from openai import OpenAI
-            # Get configured Groq model or default to the flagship llama-3.3-70b-versatile
-            groq_model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
-            client = OpenAI(api_key=groq_key, base_url="https://api.groq.com/openai/v1")
-            response = client.chat.completions.create(
-                model=groq_model,
-                messages=[
-                    {"role": "system", "content": "You are a Portfolio Ingestion Agent API that extracts structured data from portfolios and outputs valid JSON matching templates."},
-                    {"role": "user", "content": prompt}
-                ],
-                response_format={"type": "json_object"}
-            )
-            clean_text = response.choices[0].message.content.strip()
-            match = re.search(r'\{[\s\S]*\}', clean_text)
-            if match:
-                clean_text = match.group(0)
-            return json.loads(clean_text)
-        except Exception as e:
-            print(f"Error calling OpenAI in analyzer: {e}. Falling back to heuristics.")
+    try:
+        # Use local Ollama instance (running OpenAI compatible API)
+        client = OpenAI(
+            base_url="http://localhost:11434/v1",
+            api_key="sk-local"
+        )
+        response = client.chat.completions.create(
+            model="llama3.1",
+            messages=[
+                {"role": "system", "content": "You are a Portfolio Ingestion Agent API that extracts structured candidate profile data from portfolios and outputs valid JSON matching templates."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_object"},
+            temperature=0.2
+        )
+        clean_text = response.choices[0].message.content.strip()
+        match = re.search(r'\{[\s\S]*\}', clean_text)
+        if match:
+            clean_text = match.group(0)
+        
+        result = json.loads(clean_text)
+        
+        # Guarantee fallback keys
+        if "candidate_id" not in result or not result["candidate_id"]:
+            result["candidate_id"] = f"CAN-{str(uuid.uuid4())[:8].upper()}"
+        if "report_id" not in result or not result["report_id"]:
+            result["report_id"] = str(uuid.uuid4())
+        if "generated_at" not in result or not result["generated_at"]:
+            result["generated_at"] = datetime.datetime.utcnow().isoformat() + "Z"
+            
+        return result
+    except Exception as e:
+        print(f"Error calling local Ollama model in analyzer: {e}. Trying heuristics fallback.")
 
     return run_heuristic_analysis(text, filename, images=images)
+
 

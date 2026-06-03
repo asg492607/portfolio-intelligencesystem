@@ -92,6 +92,44 @@ async def process_portfolio_job(job_id: str, content: str, source_label: str, ex
         if isinstance(report_data, dict):
             report_data["images"] = extracted_images or []
             report_data["links"] = extracted_links or []
+            
+            # Compute default job matches
+            dummy_jobs = [
+                {
+                    "job_id": "job_001",
+                    "job_title": "Graphic Designer",
+                    "company": "Studio Fresh",
+                    "industry": "Food & Beverage",
+                    "location": "Remote",
+                    "seniority": "mid",
+                    "required_skills": ["Branding", "Visual Identity", "Packaging Design", "Typography"],
+                    "tools": ["Adobe Illustrator", "Adobe Photoshop", "Adobe InDesign"],
+                    "summary": "Create fresh, emotionally resonant brand identities and packaging layouts for a portfolio of food and beverage clients."
+                },
+                {
+                    "job_id": "job_002",
+                    "job_title": "Illustrator & Visual Designer",
+                    "company": "Pixel & Prose Publishing",
+                    "industry": "Publishing",
+                    "location": "Hybrid",
+                    "seniority": "mid",
+                    "required_skills": ["Illustration", "Character Design", "Storyboarding", "Layout Design"],
+                    "tools": ["Procreate", "Adobe Illustrator", "Figma"],
+                    "summary": "Develop unique characters, illustrations, and visual storytelling assets for children's books and educational media."
+                },
+                {
+                    "job_id": "job_003",
+                    "job_title": "Brand & Marketing Designer",
+                    "company": "Nexus Tech",
+                    "industry": "Technology",
+                    "location": "Remote",
+                    "seniority": "senior",
+                    "required_skills": ["Advertising Campaigns", "Social Media Design", "OOH Advertising", "Creative Thinking"],
+                    "tools": ["Figma", "Adobe After Effects", "Adobe Photoshop"],
+                    "summary": "Lead visual design efforts across cross-functional tech teams, driving large-scale advertising campaigns and digital product launches."
+                }
+            ]
+            report_data["job_matches"] = [compute_job_match(report_data, job) for job in dummy_jobs]
 
         # Step 5 & 6: Update DB & complete
         db_job = db.query(models.Job).filter(models.Job.id == job_id).first()
@@ -114,6 +152,142 @@ async def process_portfolio_job(job_id: str, content: str, source_label: str, ex
                 os.remove(local_file_to_clean)
             except Exception as ex:
                 print(f"Failed deleting temporary file: {ex}")
+
+def compute_job_match(portfolio: dict, job: dict) -> dict:
+    """Helper to calculate skills match score and breakdown."""
+    port_skills = set()
+    if "skills" in portfolio and isinstance(portfolio["skills"], dict):
+        for cat in portfolio["skills"].values():
+            if isinstance(cat, list):
+                for s in cat:
+                    port_skills.add(s.lower())
+    if "tools" in portfolio and isinstance(portfolio["tools"], list):
+        for t in portfolio["tools"]:
+            port_skills.add(t.lower())
+
+    req_skills = [s.lower() for s in job["required_skills"]]
+    req_tools = [t.lower() for t in job["tools"]]
+
+    matched_skills = [s for s in job["required_skills"] if s.lower() in port_skills]
+    matched_tools = [t for t in job["tools"] if t.lower() in port_skills]
+
+    missing_skills = [s for s in job["required_skills"] if s.lower() not in port_skills]
+    missing_tools = [t for t in job["tools"] if t.lower() not in port_skills]
+
+    # Calculate score
+    total_criteria = len(req_skills) + len(req_tools)
+    matched_count = len(matched_skills) + len(matched_tools)
+
+    score = int((matched_count / total_criteria) * 100) if total_criteria > 0 else 0
+
+    # Experience heuristic adjustment
+    exp_aligned = True
+    port_exp = portfolio.get("years_experience")
+    if port_exp is not None:
+        target_exp = 5.0 if job["seniority"] == "senior" else 2.0
+        if port_exp < target_exp:
+            score = max(0, score - 15)
+            exp_aligned = False
+
+    fit_status = "Strong Match" if score >= 75 else ("Good Match" if score >= 45 else "Low Match")
+
+    return {
+        "job_id": job["job_id"],
+        "job_title": job["job_title"],
+        "company": job["company"],
+        "industry": job["industry"],
+        "location": job["location"],
+        "seniority": job["seniority"],
+        "summary": job.get("summary", ""),
+        "score": score,
+        "fit_status": fit_status,
+        "matched_skills": matched_skills + matched_tools,
+        "missing_skills": missing_skills + missing_tools,
+        "exp_aligned": exp_aligned
+    }
+
+class MatchRequest(BaseModel):
+    job_description: str
+
+@app.post("/api/v1/report/{job_id}/match")
+async def match_custom_job(job_id: str, payload: MatchRequest, db: Session = Depends(get_db)):
+    """API endpoint to dynamically match a candidate profile against a custom job description using Ollama."""
+    db_job = db.query(models.Job).filter(models.Job.id == job_id).first()
+    if not db_job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    portfolio = db_job.results
+    if not portfolio:
+        raise HTTPException(status_code=400, detail="Portfolio has not been successfully analyzed yet.")
+
+    from openai import OpenAI
+    import json
+
+    prompt = f"""
+    Analyze how well the candidate's portfolio matches the following job description.
+    Focus strictly on objective comparison of skills, tools, and experience. Do not give generic subjective commentary.
+
+    Candidate Portfolio Data:
+    {json.dumps(portfolio, indent=2)}
+
+    Job Description:
+    {payload.job_description}
+
+    Return a JSON response matching exactly this template:
+    {{
+      "match_score": 85, // integer 0 to 100
+      "fit_status": "Strong Match|Good Match|Potential Match|Low Match",
+      "matching_skills": ["list of overlapping skills/tools found in both"],
+      "missing_skills": ["list of skills/tools requested in the job description but missing in the portfolio"],
+      "fit_reason": "A brief paragraph detailing their professional alignment with the role.",
+      "recommendations": ["1-2 actionable tips for aligning this portfolio to better target this specific role."]
+    }}
+    """
+
+    try:
+        # Use local Ollama instance (running OpenAI compatible API)
+        client = OpenAI(
+            base_url="http://localhost:11434/v1",
+            api_key="sk-local"
+        )
+        response = client.chat.completions.create(
+            model="llama3.1",
+            messages=[
+                {"role": "system", "content": "You are a professional recruiting assistant specialized in matching candidate portfolios to job roles."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_object"},
+            temperature=0.2
+        )
+        import re
+        clean_text = response.choices[0].message.content.strip()
+        match = re.search(r'\{[\s\S]*\}', clean_text)
+        if match:
+            clean_text = match.group(0)
+        return json.loads(clean_text)
+    except Exception as e:
+        # Programmatic fallback
+        import uuid
+        dummy_job = {
+            "job_id": str(uuid.uuid4()),
+            "job_title": "Custom Target Role",
+            "company": "Target Employer",
+            "industry": "General",
+            "location": "Remote",
+            "seniority": "mid",
+            "required_skills": ["communication", "problem solving"],
+            "tools": [],
+            "summary": payload.job_description
+        }
+        res = compute_job_match(portfolio, dummy_job)
+        return {
+            "match_score": res["score"],
+            "fit_status": res["fit_status"] + " (Fallback)",
+            "matching_skills": res["matched_skills"],
+            "missing_skills": res["missing_skills"],
+            "fit_reason": f"Analyzed via local keyword intersection heuristic engine. Error calling LLM: {str(e)}",
+            "recommendations": ["Highlight the tools and methodology matching the job description."]
+        }
 
 @app.post("/api/v1/analyze/pdf")
 async def analyze_pdf(
