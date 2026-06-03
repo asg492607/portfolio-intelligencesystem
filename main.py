@@ -424,10 +424,14 @@ async def get_report(job_id: str, db: Session = Depends(get_db)):
     }
 
 @app.get("/")
-@app.head("/")
 async def get_index():
     """Serves the frontend homepage index.html."""
     if os.path.exists("index.html"):
         return FileResponse("index.html")
     else:
         raise HTTPException(status_code=404, detail="Frontend index.html not found")
+
+@app.head("/")
+async def head_index():
+    """Serves HEAD requests for root path to support Render health checks."""
+    return None
