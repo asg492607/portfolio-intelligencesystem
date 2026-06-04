@@ -28,11 +28,17 @@ def run_heuristic_analysis(text: str, filename: str, images: list = None) -> dic
     text_lower = text.lower()
 
     # ── Skill detection ─────────────────────────────────────────────────────────
-    detected = {"design_tool": [], "dev_tool": [], "methodology": [], "soft_skill": []}
+    detected = {"design_tools": [], "methodologies_and_processes": [], "soft_skills": []}
     for cat, list_of_words in TECH_KEYWORDS.items():
         for word in list_of_words:
             if word in text_lower or (word == "git" and re.search(r'\bgit\b', text_lower)):
-                detected[cat].append(word.title() if len(word) > 3 else word.upper())
+                val = word.title() if len(word) > 3 else word.upper()
+                if cat in ["design_tool", "dev_tool"]:
+                    detected["design_tools"].append(val)
+                elif cat == "methodology":
+                    detected["methodologies_and_processes"].append(val)
+                elif cat == "soft_skill":
+                    detected["soft_skills"].append(val)
 
     # ── Design artifact detection ────────────────────────────────────────────────
     artifacts_found = []
@@ -62,7 +68,7 @@ def run_heuristic_analysis(text: str, filename: str, images: list = None) -> dic
                     "timeline": "3 Months",
                     "team_size": "Team of 4",
                     "details": "Heuristically extracted project case study from text content.",
-                    "technologies": detected["design_tool"][:2] + detected["dev_tool"][:2],
+                    "technologies": detected["design_tools"][:2],
                     "challenges": "Optimizing user experience journeys and aligning system components.",
                     "outcomes": "Successful implementation and positive stakeholder alignment.",
                     "images": p_images
@@ -77,8 +83,7 @@ def run_heuristic_analysis(text: str, filename: str, images: list = None) -> dic
             "timeline": "1 Month",
             "team_size": "Solo Project",
             "details": "Extracted project from portfolio content.",
-            "technologies": detected["design_tool"][:2] + detected["dev_tool"][:2],
-            "challenges": "Solving design architecture and technical integration challenges.",
+            "technologies": detected["design_tools"][:2],
             "outcomes": "Demonstrated technical skills and creative execution.",
             "images": flat_images[:3]
         })
@@ -123,7 +128,7 @@ def run_heuristic_analysis(text: str, filename: str, images: list = None) -> dic
     detected_strengths = [s.title() for s in strengths_list if s in text_lower]
 
     # Tools flat list (Design + Dev tools combined)
-    flat_tools = detected["design_tool"] + detected["dev_tool"]
+    flat_tools = detected["design_tools"]
 
     # ── Clean report structure ──────────────────────────────────────────────────
     report = {
@@ -133,7 +138,7 @@ def run_heuristic_analysis(text: str, filename: str, images: list = None) -> dic
         "full_name": guessed_name,
         "headline": guessed_headline,
         "summary": guessed_summary,
-        "target_roles": target_roles,
+        "target_roles": target_roles[:3],
         "years_experience": years_experience,
         "industries": detected_industries,
         "strengths": detected_strengths,
