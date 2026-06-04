@@ -1823,11 +1823,18 @@
         function switchSourceTab(tabId) {
             // Update active button styling
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            const suffix = tabId.replace('tab-', '');
+            const btnEl = document.getElementById(`tab-btn-${suffix}`);
+            if (btnEl) {
+                btnEl.classList.add('active');
+            }
 
             // Toggle active input tabs
             document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
+            const contentEl = document.getElementById(tabId);
+            if (contentEl) {
+                contentEl.classList.add('active');
+            }
 
             // Reset selection state
             clearSelectedSource();
@@ -2055,7 +2062,7 @@
 
         // Poll API for background worker updates
         function pollBackendStatus(jobId) {
-            let dots = "";
+            let loggedProcessing = false;
             let timer = setInterval(async () => {
                 try {
                     const response = await fetch(`/api/v1/report/${jobId}`);
@@ -2065,7 +2072,10 @@
                         updateStepStatus('step-extract', 'active', 'Running...');
                         updateStepStatus('step-understand', 'active', 'Running...');
                         updateStepStatus('step-modules', 'active', 'Running...');
-                        addLog("Running text-extract parsing, S3 cloud storage, and building Qdrant vectors...", "system");
+                        if (!loggedProcessing) {
+                            addLog("Running text-extract parsing, S3 cloud storage, and building Qdrant vectors...", "system");
+                            loggedProcessing = true;
+                        }
                     } else if (data.status === "completed") {
                         clearInterval(timer);
                         
