@@ -252,7 +252,24 @@ async def submit_match_feedback(job_id: str, payload: FeedbackRequest, db: Sessi
     print(f"Feedback collected! ID: {feedback_id}, Job: {job_id}, Rating: {payload.rating}/5")
     return {"status": "success", "feedback_id": feedback_id}
 
+@app.get("/api/v1/feedbacks")
+async def get_all_feedbacks(db: Session = Depends(get_db)):
+    """API endpoint to retrieve all collected candidate feedbacks for quality training analysis."""
+    feedbacks = db.query(models.Feedback).order_by(models.Feedback.created_at.desc()).all()
+    return [
+        {
+            "id": f.id,
+            "job_id": f.job_id,
+            "match_job_id": f.match_job_id,
+            "rating": f.rating,
+            "comment": f.comment,
+            "created_at": f.created_at.isoformat() if f.created_at else None
+        }
+        for f in feedbacks
+    ]
+
 @app.post("/api/v1/report/{job_id}/match")
+
 async def match_custom_job(job_id: str, payload: MatchRequest, db: Session = Depends(get_db)):
 
     """API endpoint to dynamically match a candidate profile against a custom job description using Ollama."""
