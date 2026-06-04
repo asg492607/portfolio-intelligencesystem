@@ -226,8 +226,35 @@ def compute_job_match(portfolio: dict, job: dict) -> dict:
 class MatchRequest(BaseModel):
     job_description: str
 
+class FeedbackRequest(BaseModel):
+    match_job_id: str
+    rating: int
+    comment: str = None
+
+@app.post("/api/v1/report/{job_id}/match/feedback")
+async def submit_match_feedback(job_id: str, payload: FeedbackRequest, db: Session = Depends(get_db)):
+    """API endpoint to collect user rating and comments on match quality."""
+    db_job = db.query(models.Job).filter(models.Job.id == job_id).first()
+    if not db_job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    feedback_id = str(uuid.uuid4())
+    db_feedback = models.Feedback(
+        id=feedback_id,
+        job_id=job_id,
+        match_job_id=payload.match_job_id,
+        rating=payload.rating,
+        comment=payload.comment
+    )
+    db.add(db_feedback)
+    db.commit()
+    
+    print(f"Feedback collected! ID: {feedback_id}, Job: {job_id}, Rating: {payload.rating}/5")
+    return {"status": "success", "feedback_id": feedback_id}
+
 @app.post("/api/v1/report/{job_id}/match")
 async def match_custom_job(job_id: str, payload: MatchRequest, db: Session = Depends(get_db)):
+
     """API endpoint to dynamically match a candidate profile against a custom job description using Ollama."""
     db_job = db.query(models.Job).filter(models.Job.id == job_id).first()
     if not db_job:

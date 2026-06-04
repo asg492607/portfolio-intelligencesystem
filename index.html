@@ -1597,6 +1597,25 @@
                             <strong style="font-size: 0.8rem; color: var(--amber); display: block; margin-bottom: 0.4rem;"><i class="fa-solid fa-lightbulb"></i> Optimization Recommendations</strong>
                             <ul id="custom-match-advice" style="font-size: 0.82rem; color: var(--text-muted); padding-left: 1.2rem; margin: 0; display: flex; flex-direction: column; gap: 0.3rem;"></ul>
                         </div>
+                        
+                        <!-- Custom Match Feedback Section -->
+                        <div id="custom-feedback-container" style="border-top: 1px dashed var(--border-color); padding-top: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <strong style="font-size: 0.8rem; color: var(--text-light);"><i class="fa-solid fa-star-half-stroke" style="color: var(--amber);"></i> Rate Match Quality</strong>
+                                <div class="stars-rating-custom" style="display: flex; gap: 0.3rem;">
+                                    <i class="fa-regular fa-star star-custom-btn" data-value="1" style="cursor: pointer; color: var(--amber); font-size: 1rem;" onclick="setCustomRating(1)"></i>
+                                    <i class="fa-regular fa-star star-custom-btn" data-value="2" style="cursor: pointer; color: var(--amber); font-size: 1rem;" onclick="setCustomRating(2)"></i>
+                                    <i class="fa-regular fa-star star-custom-btn" data-value="3" style="cursor: pointer; color: var(--amber); font-size: 1rem;" onclick="setCustomRating(3)"></i>
+                                    <i class="fa-regular fa-star star-custom-btn" data-value="4" style="cursor: pointer; color: var(--amber); font-size: 1rem;" onclick="setCustomRating(4)"></i>
+                                    <i class="fa-regular fa-star star-custom-btn" data-value="5" style="cursor: pointer; color: var(--amber); font-size: 1rem;" onclick="setCustomRating(5)"></i>
+                                </div>
+                            </div>
+                            <div id="custom-comment-area" style="display: none; flex-direction: column; gap: 0.5rem;">
+                                <textarea id="custom-feedback-comment" placeholder="What was good/bad about this match?" style="width: 100%; height: 50px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-light); padding: 0.4rem; font-size: 0.8rem; font-family: inherit; outline: none; resize: none;"></textarea>
+                                <button class="btn-primary" style="align-self: flex-end; padding: 0.3rem 0.8rem; font-size: 0.75rem;" onclick="submitCustomFeedback()">Submit Feedback</button>
+                            </div>
+                            <div id="custom-feedback-thanks" style="display: none; font-size: 0.8rem; color: var(--emerald); font-weight: 600;"><i class="fa-solid fa-check-double"></i> Thank you! Your feedback helps train our matching engine.</div>
+                        </div>
                     </div>
                 </div>
 
@@ -2141,12 +2160,35 @@
             document.getElementById('dash-meta-date').textContent = new Date(jobReportData.generated_at).toLocaleDateString();
 
             // Skills Matrix
-            const skillsData = jobReportData.skills || { design_tool: [], dev_tool: [], methodology: [], soft_skill: [] };
-            const designTools = [...(skillsData.design_tool || []), ...(jobReportData.tools || [])];
-            const uniqueDesignTools = [...new Set(designTools)];
+            const skillsData = jobReportData.skills || { design_tools: [], methodologies_and_processes: [], soft_skills: [] };
+            const designTools = [
+                ...(skillsData.design_tools || []), 
+                ...(skillsData.design_tool || []), 
+                ...(jobReportData.tools || [])
+            ];
+            
+            // Aggregate technology tags from individual projects
+            const projects = jobReportData.projects || [];
+            projects.forEach(proj => {
+                if (proj.technologies && Array.isArray(proj.technologies)) {
+                    proj.technologies.forEach(tech => {
+                        designTools.push(tech);
+                    });
+                }
+            });
+            
+            // Deduplicate and clean up
+            const uniqueDesignTools = [...new Set(designTools)]
+                .map(s => String(s).trim())
+                .filter(s => s.length > 0);
             
             renderSkillsCol('skills-advanced-box', uniqueDesignTools);
-            renderSkillsCol('skills-beginner-box', [...(skillsData.methodology || []), ...(skillsData.soft_skill || [])]);
+            renderSkillsCol('skills-beginner-box', [
+                ...(skillsData.methodologies_and_processes || []), 
+                ...(skillsData.methodology || []), 
+                ...(skillsData.soft_skills || []), 
+                ...(skillsData.soft_skill || [])
+            ]);
 
             // Design Artifacts Panel
             const da = jobReportData.design_artifacts || {};
@@ -2303,6 +2345,25 @@
                         <div style="display:flex; flex-direction:column; gap:0.3rem; border-top:1px solid var(--border-color); padding-top:0.5rem; margin-top:0.2rem;">
                             <span style="font-size:0.75rem; color:var(--emerald); line-height: 1.4;"><strong>Matched:</strong> ${match.matched_skills.slice(0, 4).join(', ') || 'None'}</span>
                             <span style="font-size:0.75rem; color:var(--text-dark); line-height: 1.4;"><strong>Missing:</strong> ${match.missing_skills.slice(0, 4).join(', ') || 'None'}</span>
+                        </div>
+                        
+                        <!-- Feedback Loop Rating interface -->
+                        <div id="feedback-container-${match.job_id}" style="margin-top: 0.5rem; border-top: 1px dashed var(--border-color); padding-top: 0.5rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 0.72rem; color: var(--text-dark);">Rate Match Quality:</span>
+                                <div class="stars-rating" data-job-id="${match.job_id}" style="display: flex; gap: 0.2rem;">
+                                    <i class="fa-regular fa-star star-btn-${match.job_id}" data-value="1" style="cursor: pointer; color: var(--amber); font-size: 0.8rem;" onclick="setRating('${match.job_id}', 1)"></i>
+                                    <i class="fa-regular fa-star star-btn-${match.job_id}" data-value="2" style="cursor: pointer; color: var(--amber); font-size: 0.8rem;" onclick="setRating('${match.job_id}', 2)"></i>
+                                    <i class="fa-regular fa-star star-btn-${match.job_id}" data-value="3" style="cursor: pointer; color: var(--amber); font-size: 0.8rem;" onclick="setRating('${match.job_id}', 3)"></i>
+                                    <i class="fa-regular fa-star star-btn-${match.job_id}" data-value="4" style="cursor: pointer; color: var(--amber); font-size: 0.8rem;" onclick="setRating('${match.job_id}', 4)"></i>
+                                    <i class="fa-regular fa-star star-btn-${match.job_id}" data-value="5" style="cursor: pointer; color: var(--amber); font-size: 0.8rem;" onclick="setRating('${match.job_id}', 5)"></i>
+                                </div>
+                            </div>
+                            <div id="comment-area-${match.job_id}" style="display: none; flex-direction: column; gap: 0.35rem;">
+                                <textarea id="feedback-comment-${match.job_id}" placeholder="How can we make this match more accurate?" style="width: 100%; height: 40px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-light); padding: 0.3rem; font-size: 0.72rem; font-family: inherit; outline: none; resize: none;"></textarea>
+                                <button class="btn-primary" style="padding: 0.2rem 0.5rem; font-size: 0.68rem; align-self: flex-end;" onclick="submitFeedback('${match.job_id}')">Submit Feedback</button>
+                            </div>
+                            <div id="feedback-thanks-${match.job_id}" style="display: none; font-size: 0.72rem; color: var(--emerald); text-align: right;"><i class="fa-solid fa-check"></i> Feedback saved!</div>
                         </div>
                     `;
                     matchesGrid.appendChild(matchCard);
@@ -2465,6 +2526,17 @@
                         adviceBox.innerHTML = '<li>No recommendations required.</li>';
                     }
 
+                    // Reset custom feedback form state
+                    activeCustomRating = 0;
+                    const customStars = document.querySelectorAll('.star-custom-btn');
+                    customStars.forEach((star, idx) => {
+                        star.className = 'fa-regular fa-star star-custom-btn';
+                        star.setAttribute('onclick', `setCustomRating(${idx + 1})`);
+                    });
+                    document.getElementById('custom-feedback-comment').value = '';
+                    document.getElementById('custom-comment-area').style.display = 'none';
+                    document.getElementById('custom-feedback-thanks').style.display = 'none';
+
                     resultsBox.style.display = 'flex';
                 } else {
                     const err = await response.json();
@@ -2478,7 +2550,120 @@
             }
         }
 
+        // Feedback loop state trackers
+        const activeRatings = {};
+        let activeCustomRating = 0;
+
+        function setRating(jobId, rating) {
+            activeRatings[jobId] = rating;
+            
+            // Highlight stars
+            const stars = document.querySelectorAll(`.star-btn-${jobId}`);
+            stars.forEach(star => {
+                const val = parseInt(star.getAttribute('data-value'));
+                if (val <= rating) {
+                    star.className = `fa-solid fa-star star-btn-${jobId}`;
+                } else {
+                    star.className = `fa-regular fa-star star-btn-${jobId}`;
+                }
+            });
+            
+            // Show comment field & submit button
+            document.getElementById(`comment-area-${jobId}`).style.display = 'flex';
+        }
+
+        async function submitFeedback(jobId) {
+            const rating = activeRatings[jobId] || 0;
+            const comment = document.getElementById(`feedback-comment-${jobId}`).value;
+            
+            if (rating === 0) {
+                alert("Please select a rating first.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/v1/report/${activeJobId}/match/feedback`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        match_job_id: jobId,
+                        rating: rating,
+                        comment: comment
+                    })
+                });
+
+                if (response.ok) {
+                    document.getElementById(`comment-area-${jobId}`).style.display = 'none';
+                    document.getElementById(`feedback-thanks-${jobId}`).style.display = 'block';
+                    
+                    // Disable stars click
+                    const stars = document.querySelectorAll(`.star-btn-${jobId}`);
+                    stars.forEach(star => star.removeAttribute('onclick'));
+                } else {
+                    alert("Failed to submit feedback.");
+                }
+            } catch (e) {
+                alert("Error sending feedback: " + e.message);
+            }
+        }
+
+        function setCustomRating(rating) {
+            activeCustomRating = rating;
+            
+            // Highlight custom stars
+            const stars = document.querySelectorAll('.star-custom-btn');
+            stars.forEach(star => {
+                const val = parseInt(star.getAttribute('data-value'));
+                if (val <= rating) {
+                    star.className = 'fa-solid fa-star star-custom-btn';
+                } else {
+                    star.className = 'fa-regular fa-star star-custom-btn';
+                }
+            });
+            
+            document.getElementById('custom-comment-area').style.display = 'flex';
+        }
+
+        async function submitCustomFeedback() {
+            const rating = activeCustomRating;
+            const comment = document.getElementById('custom-feedback-comment').value;
+            
+            if (rating === 0) {
+                alert("Please select a rating first.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/v1/report/${activeJobId}/match/feedback`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        match_job_id: 'custom_job',
+                        rating: rating,
+                        comment: comment
+                    })
+                });
+
+                if (response.ok) {
+                    document.getElementById('custom-comment-area').style.display = 'none';
+                    document.getElementById('custom-feedback-thanks').style.display = 'block';
+                    
+                    const stars = document.querySelectorAll('.star-custom-btn');
+                    stars.forEach(star => star.removeAttribute('onclick'));
+                } else {
+                    alert("Failed to submit feedback.");
+                }
+            } catch (e) {
+                alert("Error sending feedback: " + e.message);
+            }
+        }
+
         // Export JSON payload
+
         function downloadJSONReport() {
             if (!jobReportData) return;
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jobReportData, null, 2));
