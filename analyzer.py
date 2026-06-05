@@ -256,11 +256,11 @@ def run_ai_analysis(text: str, filename: str, images: list = None, links: list =
       "industries": ["list of industries they worked in or design for"],
       "strengths": ["list of candidate's core strengths/qualities"],
       "tools": ["list of tools/technologies mentioned in the portfolio"],
-      "skills": {
+      "skills": {{
         "design_tools": ["Design software, tools, and visual technical capabilities (e.g. Figma, Sketch, Photoshop, Illustrator, Procreate). Extract these by deeply analyzing the projects, work scopes, and layouts described below."],
         "methodologies_and_processes": ["Design methodologies, frameworks, UX research methods, design thinking, and workflow processes (e.g. User Research, Wireframing, Prototyping, Usability Testing). Extract these by analyzing their project case studies below."],
         "soft_skills": ["Demonstrated soft skills (e.g. Team Collaboration, Leadership, Problem Solving) extracted from project descriptions and teamwork context."]
-      },
+      }},
       "design_artifacts": {{
         "artifacts_found": ["identified design artifacts e.g. wireframes, mockups, case studies, user flows, prototypes, design systems, style guides"],
         "artifacts_missing": ["expected design artifacts not found in the content"]
