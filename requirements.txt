@@ -14,3 +14,6 @@ boto3>=1.26.0
 pillow>=9.5.0
 psycopg2-binary>=2.9.0
 python-dotenv>=1.0.0
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+rank-bm25>=0.2.2

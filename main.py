@@ -496,3 +496,78 @@ async def get_index():
 async def head_index():
     """Serves HEAD requests for root path to support Render health checks."""
     return None
+
+# ==========================================
+# Student Matchmaking Service Pod Integration
+# ==========================================
+from fastapi import Header
+from matchmaking.schemas import (
+    IngestResponse,
+    JobIngestRequest,
+    MatchRequest,
+    MatchResponse,
+    PortfolioIngestRequest,
+)
+
+_matching_engine = None
+
+def get_matching_engine():
+    global _matching_engine
+    if _matching_engine is None:
+        try:
+            from matchmaking.config import load_settings
+            from matchmaking.services.store import ChromaRepository
+            from matchmaking.services.embedding import get_embedding_service
+            from matchmaking.services.hybrid_search import HybridSearchEngine
+            
+            m_settings = load_settings()
+            m_repo = ChromaRepository(m_settings)
+            m_embedder = get_embedding_service(m_settings.embedding_model_name)
+            _matching_engine = HybridSearchEngine(settings=m_settings, repo=m_repo, embedder=m_embedder)
+            print("Matchmaking Hybrid Search Engine initialized successfully.")
+        except Exception as e:
+            print(f"Failed to initialize Matchmaking Hybrid Search Engine: {e}")
+            raise HTTPException(
+                status_code=503,
+                detail=f"Matchmaking engine is currently unavailable: {str(e)}"
+            )
+    return _matching_engine
+
+def require_matching_api_key(x_api_key: str = Header(default="")):
+    from matchmaking.config import load_settings
+    m_settings = load_settings()
+    if m_settings.api_key and x_api_key != m_settings.api_key:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid API key",
+        )
+
+@app.post("/v1/portfolios", response_model=IngestResponse, dependencies=[Depends(require_matching_api_key)])
+def ingest_portfolio(payload: PortfolioIngestRequest):
+    engine = get_matching_engine()
+    record_id = engine.ingest_portfolio(payload)
+    return IngestResponse(status="stored", id=record_id)
+
+@app.post("/v1/jobs", response_model=IngestResponse, dependencies=[Depends(require_matching_api_key)])
+def ingest_job(payload: JobIngestRequest):
+    engine = get_matching_engine()
+    record_id = engine.ingest_job(payload)
+    return IngestResponse(status="stored", id=record_id)
+
+@app.post("/v1/match", response_model=MatchResponse, dependencies=[Depends(require_matching_api_key)])
+def match_jobs_v1(payload: MatchRequest):
+    engine = get_matching_engine()
+    query_text, results = engine.match(payload)
+    return MatchResponse(
+        status="ok",
+        query_text=query_text,
+        total_candidates=len(results),
+        results=results,
+    )
+
+@app.post("/v1/refresh-jobs", dependencies=[Depends(require_matching_api_key)])
+def refresh_jobs_index():
+    engine = get_matching_engine()
+    engine.refresh_job_cache()
+    return {"status": "refreshed"}
+
